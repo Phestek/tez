@@ -5,6 +5,11 @@ set(CMAKE_CXX_FLAGS "-std=c++1z -Wall -Wextra -pedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g3 -DDEBUG=1")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG -DDEBUG=0")
 
+if(NOT CMAKE_BUILD_TYPE)
+    message(WARNING "Build type not set; using debug.")
+    set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
 set(SRC_FILES
         src/main.cc
         src/lexer.cc src/lexer.h)

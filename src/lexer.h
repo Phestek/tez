@@ -11,16 +11,16 @@ enum class token_type {
     
     integer,
     real_number,
-    unary_operator,
-    binary_operator,
+    operat,     // operator is reserved keyword NotLikeThis
 
     parenthesis,
     brace
 };
 
 struct token {
-    token_type  type;
-    std::string value;
+    token_type   type;
+    std::string  value;
+    unsigned int line;
 };
 
 class lexer {
@@ -36,7 +36,7 @@ private:
 
     unsigned int _current_char = 0;
     unsigned int _lines_count = 1;
-    unsigned int _columns_count = 1;
+    // TODO: unsigned int _columns_count = 1;
 };
 
 }
