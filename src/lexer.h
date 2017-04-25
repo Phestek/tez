@@ -27,12 +27,17 @@ class lexer {
 public:
     // Default constructor.
     lexer(const std::string& wayward_source);
-    
+
     // Create tokens from given source code.
     std::vector<token> tokenize();
 
 private:
+    void push_operator(char c);
+    void push_number(char c);
+    void push_identifier(char c);
+
     const std::string& _wayward_source;
+    std::vector<token> _tokens;
 
     unsigned int _current_char = 0;
     unsigned int _lines_count = 1;
