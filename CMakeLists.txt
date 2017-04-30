@@ -12,7 +12,9 @@ endif()
 
 set(SRC_FILES
         src/main.cc
-        src/lexer.cc src/lexer.h)
+        src/ast.h
+        src/lexer.cc src/lexer.h
+        src/parser.cc src/parser.h)
 add_executable(waywardc ${SRC_FILES})
 target_include_directories(waywardc PUBLIC src)
 
@@ -20,7 +22,8 @@ enable_testing()
 set(TEST_FILES
         ${SRC_FILES}
         test/main.cc
-        test/lexer_test.cc)
+        test/lexer_test.cc
+        test/parser_test.cc)
 list(REMOVE_ITEM TEST_FILES src/main.cc)
 add_executable(waywardc_tests ${TEST_FILES})
 add_test(

@@ -11,10 +11,12 @@ enum class token_type {
     
     integer,
     real_number,
-    operat,     // operator is reserved keyword NotLikeThis
+    operat,         // operator is reserved keyword NotLikeThis
 
     parenthesis,
-    brace
+    brace,
+
+    eof         
 };
 
 struct token {

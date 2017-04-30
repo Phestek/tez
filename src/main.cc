@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "lexer.h"
+#include "parser.h"
 
 void print_usage() {
     std::cout << "Usage:\n"
@@ -32,10 +32,10 @@ std::string read_file_content(const std::string& filename) {
 // errors. TODO: What about warnings?
 bool compile(const std::string& input_file) {
     auto wayward_source = read_file_content(input_file);
-
     wayward::lexer lexer{wayward_source};
     auto tokens = lexer.tokenize();
-
+    wayward::parser parser{tokens};
+    auto ast = parser.parse();
     return true;
 }
 

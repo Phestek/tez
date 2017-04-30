@@ -11,7 +11,6 @@ lexer::lexer(const std::string& wayward_source)
 
 std::vector<token> lexer::tokenize() {
     _tokens.clear();
-    
     while(_current_char < _wayward_source.length()) {
         char c = _wayward_source.at(_current_char);
         
@@ -23,7 +22,7 @@ std::vector<token> lexer::tokenize() {
             ++_current_char;
             continue;
         }
-        
+
         if(std::ispunct(c)) {
             push_operator(c);
             continue;
@@ -42,7 +41,7 @@ std::vector<token> lexer::tokenize() {
         throw std::invalid_argument{"Unexpected character \"" + std::string{c}
                 + "\" at line " + std::to_string(_lines_count) + "."};
     }
-
+    _tokens.push_back({token_type::eof, "", _lines_count});
     return _tokens;
 }
 
