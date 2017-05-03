@@ -30,7 +30,7 @@ private:
     
     token peek_token(unsigned int depth = 1);
 
-    std::shared_ptr<ast_function_declaration> parse_function();
+    std::unique_ptr<ast_function_declaration> parse_function();
     void parse_variable();
     void parse_constant();
 

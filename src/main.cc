@@ -30,13 +30,12 @@ std::string read_file_content(const std::string& filename) {
 
 // Returns true if compilation was successful and false if there were any
 // errors. TODO: What about warnings?
-bool compile(const std::string& input_file) {
+void compile(const std::string& input_file) {
     auto wayward_source = read_file_content(input_file);
     wayward::lexer lexer{wayward_source};
     auto tokens = lexer.tokenize();
     wayward::parser parser{tokens};
     auto ast = parser.parse();
-    return true;
 }
 
 int main(int argc, char* argv[]) {
@@ -44,7 +43,12 @@ int main(int argc, char* argv[]) {
         print_usage();
     } else if(argc == 2) {
         // TODO: Validate file extension (*.wwd?).
-        return compile(argv[1]) ? 0 : 1;
+        try {
+            compile(argv[1]);
+        } catch(const std::invalid_argument& e) {
+            std::cout << e.what() << "\n";
+            return 1;
+        }
     } else {
         std::cout << "More than one file compilation and switches are not "
                 "supported yet.\n";

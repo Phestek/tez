@@ -46,6 +46,8 @@ private:
     // TODO: unsigned int _columns_count = 1;
 };
 
+std::string to_string(token_type token_type);
+
 }
 
 #endif //WAYWARD_LEXER_H

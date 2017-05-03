@@ -37,7 +37,8 @@ token parser::next_token() {
 token parser::next_token(token_type type) {
     auto token = _tokens.at(_current_token++);
     if(token.type != type) {
-        throw std::invalid_argument{"Token type check failed."};
+        throw std::invalid_argument{"Token type check failed. Expected: "
+                + to_string(type) + ", got " + to_string(token.type) + "."};
     }
     return token;
 }
@@ -45,9 +46,11 @@ token parser::next_token(token_type type) {
 token parser::next_token(token_type type, const std::string& value) {
     auto token = _tokens.at(_current_token++);
     if(token.type != type) {
-        throw std::invalid_argument{"Token type check failed."};
+        throw std::invalid_argument{"Token type check failed. Expected: "
+                + to_string(type) + ", got " + to_string(token.type) + "."};
     } else if(token.value != value) {
-        throw std::invalid_argument{"Token value check failed."};
+        throw std::invalid_argument{"Token value check failed. Expected: \""
+                + value + "\", got \"" + token.value + "\"."};
     }
     return token;
 }
@@ -60,29 +63,23 @@ token parser::current_token() const {
     return _tokens.at(_current_token);
 }
 
-std::shared_ptr<ast_function_declaration> parser::parse_function() {
-    auto name = next_token(token_type::identifier).value;
+std::unique_ptr<ast_function_declaration> parser::parse_function() {
+    auto func_decl = std::make_unique<ast_function_declaration>();
+    func_decl->name = next_token(token_type::identifier).value;
     next_token(token_type::parenthesis, "(");
-    // TODO: Function parameters.
-    next_token(token_type::parenthesis, ")");
-    next_token(token_type::operat, "->");
-    auto return_type = next_token(token_type::identifier).value;
-    next_token(token_type::brace, "{");
-    ast_block body;
-    while(current_token().type != token_type::brace
-            && current_token().value != "}") {
-        // Parse, parse, parse!
-        next_token();   // TODO: Temporary.
+    while(true) {
+        auto token = next_token();
+        if(token.type == token_type::parenthesis) {
+            if(token.value == ")") {
+                break;
+            } else {
+                throw;
+            }
+        }
     }
-    return std::make_shared<ast_function_declaration>(name, return_type, body);
-}
-
-void parser::parse_variable() {
-    std::cout << "var\n";
-}
-
-void parser::parse_constant() {
-    std::cout << "let\n";
+    next_token(token_type::operat, "->");
+    func_decl->return_type = next_token(token_type::identifier).value;
+    return func_decl;
 }
 
 }

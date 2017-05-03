@@ -114,5 +114,24 @@ void lexer::push_identifier(char c) {
     _tokens.push_back({token_type::identifier, word, _lines_count});
 }
 
+std::string to_string(token_type token_type) {
+    switch(token_type) {
+        case token_type::identifier:
+            return "identifier";
+        case token_type::integer:
+            return "integer";
+        case token_type::real_number:
+            return "real_number";
+        case token_type::operat:
+            return "operator";
+        case token_type::parenthesis:
+            return "parenthesis";
+        case token_type::brace:
+            return "brace";
+        case token_type::eof:
+            return "eof";
+    }
+}
+
 }
 
