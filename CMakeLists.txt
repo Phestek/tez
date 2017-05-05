@@ -11,25 +11,27 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(SRC_FILES
-        src/main.cc
         src/ast.h
         src/lexer.cc src/lexer.h
         src/parser.cc src/parser.h)
-add_executable(waywardc ${SRC_FILES})
+add_library(waywardc_core STATIC ${SRC_FILES})
+
+add_executable(waywardc src/main.cc)
 target_include_directories(waywardc PUBLIC src)
+target_link_libraries(waywardc waywardc_core)
 
 enable_testing()
 set(TEST_FILES
-        ${SRC_FILES}
         test/main.cc
         test/lexer_test.cc
         test/parser_test.cc)
-list(REMOVE_ITEM TEST_FILES src/main.cc)
+
 add_executable(waywardc_tests ${TEST_FILES})
+target_include_directories(waywardc PRIVATE src)
 add_test(
         NAME    test_all_in_waywardc
         COMMAND waywardc_tests)
 find_package(GTest REQUIRED)
 target_include_directories(waywardc_tests PRIVATE src ${GTEST_INCLUDE_DIRS})
-target_link_libraries(waywardc_tests ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(waywardc_tests waywardc_core ${GTEST_BOTH_LIBRARIES})
 
