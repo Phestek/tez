@@ -1,9 +1,15 @@
 #include "lexer.h"
 
 #include <cctype>
+
 #include <stdexcept>
+#include <algorithm>
 
 namespace wayward {
+
+const std::array<std::string, 3> lexer::_keywords {
+    "func", "var", "let"
+};
 
 lexer::lexer(const std::string& wayward_source)
         : _wayward_source{wayward_source} {
@@ -13,7 +19,7 @@ std::vector<token> lexer::tokenize() {
     _tokens.clear();
     while(_current_char < _wayward_source.length()) {
         char c = _wayward_source.at(_current_char);
-        
+
         if(c == '\n') {
             ++_lines_count;
             //_columns_count = 1;
@@ -111,26 +117,34 @@ void lexer::push_identifier(char c) {
             break;
         }
     }
-    _tokens.push_back({token_type::identifier, word, _lines_count});
+    if(std::find(_keywords.begin(), _keywords.end(), word) != _keywords.end()) {
+        _tokens.push_back({token_type::keyword, word, _lines_count});
+    } else {
+        _tokens.push_back({token_type::identifier, word, _lines_count});
+    }
 }
 
 std::string to_string(token_type token_type) {
+    std::string result{};
     switch(token_type) {
         case token_type::identifier:
-            return "identifier";
+            result = "identifier";
+        case token_type::keyword:
+            result = "keyword";
         case token_type::integer:
-            return "integer";
+            result = "integer";
         case token_type::real_number:
-            return "real_number";
+            result = "real_number";
         case token_type::operat:
-            return "operator";
+            result = "operator";
         case token_type::parenthesis:
-            return "parenthesis";
+            result = "parenthesis";
         case token_type::brace:
-            return "brace";
+            result = "brace";
         case token_type::eof:
-            return "eof";
+            result = "eof";
     }
+    return result;
 }
 
 }

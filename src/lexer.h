@@ -2,13 +2,15 @@
 #define WAYWARD_LEXER_H
 
 #include <string>
+#include <array>
 #include <vector>
 
 namespace wayward {
 
 enum class token_type {
     identifier,
-    
+    keyword,
+
     integer,
     real_number,
     operat,         // operator is reserved keyword NotLikeThis
@@ -16,7 +18,7 @@ enum class token_type {
     parenthesis,
     brace,
 
-    eof         
+    eof
 };
 
 struct token {
@@ -44,6 +46,8 @@ private:
     unsigned int _current_char = 0;
     unsigned int _lines_count = 1;
     // TODO: unsigned int _columns_count = 1;
+    
+    static const std::array<std::string, 3> _keywords;
 };
 
 std::string to_string(token_type token_type);

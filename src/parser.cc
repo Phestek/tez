@@ -12,9 +12,13 @@ parser::parser(const std::vector<token>& tokens)
 
 ast_program parser::parse() {
     ast_program program;
-    for(token token; token.type != token_type::eof; token = next_token()) {
+    for(token token = next_token(); token.type != token_type::eof;
+            token = next_token()) {
         switch(token.type) {
-            case token_type::identifier:
+            case token_type::eof:
+                std::cout << "EOF FOUND!\n";
+                break;
+            case token_type::keyword:
                 if(token.value == "func") {
                     program.nodes.push_back(parse_function());
                 } else if(token.value == "var") {
@@ -24,7 +28,7 @@ ast_program parser::parse() {
                 }
                 break;
             default:
-                ;//throw;
+                throw std::invalid_argument{"lel"};
         }
     }
     return program;
@@ -73,12 +77,14 @@ std::unique_ptr<ast_function_declaration> parser::parse_function() {
             if(token.value == ")") {
                 break;
             } else {
-                throw;
+                token = next_token();
             }
         }
     }
     next_token(token_type::operat, "->");
     func_decl->return_type = next_token(token_type::identifier).value;
+    next_token(token_type::brace, "{");
+    next_token(token_type::brace, "}");
     return func_decl;
 }
 

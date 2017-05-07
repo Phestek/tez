@@ -7,12 +7,12 @@
 #include "ast.h"
 #include "lexer.h"
 
-namespace wayward { 
+namespace wayward {
 
 class parser {
 public:
     parser(const std::vector<token>& tokens);
-    
+
     ast_program parse();
 
 private:
@@ -24,10 +24,10 @@ private:
 
     // Get next token and validate its both type and value.
     token next_token(token_type type, const std::string& value);
-    
+
     // Get current token.
     token current_token() const;
-    
+
     token peek_token(unsigned int depth = 1);
 
     std::unique_ptr<ast_function_declaration> parse_function();
