@@ -33,8 +33,7 @@ private:
     ast_node_ptr parse_expression(const token& token);
     std::unique_ptr<ast_function_declaration> parse_function();
     std::unique_ptr<ast_function_parameter> parse_function_parameter(token token);
-    void parse_variable();
-    void parse_constant();
+    std::unique_ptr<ast_variable_declaration> parse_variable(bool constant);
 
     const std::vector<token>& _tokens;  // Vector of tokens to parse.
     unsigned int _current_token = 0;    // Current token counter.

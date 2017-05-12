@@ -80,11 +80,12 @@ struct ast_function_declaration final : ast_node {
     ast_block                           body;
 };
 
-/*struct ast_variable_declaration final : ast_node {
+struct ast_variable_declaration final : ast_node {
+    bool         constant;
     std::string  name;
     std::string  type;
     ast_node_ptr initializer;
-};*/
+};
 
 }
 

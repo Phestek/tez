@@ -59,8 +59,10 @@ ast_node_ptr parser::parse_expression(const token& token) {
             node = parse_function();
             break;
         case token_type::kw_var:
+            node = parse_variable(false);
             break;
         case token_type::kw_let:
+            node = parse_variable(true);
             break;
         default:
             throw std::invalid_argument{"Unexpected token \"" + token.value
@@ -101,6 +103,19 @@ std::unique_ptr<ast_function_parameter> parser::parse_function_parameter(token t
     }
     param->type = token.value;
     return param;
+}
+
+std::unique_ptr<ast_variable_declaration> parser::parse_variable(bool constant) {
+    std::unique_ptr<ast_variable_declaration> var_decl;
+    var_decl->constant = constant;
+    var_decl->name = next_token(token_type::identifier).value;
+    next_token(token_type::colon);
+    var_decl->type = next_token(token_type::identifier).value;
+    next_token(token_type::equals);
+    for(auto token = next_token(); token.type != token_type::semicolon;
+            token = next_token()) {
+    }
+    return var_decl;
 }
 
 }
