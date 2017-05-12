@@ -81,6 +81,9 @@ struct ast_function_declaration final : ast_node {
 };
 
 struct ast_variable_declaration final : ast_node {
+    ast_variable_declaration() {
+        node_type = ast_node_type::variable_declaration;
+    }
     bool         constant;
     std::string  name;
     std::string  type;

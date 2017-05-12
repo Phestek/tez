@@ -78,35 +78,36 @@ std::unique_ptr<ast_function_declaration> parser::parse_function() {
     next_token(token_type::l_paren);
     for(token token = next_token(); token.type != token_type::r_paren;
             token = next_token()) {
+        func_decl->params.push_back(parse_function_parameter(token));
     }
     next_token(token_type::arrow);
     func_decl->return_type = next_token(token_type::identifier).value;
     next_token(token_type::l_brace);
     for(auto token = next_token(); token.type != token_type::r_brace;
             token = next_token()) {
-        func_decl->body.nodes.push_back(parse_function_parameter(token));
+        func_decl->body.nodes.push_back(parse_expression(token));
     }
     return func_decl;
 }
 
-std::unique_ptr<ast_function_parameter> parser::parse_function_parameter(token token) {
-    std::unique_ptr<ast_function_parameter> param;
-    param->name = token.value;
+ast_function_parameter parser::parse_function_parameter(token token) {
+    ast_function_parameter param;
+    param.name = token.value;
     next_token(token_type::colon);
     token = next_token();
     if(token.type == token_type::kw_var) {
-        param->constant = false;
+        param.constant = false;
         token = next_token(token_type::identifier);
     }
     if(token.type != token_type::identifier) {
         throw std::invalid_argument{"expected id, got shit."};
     }
-    param->type = token.value;
+    param.type = token.value;
     return param;
 }
 
 std::unique_ptr<ast_variable_declaration> parser::parse_variable(bool constant) {
-    std::unique_ptr<ast_variable_declaration> var_decl;
+    auto var_decl = std::make_unique<ast_variable_declaration>();
     var_decl->constant = constant;
     var_decl->name = next_token(token_type::identifier).value;
     next_token(token_type::colon);
