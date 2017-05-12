@@ -17,14 +17,10 @@ TEST(lexer, braces_and_parentheses) {
     wayward::lexer lexer{input};
     auto output = lexer.tokenize();
 
-    ASSERT_EQ(output.at(0).type, wayward::token_type::parenthesis);
-    ASSERT_EQ(output.at(0).value, "(");
-    ASSERT_EQ(output.at(1).type, wayward::token_type::brace);
-    ASSERT_EQ(output.at(1).value, "{");
-    ASSERT_EQ(output.at(2).type, wayward::token_type::parenthesis);
-    ASSERT_EQ(output.at(2).value, ")");
-    ASSERT_EQ(output.at(3).type, wayward::token_type::brace);
-    ASSERT_EQ(output.at(3).value, "}");
+    ASSERT_EQ(output.at(0).type, wayward::token_type::l_paren);
+    ASSERT_EQ(output.at(1).type, wayward::token_type::l_brace);
+    ASSERT_EQ(output.at(2).type, wayward::token_type::r_paren);
+    ASSERT_EQ(output.at(3).type, wayward::token_type::r_brace);
 }
 
 TEST(lexer, operators) {
@@ -32,14 +28,10 @@ TEST(lexer, operators) {
     wayward::lexer lexer{input};
     auto output = lexer.tokenize();
 
-    ASSERT_EQ(output.at(0).type, wayward::token_type::operat);
-    ASSERT_EQ(output.at(0).value, "->");
-    ASSERT_EQ(output.at(1).type, wayward::token_type::operat);
-    ASSERT_EQ(output.at(1).value, "==");
-    ASSERT_EQ(output.at(2).type, wayward::token_type::operat);
-    ASSERT_EQ(output.at(2).value, "!=");
-    ASSERT_EQ(output.at(3).type, wayward::token_type::operat);
-    ASSERT_EQ(output.at(3).value, ">=");
+    ASSERT_EQ(output.at(0).type, wayward::token_type::arrow);
+    ASSERT_EQ(output.at(1).type, wayward::token_type::equals_equals);
+    ASSERT_EQ(output.at(2).type, wayward::token_type::bang_equals);
+    ASSERT_EQ(output.at(3).type, wayward::token_type::greater_equals);
 }
 
 TEST(lexer, integers) {

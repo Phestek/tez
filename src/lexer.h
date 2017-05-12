@@ -2,21 +2,54 @@
 #define WAYWARD_LEXER_H
 
 #include <string>
-#include <array>
 #include <vector>
+#include <map>
 
 namespace wayward {
 
 enum class token_type {
     identifier,
-    keyword,
 
     integer,
     real_number,
-    operat,         // operator is reserved keyword NotLikeThis
+    character,
+    string,
+    
+    kw_func,
+    kw_var,
+    kw_let,
+    kw_struct,
+    kw_class,
 
-    parenthesis,
-    brace,
+    l_brace,
+    r_brace,
+    l_paren,
+    r_paren,
+
+    plus,
+    minus,
+    multiply,
+    divide,
+    plus_equals,
+    minus_equals,
+    multiply_equals,
+    divide_equals,
+
+    bang,       // !
+    equals,
+    bang_equals,
+    equals_equals,
+    greater,
+    greater_equals,
+    less,
+    less_equals,
+
+    semicolon,
+    colon,
+    comma,
+    dot,
+    arrow,      // ->
+
 
     eof
 };
@@ -46,8 +79,9 @@ private:
     unsigned int _current_char = 0;
     unsigned int _lines_count = 1;
     // TODO: unsigned int _columns_count = 1;
-    
-    static const std::array<std::string, 3> _keywords;
+
+    static const std::map<std::string, token_type> _keywords;
+    static const std::map<std::string, token_type> _operators;
 };
 
 std::string to_string(token_type token_type);

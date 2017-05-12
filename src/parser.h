@@ -32,6 +32,7 @@ private:
     
     ast_node_ptr parse_expression(const token& token);
     std::unique_ptr<ast_function_declaration> parse_function();
+    std::unique_ptr<ast_function_parameter> parse_function_parameter(token token);
     void parse_variable();
     void parse_constant();
 

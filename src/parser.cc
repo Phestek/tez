@@ -55,17 +55,16 @@ token parser::current_token() const {
 ast_node_ptr parser::parse_expression(const token& token) {
     ast_node_ptr node;
     switch(token.type) {
-        case token_type::keyword:
-            if(token.value == "func") {
-                node = parse_function();
-            } else if(token.value == "var") {
-            } else if(token.value == "let") {
-            } else {
-                throw std::invalid_argument{"Unexpected keyword."};
-            }
+        case token_type::kw_func:
+            node = parse_function();
+            break;
+        case token_type::kw_var:
+            break;
+        case token_type::kw_let:
             break;
         default:
-            throw std::invalid_argument{"Unexpected token at line "
+            throw std::invalid_argument{"Unexpected token \"" + token.value
+                    + "\" of type " + to_string(token.type) + " at line "
                     + std::to_string(token.line) + "."};
     }
     return node;
@@ -74,24 +73,34 @@ ast_node_ptr parser::parse_expression(const token& token) {
 std::unique_ptr<ast_function_declaration> parser::parse_function() {
     auto func_decl = std::make_unique<ast_function_declaration>();
     func_decl->name = next_token(token_type::identifier).value;
-    next_token(token_type::parenthesis, "(");
-    while(true) {
-        auto token = next_token();
-        if(token.type == token_type::parenthesis) {
-            if(token.value == ")") {
-                break;
-            } else {
-                token = next_token();
-            }
-        }
+    next_token(token_type::l_paren);
+    for(token token = next_token(); token.type != token_type::r_paren;
+            token = next_token()) {
     }
-    next_token(token_type::operat, "->");
+    next_token(token_type::arrow);
     func_decl->return_type = next_token(token_type::identifier).value;
-    next_token(token_type::brace, "{");
-    for(auto token = next_token(); token.value != "}"; token = next_token()) {
-        func_decl->body.nodes.push_back(parse_expression(token));
+    next_token(token_type::l_brace);
+    for(auto token = next_token(); token.type != token_type::r_brace;
+            token = next_token()) {
+        func_decl->body.nodes.push_back(parse_function_parameter(token));
     }
     return func_decl;
+}
+
+std::unique_ptr<ast_function_parameter> parser::parse_function_parameter(token token) {
+    std::unique_ptr<ast_function_parameter> param;
+    param->name = token.value;
+    next_token(token_type::colon);
+    token = next_token();
+    if(token.type == token_type::kw_var) {
+        param->constant = false;
+        token = next_token(token_type::identifier);
+    }
+    if(token.type != token_type::identifier) {
+        throw std::invalid_argument{"expected id, got shit."};
+    }
+    param->type = token.value;
+    return param;
 }
 
 }

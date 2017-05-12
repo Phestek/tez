@@ -23,8 +23,7 @@ target_link_libraries(waywardc waywardc_core)
 enable_testing()
 set(TEST_FILES
         test/main.cc
-        test/lexer_test.cc
-        test/parser_test.cc)
+        test/lexer_test.cc)
 
 add_executable(waywardc_tests ${TEST_FILES})
 target_include_directories(waywardc PRIVATE src)
