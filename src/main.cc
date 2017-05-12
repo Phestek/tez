@@ -28,8 +28,6 @@ std::string read_file_content(const std::string& filename) {
     return content;
 }
 
-// Returns true if compilation was successful and false if there were any
-// errors. TODO: What about warnings?
 void compile(const std::string& input_file) {
     auto wayward_source = read_file_content(input_file);
     wayward::lexer lexer{wayward_source};
