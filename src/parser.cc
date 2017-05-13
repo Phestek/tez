@@ -26,8 +26,9 @@ token parser::next_token() {
 token parser::next_token(token_type type) {
     auto token = _tokens.at(_current_token++);
     if(token.type != type) {
-        throw std::invalid_argument{"Token type check failed. Expected: "
-                + to_string(type) + ", got " + to_string(token.type) + "."};
+        throw std::invalid_argument{"Token type check failed at line "
+                + std::to_string(token.line) + ". Expected: " + to_string(type)
+                + ", got " + to_string(token.type) + "."};
     }
     return token;
 }
@@ -35,11 +36,13 @@ token parser::next_token(token_type type) {
 token parser::next_token(token_type type, const std::string& value) {
     auto token = _tokens.at(_current_token++);
     if(token.type != type) {
-        throw std::invalid_argument{"Token type check failed. Expected: "
-                + to_string(type) + ", got " + to_string(token.type) + "."};
+        throw std::invalid_argument{"Token type check failed at line "
+                + std::to_string(token.line) + ". Expected: " + to_string(type)
+                + ", got " + to_string(token.type) + "."};
     } else if(token.value != value) {
-        throw std::invalid_argument{"Token value check failed. Expected: \""
-                + value + "\", got \"" + token.value + "\"."};
+        throw std::invalid_argument{"Token value check failed at line "
+                + std::to_string(token.line) + ". Expected: " + value
+                + ", got " + token.value + "."};
     }
     return token;
 }
@@ -94,15 +97,10 @@ ast_function_parameter parser::parse_function_parameter(token token) {
     ast_function_parameter param;
     param.name = token.value;
     next_token(token_type::colon);
-    token = next_token();
-    if(token.type == token_type::kw_var) {
-        param.constant = false;
-        token = next_token(token_type::identifier);
+    param.type = next_token(token_type::identifier).value;
+    if(current_token().type == token_type::comma) {
+        next_token();
     }
-    if(token.type != token_type::identifier) {
-        throw std::invalid_argument{"expected id, got shit."};
-    }
-    param.type = token.value;
     return param;
 }
 

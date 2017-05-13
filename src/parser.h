@@ -29,7 +29,7 @@ private:
     token current_token() const;
 
     token peek_token(unsigned int depth = 1);
-    
+
     ast_node_ptr parse_expression(const token& token);
     std::unique_ptr<ast_function_declaration> parse_function();
     ast_function_parameter parse_function_parameter(token token);
