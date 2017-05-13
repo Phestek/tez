@@ -22,9 +22,6 @@ private:
     // Get next token and validate its type.
     token next_token(token_type type);
 
-    // Get next token and validate its both type and value.
-    token next_token(token_type type, const std::string& value);
-
     // Get current token.
     token current_token() const;
 

@@ -33,20 +33,6 @@ token parser::next_token(token_type type) {
     return token;
 }
 
-token parser::next_token(token_type type, const std::string& value) {
-    auto token = _tokens.at(_current_token++);
-    if(token.type != type) {
-        throw std::invalid_argument{"Token type check failed at line "
-                + std::to_string(token.line) + ". Expected: " + to_string(type)
-                + ", got " + to_string(token.type) + "."};
-    } else if(token.value != value) {
-        throw std::invalid_argument{"Token value check failed at line "
-                + std::to_string(token.line) + ". Expected: " + value
-                + ", got " + token.value + "."};
-    }
-    return token;
-}
-
 token parser::peek_token(uint depth) {
     return _tokens.at(_current_token + depth);
 }
