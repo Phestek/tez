@@ -30,10 +30,12 @@ enum class token_type {
     minus,
     multiply,
     divide,
+    modulo,
     plus_equals,
     minus_equals,
     multiply_equals,
     divide_equals,
+    modulo_equals,
 
     bang,       // !
     equals,

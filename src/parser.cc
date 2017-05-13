@@ -26,15 +26,20 @@ token parser::next_token() {
 token parser::next_token(token_type type) {
     auto token = _tokens.at(_current_token++);
     if(token.type != type) {
-        throw std::invalid_argument{"Token type check failed at line "
-                + std::to_string(token.line) + ". Expected: " + to_string(type)
-                + ", got " + to_string(token.type) + "."};
+        throw_invalid_token_error(type);
     }
     return token;
 }
 
 token parser::peek_token(uint depth) {
     return _tokens.at(_current_token + depth);
+}
+
+void parser::throw_invalid_token_error(token_type expected_token) {
+    auto token = current_token();
+    throw std::invalid_argument{"<filename>:" + std::to_string(token.line)
+            + ": Expected " + to_string(expected_token) + ", got "
+            + to_string(token.type) + "."};
 }
 
 token parser::current_token() const {
@@ -54,9 +59,8 @@ ast_node_ptr parser::parse_expression(const token& token) {
             node = parse_variable(true);
             break;
         default:
-            throw std::invalid_argument{"Unexpected token \"" + token.value
-                    + "\" of type " + to_string(token.type) + " at line "
-                    + std::to_string(token.line) + "."};
+            throw std::invalid_argument{"<filename>:"
+                    + std::to_string(token.line) + ": Unexpected symbol."};
     }
     return node;
 }
@@ -89,8 +93,7 @@ ast_function_parameter parser::parse_function_parameter(token token) {
         token = next_token();
     }
     if(token.type != token_type::identifier) {
-        throw std::invalid_argument{"I really have to create function that "
-                "throws all these errors."};
+        throw_invalid_token_error(token_type::identifier);
     }
     param.type = token.value;
     if(current_token().type == token_type::comma) {
