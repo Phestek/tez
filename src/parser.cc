@@ -83,7 +83,16 @@ ast_function_parameter parser::parse_function_parameter(token token) {
     ast_function_parameter param;
     param.name = token.value;
     next_token(token_type::colon);
-    param.type = next_token(token_type::identifier).value;
+    token = next_token();
+    if(token.type == token_type::kw_var) {
+        param.constant = false;
+        token = next_token();
+    }
+    if(token.type != token_type::identifier) {
+        throw std::invalid_argument{"I really have to create function that "
+                "throws all these errors."};
+    }
+    param.type = token.value;
     if(current_token().type == token_type::comma) {
         next_token();
     }
