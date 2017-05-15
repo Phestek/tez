@@ -2,6 +2,7 @@
 
 #include <cctype>
 
+#include <iostream>
 #include <stdexcept>
 #include <algorithm>
 
@@ -49,6 +50,17 @@ lexer::lexer(const std::string& wayward_source)
         : _wayward_source{wayward_source} {
 }
 
+bool lexer::errors_reported() const {
+    return _errors_reported;
+}
+
+void lexer::report_error(unsigned int line, unsigned int column,
+        const std::string& message) {
+    _errors_reported = true;
+    std::cerr << "<filename>:" << std::to_string(line) << ":"
+            << std::to_string(column) << ": " << message << ".\n";
+}
+
 std::vector<token> lexer::tokenize() {
     _tokens.clear();
     while(_current_char < _wayward_source.length()) {
@@ -62,6 +74,11 @@ std::vector<token> lexer::tokenize() {
         }
         if(c == '/' && _wayward_source.at(_current_char + 1) == '*') {
             ++_current_char;
+            unsigned int line = _lines_count;
+            unsigned int column = _current_char - _columns_count;
+            if(_current_char >= _wayward_source.length()) {
+                report_error(line, column, "Missing closing \"*/\".");
+            }
             while(c != '*' && _wayward_source.at(_current_char + 1) != '/') {
                 c = _wayward_source.at(++_current_char);
             }
@@ -73,7 +90,7 @@ std::vector<token> lexer::tokenize() {
 
         if(c == '\n') {
             ++_lines_count;
-            //_columns_count = 1;
+            _columns_count = _current_char;
         }
         if(std::isspace(c)) {
             ++_current_char;
@@ -103,9 +120,9 @@ std::vector<token> lexer::tokenize() {
             push_identifier(c);
             continue;
         }
-
-        throw std::invalid_argument{"Unexpected character \"" + std::string{c}
-                + "\" at line " + std::to_string(_lines_count) + "."};
+        
+        report_error(_lines_count, _current_char - _columns_count,
+                "Unexpected character '" + std::string{c} + "'");
     }
     _tokens.push_back({token_type::eof, "", _lines_count});
     return _tokens;
@@ -143,8 +160,8 @@ void lexer::push_operator(char c) {
     if(o != _operators.end()) {
         _tokens.push_back({o->second, "", _lines_count});
     } else {
-        throw std::invalid_argument{"Unknown operator \"" + operat
-                + "\" at line " + std::to_string(_lines_count) + "."};
+        report_error(_lines_count, _current_char - _columns_count,
+                "Unexpected character '" + std::string{c} + "'");
     }
 }
 
@@ -154,7 +171,8 @@ void lexer::push_number(char c) {
     while(std::isdigit(c) || c == '.') {
         if(c == '.') {
             if(is_real) {   // Error if dot was used before.
-                throw;
+        report_error(_lines_count, _current_char - _columns_count,
+                "Too many decimal points in number.");
             }
             is_real = true;
         }

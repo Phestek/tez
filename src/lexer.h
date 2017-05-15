@@ -74,7 +74,12 @@ public:
     // Create tokens from given source code.
     std::vector<token> tokenize();
 
+    bool errors_reported() const;
+
 private:
+    void report_error(unsigned int line, unsigned int column,
+            const std::string& message);
+
     void push_operator(char c);
     void push_number(char c);
     void push_identifier(char c);
@@ -84,7 +89,9 @@ private:
 
     unsigned int _current_char = 0;
     unsigned int _lines_count = 1;
-    // TODO: unsigned int _columns_count = 1;
+    unsigned int _columns_count = 1;
+    
+    bool _errors_reported = false;
 
     static const std::map<std::string, token_type> _keywords;
     static const std::map<std::string, token_type> _operators;
