@@ -13,6 +13,10 @@ const std::map<std::string, token_type> lexer::_keywords{
     {"let",    token_type::kw_let},
     {"struct", token_type::kw_struct},
     {"class",  token_type::kw_class},
+    {"if",     token_type::kw_if},
+    {"else",   token_type::kw_else},
+    {"while",  token_type::kw_while},
+    {"for",    token_type::kw_for}
 };
 
 const std::map<std::string, token_type> lexer::_operators{
@@ -50,6 +54,23 @@ std::vector<token> lexer::tokenize() {
     while(_current_char < _wayward_source.length()) {
         char c = _wayward_source.at(_current_char);
 
+        if(c == '/' && _wayward_source.at(_current_char + 1) == '/') {
+            while(c != '\n') {
+                c = _wayward_source.at(++_current_char);
+            }
+            continue;
+        }
+        if(c == '/' && _wayward_source.at(_current_char + 1) == '*') {
+            ++_current_char;
+            while(c != '*' && _wayward_source.at(_current_char + 1) != '/') {
+                c = _wayward_source.at(++_current_char);
+            }
+            ++_current_char;
+            ++_current_char;
+            continue;
+        }
+
+
         if(c == '\n') {
             ++_lines_count;
             //_columns_count = 1;
@@ -68,12 +89,11 @@ std::vector<token> lexer::tokenize() {
             push_number(c);
             continue;
         }
-    
+
         if(c == '\"') {
             // TODO: Implement this.
             continue;
         }
-        
         if(c == '\'') {
             // TODO: Implement this.
             continue;

@@ -15,7 +15,7 @@ enum class ast_node_type {
 
     integer_literal,
     real_number_literal,
-    operator_literal,
+    identifier_literal,
 
     binary_operation,
     unary_operation,
@@ -50,6 +50,16 @@ struct ast_integer_literal final : ast_node {
         node_type = ast_node_type::integer_literal;
     }
     int value;
+};
+
+struct ast_real_number_literal final : ast_node {
+    ast_real_number_literal(double value) : value{value} {
+        node_type = ast_node_type::real_number_literal;
+    }
+    double value;
+};
+
+struct ast_identifier_literal final : ast_node {
 };
 
 struct ast_binary_operation final : ast_node {

@@ -14,12 +14,16 @@ enum class token_type {
     real_number,
     character,
     string,
-    
+
     kw_func,
     kw_var,
     kw_let,
     kw_struct,
     kw_class,
+    kw_if,
+    kw_else,
+    kw_while,
+    kw_for,
 
     l_brace,
     r_brace,
