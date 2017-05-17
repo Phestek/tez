@@ -15,7 +15,11 @@ public:
 
     ast_program parse();
 
+    bool errors_reported() const;
+
 private:
+    void report_error(const std::string message);
+
     // Get next token.
     token next_token();
 
@@ -26,8 +30,6 @@ private:
     token current_token() const;
 
     token peek_token(unsigned int depth = 1);
-    
-    void throw_invalid_token_error(token_type expected_token);
 
     ast_node_ptr parse_expression(const token& token);
     std::unique_ptr<ast_function_declaration> parse_function();
@@ -39,6 +41,8 @@ private:
 
     const std::array<std::string, 3> _keywords{{
             "func", "var", "let"}};
+
+    bool _errors_reported = false;
 };
 
 }

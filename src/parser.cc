@@ -19,6 +19,21 @@ ast_program parser::parse() {
     return program;
 }
 
+bool parser::errors_reported() const {
+    return _errors_reported;
+}
+
+void parser::report_error(const std::string message) {
+    _errors_reported = true;
+    auto token = current_token();
+    std::cerr << token.filename << ':' << token.line << ':' << token.column
+            << ": " << message << ".\n";
+    // Skip everything 
+    while(token.type != token_type::semicolon) {
+        token = next_token();
+    }
+}
+
 token parser::next_token() {
     return _tokens.at(_current_token++);
 }
@@ -26,20 +41,14 @@ token parser::next_token() {
 token parser::next_token(token_type type) {
     auto token = _tokens.at(_current_token++);
     if(token.type != type) {
-        throw_invalid_token_error(type);
+        report_error("Expected " + to_string(type) + ", got "
+                + to_string(token.type) + ".");
     }
     return token;
 }
 
 token parser::peek_token(uint depth) {
     return _tokens.at(_current_token + depth);
-}
-
-void parser::throw_invalid_token_error(token_type expected_token) {
-    auto token = current_token();
-    throw std::invalid_argument{"<filename>:" + std::to_string(token.line)
-            + ": Expected " + to_string(expected_token) + ", got "
-            + to_string(token.type) + "."};
 }
 
 token parser::current_token() const {
@@ -59,8 +68,8 @@ ast_node_ptr parser::parse_expression(const token& token) {
             node = parse_variable(true);
             break;
         default:
-            throw std::invalid_argument{"<filename>:"
-                    + std::to_string(token.line) + ": Unexpected symbol."};
+            report_error("Unexpected token of type \"" + to_string(token.type)
+                    + "\" and value \"" + token.value + "\"");
     }
     return node;
 }
@@ -93,7 +102,8 @@ ast_function_parameter parser::parse_function_parameter(token token) {
         token = next_token();
     }
     if(token.type != token_type::identifier) {
-        throw_invalid_token_error(token_type::identifier);
+        report_error("Expected " + to_string(token_type::identifier) + ", got "
+                + to_string(token.type) + ".");
     }
     param.type = token.value;
     if(current_token().type == token_type::comma) {

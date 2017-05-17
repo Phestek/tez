@@ -16,9 +16,9 @@ bool compile(const std::string& working_path, const std::string& filename) {
 
     wayward::parser parser{tokens};
     auto ast = parser.parse();
-    //if(parser.errors_reported()) {
-    //    return false;
-    //}
+    if(parser.errors_reported()) {
+        return false;
+    }
 
     return true;
 }
