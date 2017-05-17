@@ -5,71 +5,16 @@
 #include <vector>
 #include <map>
 
+#include "token.h"
+
 namespace wayward {
-
-enum class token_type {
-    identifier,
-
-    integer,
-    real_number,
-    character,
-    string,
-
-    kw_func,
-    kw_var,
-    kw_let,
-    kw_struct,
-    kw_class,
-    kw_if,
-    kw_else,
-    kw_while,
-    kw_for,
-
-    l_brace,
-    r_brace,
-    l_paren,
-    r_paren,
-
-    plus,
-    minus,
-    multiply,
-    divide,
-    modulo,
-    plus_equals,
-    minus_equals,
-    multiply_equals,
-    divide_equals,
-    modulo_equals,
-
-    bang,       // !
-    equals,
-    bang_equals,
-    equals_equals,
-    greater,
-    greater_equals,
-    less,
-    less_equals,
-
-    semicolon,
-    colon,
-    comma,
-    dot,
-    arrow,      // ->
-
-
-    eof
-};
-
-struct token {
-    token_type   type;
-    std::string  value;
-    unsigned int line;
-};
 
 class lexer {
 public:
-    // Default constructor.
-    lexer(const std::string& wayward_source);
+    lexer(const std::string working_path, const std::string& filename);
+    
+    // This constructor is only used for unit tests.
+    lexer(const std::string wayward_source);
 
     // Create tokens from given source code.
     std::vector<token> tokenize();
@@ -79,12 +24,16 @@ public:
 private:
     void report_error(unsigned int line, unsigned int column,
             const std::string& message);
+    
+    void push_token(token_type type, const std::string& value);
 
     void push_operator(char c);
     void push_number(char c);
     void push_identifier(char c);
-
-    const std::string& _wayward_source;
+    
+    const std::string  _working_path;
+    const std::string  _filename;
+    std::string        _wayward_source;
     std::vector<token> _tokens;
 
     unsigned int _current_char = 0;

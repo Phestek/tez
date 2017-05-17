@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 
 #include "parser.h"
 
@@ -8,30 +7,8 @@ void print_usage() {
             "waywardc <input_file>\n";
 }
 
-// Get entire file content, including newlines.
-// NOTE: leaves empty line on the end.
-std::string read_file_content(const std::string& filename) {
-    std::ifstream file{filename};
-    if(!file.good()) {
-        // TODO: Handle it.
-        std::cerr << "Failed to open file \"" + filename + "\".\n";
-        throw;
-    }
-    std::string content;
-    while(!file.eof()) {
-        std::string line;
-        std::getline(file, line);
-        if(line != "\n") {
-            content += line + '\n';
-        }
-    }
-    return content;
-}
-
-bool compile(const std::string& input_file) {
-    auto wayward_source = read_file_content(input_file);
-
-    wayward::lexer lexer{wayward_source};
+bool compile(const std::string& working_path, const std::string& filename) {
+    wayward::lexer lexer{working_path, filename};
     auto tokens = lexer.tokenize();
     if(lexer.errors_reported()) {
         return false;
@@ -50,7 +27,15 @@ int main(int argc, char* argv[]) {
     if(argc < 2) {
         print_usage();
     } else if(argc == 2) {
-        compile(argv[1]);
+        std::string working_path = argv[1];
+        auto pos = working_path.find_last_of("/\\");
+        if(pos >= working_path.length()) {
+            compile("./", argv[1]);
+        } else {
+            std::string filename = working_path.substr(pos);
+            working_path = working_path.substr(0, pos + 1);
+            compile(working_path, filename);
+        }
     } else {
         std::cout << "More than one file compilation and switches are not "
                 "supported yet.\n";

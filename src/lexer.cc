@@ -3,6 +3,7 @@
 #include <cctype>
 
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 #include <algorithm>
 
@@ -46,8 +47,37 @@ const std::map<std::string, token_type> lexer::_operators{
     {"->", token_type::arrow},
 };
 
-lexer::lexer(const std::string& wayward_source)
-        : _wayward_source{wayward_source} {
+namespace {
+
+// Get entire file content, including newlines.
+// NOTE: leaves empty line on the end.
+std::string read_file_content(const std::string& filename) {
+    std::ifstream file{filename};
+    if(!file.good()) {
+        // TODO: Handle it.
+        std::cerr << "Failed to open file \"" + filename + "\".\n";
+        throw;
+    }
+    std::string content;
+    while(!file.eof()) {
+        std::string line;
+        std::getline(file, line);
+        if(line != "\n") {
+            content += line + '\n';
+        }
+    }
+    return content;
+}
+
+}
+
+lexer::lexer(const std::string working_path, const std::string& filename)
+        : _working_path{working_path}, _filename{filename} {
+    _wayward_source = read_file_content(working_path + filename);
+}
+
+lexer::lexer(const std::string wayward_source) {
+    _wayward_source = wayward_source;
 }
 
 bool lexer::errors_reported() const {
@@ -120,30 +150,35 @@ std::vector<token> lexer::tokenize() {
             push_identifier(c);
             continue;
         }
-        
+
         report_error(_lines_count, _current_char - _columns_count,
                 "Unexpected character '" + std::string{c} + "'");
     }
-    _tokens.push_back({token_type::eof, "", _lines_count});
+    push_token(token_type::eof, "");
     return _tokens;
+}
+
+void lexer::push_token(token_type type, const std::string& value) {
+    _tokens.push_back({type, value, _filename, _lines_count,
+            _current_char - _columns_count});
 }
 
 void lexer::push_operator(char c) {
     switch(c) {
         case '{':
-            _tokens.push_back({token_type::l_brace, "", _lines_count});
+            push_token(token_type::l_brace, "");
             ++_current_char;
             return;
         case '}':
-            _tokens.push_back({token_type::r_brace, "", _lines_count});
+            push_token(token_type::r_brace, "");
             ++_current_char;
             return;
         case '(':
-            _tokens.push_back({token_type::l_paren, "", _lines_count});
+            push_token(token_type::l_paren, "");
             ++_current_char;
             return;
         case ')':
-            _tokens.push_back({token_type::r_paren, "", _lines_count});
+            push_token(token_type::r_paren, "");
             ++_current_char;
             return;
     }
@@ -158,7 +193,7 @@ void lexer::push_operator(char c) {
     }
     auto o = _operators.find(operat);
     if(o != _operators.end()) {
-        _tokens.push_back({o->second, "", _lines_count});
+        push_token(o->second, "");
     } else {
         report_error(_lines_count, _current_char - _columns_count,
                 "Unexpected character '" + std::string{c} + "'");
@@ -184,9 +219,9 @@ void lexer::push_number(char c) {
         }
     }
     if(is_real) {
-        _tokens.push_back({token_type::real_number, number, _lines_count});
+        push_token(token_type::real_number, number);
     } else {
-        _tokens.push_back({token_type::integer, number, _lines_count});
+        push_token(token_type::integer, number);
     }
 }
 
@@ -202,9 +237,9 @@ void lexer::push_identifier(char c) {
     }
     auto keyword = _keywords.find(word);
     if(keyword != _keywords.end()) {
-        _tokens.push_back({keyword->second, "", _lines_count});
+        push_token(keyword->second, "");
     } else {
-        _tokens.push_back({token_type::identifier, word, _lines_count});
+        push_token(token_type::identifier, word);
     }
 }
 
