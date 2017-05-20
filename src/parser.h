@@ -1,8 +1,8 @@
 #ifndef WAYWARD_PARSER_H
 #define WAYWARD_PARSER_H
 
-#include <array>
 #include <string>
+#include <map>
 
 #include "ast.h"
 #include "lexer.h"
@@ -20,13 +20,8 @@ public:
 private:
     void report_error(const std::string message);
 
-    // Get next token.
     token next_token();
-
-    // Get next token and validate its type.
     token next_token(token_type type);
-
-    // Get current token.
     token current_token() const;
 
     token peek_token(unsigned int depth = 1);
@@ -35,12 +30,12 @@ private:
     std::unique_ptr<ast_function_declaration> parse_function();
     ast_function_parameter parse_function_parameter(token token);
     std::unique_ptr<ast_variable_declaration> parse_variable(bool constant);
+    ast_node_ptr parse_rvalue();
 
     const std::vector<token>& _tokens;  // Vector of tokens to parse.
     unsigned int _current_token = 0;    // Current token counter.
 
-    const std::array<std::string, 3> _keywords{{
-            "func", "var", "let"}};
+    static const std::map<token_type, int> _operator_persistence;
 
     bool _errors_reported = false;
 };

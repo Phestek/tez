@@ -22,8 +22,7 @@ public:
     bool errors_reported() const;
 
 private:
-    void report_error(unsigned int line, unsigned int column,
-            const std::string& message);
+    void report_error(const std::string& message);
     
     void push_token(token_type type, const std::string& value);
 

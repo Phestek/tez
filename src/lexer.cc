@@ -84,75 +84,88 @@ bool lexer::errors_reported() const {
     return _errors_reported;
 }
 
-void lexer::report_error(unsigned int line, unsigned int column,
-        const std::string& message) {
+void lexer::report_error(const std::string& message) {
     _errors_reported = true;
-    std::cerr << "<filename>:" << std::to_string(line) << ":"
-            << std::to_string(column) << ": " << message << ".\n";
+    std::cerr << "<filename>:" << std::to_string(_lines_count) << ":"
+            << std::to_string(_current_char - _columns_count) << ": "
+            << message << ".\n";
 }
 
 std::vector<token> lexer::tokenize() {
     _tokens.clear();
-    while(_current_char < _wayward_source.length()) {
-        char c = _wayward_source.at(_current_char);
+    // TODO: Make it cleaner, this is Jonathan Blow style function.
+    try {
+        while(_current_char < _wayward_source.length()) {
+            char c = _wayward_source.at(_current_char);
 
-        if(c == '/' && _wayward_source.at(_current_char + 1) == '/') {
-            while(c != '\n') {
-                c = _wayward_source.at(++_current_char);
+            if(c == '/' && _wayward_source.at(_current_char + 1) == '/') {
+                while(c != '\n') {
+                    c = _wayward_source.at(++_current_char);
+                }
+                continue;
             }
-            continue;
-        }
-        if(c == '/' && _wayward_source.at(_current_char + 1) == '*') {
-            ++_current_char;
-            unsigned int line = _lines_count;
-            unsigned int column = _current_char - _columns_count;
-            if(_current_char >= _wayward_source.length()) {
-                report_error(line, column, "Missing closing \"*/\".");
+            if(c == '/' && _wayward_source.at(_current_char + 1) == '*') {
+                ++_current_char;
+                if(_current_char >= _wayward_source.length()) {
+                    report_error("Missing closing \"*/\".");
+                }
+                while(c != '*' && _wayward_source.at(_current_char + 1) != '/') {
+                    c = _wayward_source.at(++_current_char);
+                }
+                ++_current_char;
+                ++_current_char;
+                continue;
             }
-            while(c != '*' && _wayward_source.at(_current_char + 1) != '/') {
-                c = _wayward_source.at(++_current_char);
+
+            if(c == '\n') {
+                ++_lines_count;
+                _columns_count = _current_char;
             }
-            ++_current_char;
-            ++_current_char;
-            continue;
-        }
+            if(std::isspace(c)) {
+                ++_current_char;
+                continue;
+            }
 
+            if(c == '"') { // String.
+                std::string string;
+                while(_wayward_source.at(++_current_char) != '"') {
+                    string += _wayward_source.at(++_current_char);
+                }
+                ++_current_char;
+                push_token(token_type::string, string);
+                continue;
+            }
+            // TODO: Make error messages better.
+            if(c == '\'') {
+                char character = _wayward_source.at(++_current_char);
+                if(_wayward_source.at(++_current_char) != '\'') {
+                    report_error("Unexpected character kurwa, mial byc char a "
+                            "jest string.");
+                }
+                ++_current_char;
+                push_token(token_type::character, {character});
+                continue;
+            }
 
-        if(c == '\n') {
-            ++_lines_count;
-            _columns_count = _current_char;
-        }
-        if(std::isspace(c)) {
-            ++_current_char;
-            continue;
-        }
+            if(std::ispunct(c)) {
+                push_operator(c);
+                continue;
+            }
 
-        if(std::ispunct(c)) {
-            push_operator(c);
-            continue;
-        }
+            if(std::isdigit(c)) {
+                push_number(c);
+                continue;
+            }
 
-        if(std::isdigit(c)) {
-            push_number(c);
-            continue;
-        }
+            if(std::isalpha(c) || c == '_') {
+                push_identifier(c);
+                continue;
+            }
 
-        if(c == '\"') {
-            // TODO: Implement this.
-            continue;
+            report_error("Unexpected character '" + std::string{c} + "'");
         }
-        if(c == '\'') {
-            // TODO: Implement this.
-            continue;
-        }
-
-        if(std::isalpha(c) || c == '_') {
-            push_identifier(c);
-            continue;
-        }
-
-        report_error(_lines_count, _current_char - _columns_count,
-                "Unexpected character '" + std::string{c} + "'");
+    } catch(const std::out_of_range& e) {
+        report_error("Unexpected end of file.");
     }
     push_token(token_type::eof, "");
     return _tokens;
@@ -195,8 +208,7 @@ void lexer::push_operator(char c) {
     if(o != _operators.end()) {
         push_token(o->second, "");
     } else {
-        report_error(_lines_count, _current_char - _columns_count,
-                "Unexpected character '" + std::string{c} + "'");
+        report_error("Unexpected character '" + std::string{c} + "'");
     }
 }
 
@@ -206,8 +218,7 @@ void lexer::push_number(char c) {
     while(std::isdigit(c) || c == '.') {
         if(c == '.') {
             if(is_real) {   // Error if dot was used before.
-        report_error(_lines_count, _current_char - _columns_count,
-                "Too many decimal points in number.");
+        report_error("Too many decimal points in number.");
             }
             is_real = true;
         }

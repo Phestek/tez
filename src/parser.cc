@@ -6,6 +6,14 @@
 
 namespace wayward {
 
+const std::map<token_type, int> parser::_operator_persistence {
+    {token_type::plus,     20},
+    {token_type::minus,    20},
+    {token_type::multiply, 40},
+    {token_type::divide,   40},
+    {token_type::modulo,   40},
+};
+
 parser::parser(const std::vector<token>& tokens)
         : _tokens{tokens} {
 }
@@ -28,7 +36,6 @@ void parser::report_error(const std::string message) {
     auto token = current_token();
     std::cerr << token.filename << ':' << token.line << ':' << token.column
             << ": " << message << ".\n";
-    // Skip everything 
     while(token.type != token_type::semicolon) {
         token = next_token();
     }
