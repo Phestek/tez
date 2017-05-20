@@ -135,12 +135,16 @@ std::vector<token> lexer::tokenize() {
                 push_token(token_type::string, string);
                 continue;
             }
-            // TODO: Make error messages better.
             if(c == '\'') {
-                char character = _wayward_source.at(++_current_char);
-                if(_wayward_source.at(++_current_char) != '\'') {
-                    report_error("Unexpected character kurwa, mial byc char a "
-                            "jest string.");
+                std::string character = {_wayward_source.at(++_current_char)};
+                if(character == "\\") {
+                    character += _wayward_source.at(++_current_char);
+                }
+                if(c = _wayward_source.at(++_current_char); c != '\'') {
+                    report_error("Expected ''', got '" + std::string{c} + "'");
+                    while(c != '\'') {
+                        c = ++_current_char;
+                    }
                 }
                 ++_current_char;
                 push_token(token_type::character, {character});
