@@ -26,7 +26,30 @@ bool compile(const std::string& working_path, const std::string& filename) {
 int main(int argc, char* argv[]) {
     if(argc < 2) {
         print_usage();
-    } else if(argc == 2) {
+    } else {
+        std::vector<std::string> input_files;
+        std::string output_file = "a.exe";
+        std::vector<std::string> command_line_arguments{argv + 1, argv + argc};
+        try {
+            for(std::size_t i = 0; i < command_line_arguments.size(); ++i) {
+                if(command_line_arguments.at(i) == "-o") {
+                    output_file = command_line_arguments.at(++i);
+                } else {
+                    input_files.push_back(command_line_arguments.at(i));
+                }
+            }
+        } catch(const std::out_of_range& e) {
+            std::cerr << "Unexpected end of input parameters. Exiting.\n";
+            return 1;
+        }
+
+        std::cout << "Input files: ";
+        for(auto& f : input_files) {
+            std::cout << f << ' ';
+        }
+        std::cout << '\n';
+        std::cout << "Output file: " << output_file << '\n';
+
         std::string working_path = argv[1];
         auto pos = working_path.find_last_of("/\\");
         if(pos >= working_path.length()) {
@@ -36,9 +59,6 @@ int main(int argc, char* argv[]) {
             working_path = working_path.substr(0, pos + 1);
             compile(working_path, filename);
         }
-    } else {
-        std::cout << "More than one file compilation and switches are not "
-                "supported yet.\n";
     }
     return 0;
 }
