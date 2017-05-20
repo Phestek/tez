@@ -13,7 +13,8 @@ endif()
 set(SRC_FILES
         src/ast.h
         src/lexer.cc src/lexer.h
-        src/parser.cc src/parser.h)
+        src/parser.cc src/parser.h
+        src/token.cc src/token.h)
 add_library(waywardc_core STATIC ${SRC_FILES})
 
 add_executable(waywardc src/main.cc)

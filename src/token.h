@@ -63,6 +63,8 @@ struct token {
     unsigned int column;
 };
 
+std::string to_string(token_type token_type);
+
 }
 
 #endif //WAYWARD_TOKEN_H
