@@ -1,6 +1,8 @@
 #ifndef WAYWARD_TOKEN_H
 #define WAYWARD_TOKEN_H
 
+#include <string>
+
 namespace wayward {
 
 enum class token_type {
