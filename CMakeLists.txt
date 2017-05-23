@@ -12,6 +12,7 @@ endif()
 
 set(SRC_FILES
         src/ast.h
+        src/c_code_gen.cc src/c_code_gen.h
         src/lexer.cc src/lexer.h
         src/parser.cc src/parser.h
         src/token.cc src/token.h)
