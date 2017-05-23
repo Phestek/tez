@@ -18,7 +18,10 @@ const std::map<std::string, token_type> lexer::_keywords{
     {"if",     token_type::kw_if},
     {"else",   token_type::kw_else},
     {"while",  token_type::kw_while},
-    {"for",    token_type::kw_for}
+    {"for",    token_type::kw_for},
+    {"true",   token_type::kw_true},
+    {"false",  token_type::kw_false},
+    {"null",   token_type::kw_null}
 };
 
 const std::map<std::string, token_type> lexer::_operators{
@@ -171,7 +174,6 @@ std::vector<token> lexer::tokenize() {
     } catch(const std::out_of_range& e) {
         report_error("Unexpected end of file.");
     }
-    push_token(token_type::eof, "");
     return _tokens;
 }
 

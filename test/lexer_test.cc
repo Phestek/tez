@@ -7,9 +7,8 @@ TEST(lexer, whitespaces) {
     wayward::lexer lexer{input};
     auto output = lexer.tokenize();
     
-    // All whitespaces should be skipped, so the only token should be eof.
-    ASSERT_EQ(output.size(), 1);
-    ASSERT_EQ(output.back().type, wayward::token_type::eof);
+    // All whitespaces should be skipped.
+    ASSERT_EQ(output.size(), 0);
 }
 
 TEST(lexer, braces_and_parentheses) {

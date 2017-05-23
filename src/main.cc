@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "lexer.h"
 #include "parser.h"
 
 void print_usage() {

@@ -1,135 +1,130 @@
 #include "parser.h"
 
-#include <iostream>
-
-#include "ast.h"
-
 namespace wayward {
-
-const std::map<token_type, int> parser::_operator_persistence {
-    {token_type::plus,     20},
-    {token_type::minus,    20},
-    {token_type::multiply, 40},
-    {token_type::divide,   40},
-    {token_type::modulo,   40},
-};
 
 parser::parser(const std::vector<token>& tokens)
         : _tokens{tokens} {
 }
 
-ast_program parser::parse() {
-    ast_program program;
-    for(token token = next_token(); token.type != token_type::eof;
-            token = next_token()) {
-        program.nodes.push_back(parse_expression(token));
+std::vector<ast_node_ptr> parser::parse() {
+    std::vector<ast_node_ptr> ast;
+    _current = 0;
+    while(_current < _tokens.size()) {
+        ast.push_back(expression());
     }
-    return program;
+    return ast;
 }
 
 bool parser::errors_reported() const {
     return _errors_reported;
 }
 
-void parser::report_error(const std::string message) {
-    _errors_reported = true;
-    auto token = current_token();
-    std::cerr << token.filename << ':' << token.line << ':' << token.column
-            << ": " << message << ".\n";
-    while(token.type != token_type::semicolon) {
-        token = next_token();
-    }
-}
-
 token parser::next_token() {
-    return _tokens.at(_current_token++);
+    if(_tokens.at(_current).type == token_type::eof) {
+        return _tokens.at(_current);
+    }
+    return _tokens.at(_current++);
 }
 
-token parser::next_token(token_type type) {
-    auto token = _tokens.at(_current_token++);
-    if(token.type != type) {
-        report_error("Expected " + to_string(type) + ", got "
-                + to_string(token.type) + ".");
+token parser::peek_token(size_t depth) const {
+    if(_current + depth >= _tokens.size()) {
+        return _tokens.back();  // Return EOF.
     }
-    return token;
+    return _tokens.at(_current + depth);
 }
 
-token parser::peek_token(uint depth) {
-    return _tokens.at(_current_token + depth);
+ast_node_ptr parser::expression() {
+    return equality();
 }
 
-token parser::current_token() const {
-    return _tokens.at(_current_token);
+ast_node_ptr parser::equality() {
+    auto expr = comparison();
+    while(match_token({token_type::bang_equals, token_type::equals_equals})) {
+        const auto operat = peek_token(-1);
+        auto right = comparison();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(operat.type));
+    }
+    return expr;
 }
 
-ast_node_ptr parser::parse_expression(const token& token) {
-    ast_node_ptr node;
-    switch(token.type) {
-        case token_type::kw_func:
-            node = parse_function();
-            break;
-        case token_type::kw_var:
-            node = parse_variable(false);
-            break;
-        case token_type::kw_let:
-            node = parse_variable(true);
-            break;
-        default:
-            report_error("Unexpected token of type \"" + to_string(token.type)
-                    + "\" and value \"" + token.value + "\"");
+ast_node_ptr parser::comparison() {
+    auto expr = term();
+    while(match_token({token_type::greater, token_type::greater_equals,
+            token_type::less, token_type::less_equals})) {
+        const auto operat = peek_token(-1);
+        auto right = term();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(operat.type));
     }
-    return node;
+    return expr;
 }
 
-std::unique_ptr<ast_function_declaration> parser::parse_function() {
-    auto func_decl = std::make_unique<ast_function_declaration>();
-    func_decl->name = next_token(token_type::identifier).value;
-    next_token(token_type::l_paren);
-    for(token token = next_token(); token.type != token_type::r_paren;
-            token = next_token()) {
-        func_decl->params.push_back(parse_function_parameter(token));
+ast_node_ptr parser::term() {
+    auto expr = factor();
+    while(match_token({token_type::multiply, token_type::divide,
+            token_type::modulo})) {
+        const auto operat = peek_token(-1);
+        auto right = factor();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(operat.type));
     }
-    next_token(token_type::arrow);
-    func_decl->return_type = next_token(token_type::identifier).value;
-    next_token(token_type::l_brace);
-    for(auto token = next_token(); token.type != token_type::r_brace;
-            token = next_token()) {
-        func_decl->body.nodes.push_back(parse_expression(token));
-    }
-    return func_decl;
+    return expr;
 }
 
-ast_function_parameter parser::parse_function_parameter(token token) {
-    ast_function_parameter param;
-    param.name = token.value;
-    next_token(token_type::colon);
-    token = next_token();
-    if(token.type == token_type::kw_var) {
-        param.constant = false;
-        token = next_token();
+ast_node_ptr parser::factor() {
+    auto expr = unary();
+    while(match_token({token_type::plus, token_type::minus})) {
+        const auto operat = peek_token(-1);
+        auto right = unary();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(operat.type));
     }
-    if(token.type != token_type::identifier) {
-        report_error("Expected " + to_string(token_type::identifier) + ", got "
-                + to_string(token.type) + ".");
-    }
-    param.type = token.value;
-    if(current_token().type == token_type::comma) {
-        next_token();
-    }
-    return param;
+    return expr;
 }
 
-std::unique_ptr<ast_variable_declaration> parser::parse_variable(bool constant) {
-    auto var_decl = std::make_unique<ast_variable_declaration>();
-    var_decl->constant = constant;
-    var_decl->name = next_token(token_type::identifier).value;
-    next_token(token_type::colon);
-    var_decl->type = next_token(token_type::identifier).value;
-    next_token(token_type::equals);
-    for(auto token = next_token(); token.type != token_type::semicolon;
-            token = next_token()) {
+ast_node_ptr parser::unary() {
+    if(match_token({token_type::bang, token_type::minus})) {
+        auto operat = peek_token(-1);
+        auto right = unary();
+        return std::make_unique<ast_unary_operation>(std::move(right),
+                to_string(operat.type));
     }
-    return var_decl;
+    return primary();
+}
+
+ast_node_ptr parser::primary() {
+    auto token = peek_token(0);
+    if(match_token({token_type::kw_true})) {
+        return std::make_unique<ast_boolean>(true);
+    }
+    if(match_token({token_type::kw_false})) {
+        return std::make_unique<ast_boolean>(false);
+    }
+    //if(match({token_type::kw_nullptr})) {
+    //    return std::make_unique<ast_boolean>(true);
+    //}
+    if(match_token({token_type::integer})) {
+        return std::make_unique<ast_integer>(std::stoi(token.value));
+    }
+    if(match_token({token_type::real_number})) {
+        return std::make_unique<ast_real_number>(std::stod(token.value));
+    }
+    if(match_token({token_type::identifier})) {
+        return std::make_unique<ast_identifier>(token.value);
+    }
+    //report_error("");
+}
+
+bool parser::match_token(const std::initializer_list<token_type>& types) {
+    const auto token = peek_token(0);
+    for(const auto& type : types) {
+        if(token.type == type && peek_token().type != token_type::eof) {
+            ++_current;
+            return true;
+        }
+    }
+    return false;
 }
 
 }

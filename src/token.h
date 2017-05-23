@@ -22,6 +22,9 @@ enum class token_type {
     kw_else,
     kw_while,
     kw_for,
+    kw_true,
+    kw_false,
+    kw_null,
 
     l_brace,
     r_brace,

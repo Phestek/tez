@@ -1,7 +1,6 @@
 #ifndef WAYWARD_AST_H
 #define WAYWARD_AST_H
 
-#include <vector>
 #include <string>
 #include <memory>
 
@@ -9,20 +8,12 @@ namespace wayward {
 
 enum class ast_node_type {
     undefined,
-
-    program,
-    block,
-
-    integer_literal,
-    real_number_literal,
-    identifier_literal,
-
-    binary_operation,
+    boolean,
+    integer,
+    real_number,
+    identifier,
     unary_operation,
-
-    function_declaration,
-    function_parameter,
-    variable_declaration    // Used for both 'var' and 'let'.
+    binary_operation,
 };
 
 struct ast_node {
@@ -31,73 +22,56 @@ struct ast_node {
 };
 using ast_node_ptr = std::unique_ptr<ast_node>;
 
-struct ast_program final : ast_node {
-    ast_program() {
-        node_type = ast_node_type::program;
+struct ast_boolean final : ast_node {
+    ast_boolean(bool value)
+            : value{value} {
+        node_type = ast_node_type::boolean;
     }
-    std::vector<ast_node_ptr> nodes;
+    bool value;
 };
 
-struct ast_block final : ast_node {
-    ast_block() {
-        node_type = ast_node_type::block;
+struct ast_integer final : ast_node {
+    ast_integer(long long value)
+            : value{value} {
+        node_type = ast_node_type::integer;
     }
-    std::vector<ast_node_ptr> nodes;
+    long long value;
 };
 
-struct ast_integer_literal final : ast_node {
-    ast_integer_literal(int value) : value{value} {
-        node_type = ast_node_type::integer_literal;
-    }
-    int value;
-};
-
-struct ast_real_number_literal final : ast_node {
-    ast_real_number_literal(double value) : value{value} {
-        node_type = ast_node_type::real_number_literal;
+struct ast_real_number final : ast_node {
+    ast_real_number(double value)
+            : value{value} {
+        node_type = ast_node_type::real_number;
     }
     double value;
 };
 
-struct ast_identifier_literal final : ast_node {
+struct ast_identifier final : ast_node {
+    ast_identifier(const std::string& value)
+            : value{value} {
+        node_type = ast_node_type::identifier;
+    }
+    std::string value;
+};
+
+struct ast_unary_operation final : ast_node {
+    ast_unary_operation(ast_node_ptr left, const std::string& operat)
+            : left{std::move(left)}, operat{operat} {
+        node_type = ast_node_type::unary_operation;
+    }
+    ast_node_ptr left;
+    std::string  operat;
 };
 
 struct ast_binary_operation final : ast_node {
-    ast_binary_operation() {
+    ast_binary_operation(ast_node_ptr left, ast_node_ptr right,
+            const std::string& operat)
+            : left{std::move(left)}, right{std::move(right)}, operat{operat} {
         node_type = ast_node_type::binary_operation;
     }
     ast_node_ptr left;
     ast_node_ptr right;
     std::string  operat;
-};
-
-struct ast_function_parameter final : ast_node {
-    ast_function_parameter() {
-        node_type = ast_node_type::function_parameter;
-    }
-    std::string name;
-    std::string type;
-    bool        constant = true;
-};
-
-struct ast_function_declaration final : ast_node {
-    ast_function_declaration() {
-        node_type = ast_node_type::function_declaration;
-    }
-    std::string                         name;
-    std::vector<ast_function_parameter> params;
-    std::string                         return_type;
-    ast_block                           body;
-};
-
-struct ast_variable_declaration final : ast_node {
-    ast_variable_declaration() {
-        node_type = ast_node_type::variable_declaration;
-    }
-    bool         constant;
-    std::string  name;
-    std::string  type;
-    ast_node_ptr initializer;
 };
 
 }
