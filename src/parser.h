@@ -19,18 +19,18 @@ public:
 private:
     // Tokens iteration helpers.
     token next_token();
-    token next_token(token_type type, token_type skip_until = token_type::semicolon);
+    token next_token(token_type type);
     token peek_token(size_t depth = 1) const; // depth = 0 returns current token.
 
     // Report error for current token.
-    void report_error(const std::string& message,
-            token_type skip_until = token_type::semicolon);
+    void report_error(const std::string& message);
     
     ast_node_ptr statement();
 
     // Declarations.
-    ast_func_param function_param();
     ast_node_ptr function_declaration();
+    ast_func_param function_param();
+    ast_node_ptr variable_declaration(bool constant);
 
     // Recursive descent parsing (for rvalues).
     ast_node_ptr expression();      // Base.

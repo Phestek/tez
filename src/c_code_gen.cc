@@ -17,7 +17,8 @@ std::ostream& operator<<(std::ostream& out, const ast_boolean& boolean);
 std::ostream& operator<<(std::ostream& out, const ast_integer& integer);
 std::ostream& operator<<(std::ostream& out, const ast_real_number& real_number);
 std::ostream& operator<<(std::ostream& out, const ast_identifier& identifier);
-std::ostream& operator<<(std::ostream& out, const ast_function& function);
+std::ostream& operator<<(std::ostream& out, const ast_function_declaration& function);
+std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var);
 
 std::ostream& indent(std::ostream& out) {
     return out << std::string(indent_level * 4, ' ');
@@ -35,15 +36,17 @@ std::ostream& operator<<(std::ostream& out, const ast_node& node) {
             return out << dynamic_cast<const ast_real_number&>(node);
         case ast_node_type::identifier:
             return out << dynamic_cast<const ast_identifier&>(node);
-        case ast_node_type::function:
-            return out << dynamic_cast<const ast_function&>(node);
+        case ast_node_type::function_declaration:
+            return out << dynamic_cast<const ast_function_declaration&>(node);
+        case ast_node_type::variable_declaration:
+            return out << dynamic_cast<const ast_variable_declaration&>(node);
         default:
             return out << "<not implemented>";
     }
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_binary_operation& bin) {
-    return out << *bin.left << ' ' << bin.operat << ' ' << *bin.right << ";\n";
+    return out << *bin.left << ' ' << bin.operat << ' ' << *bin.right;
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_boolean& boolean) {
@@ -62,7 +65,7 @@ std::ostream& operator<<(std::ostream& out, const ast_identifier& identifier) {
     return out << identifier.value;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_function& function) {
+std::ostream& operator<<(std::ostream& out, const ast_function_declaration& function) {
     out << function.return_type << ' ' << function.name << '(';
     if(function.params.size() == 0) {
         out << "void";
@@ -84,6 +87,19 @@ std::ostream& operator<<(std::ostream& out, const ast_function& function) {
     }
     --indent_level;
     return out << "}\n";
+}
+
+std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var) {
+    if(var.constant) {
+        out << "const ";
+    }
+    out << var.type << ' ' << var.name << " = ";
+    if(var.initializer == nullptr) {
+        out << '0';
+    } else {
+        out << *var.initializer;
+    }
+    return out << ";\n";
 }
 
 }

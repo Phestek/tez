@@ -28,14 +28,14 @@ token parser::next_token() {
     return _tokens.at(_current++);
 }
 
-token parser::next_token(token_type type, token_type skip_until) {
+token parser::next_token(token_type type) {
     if(peek_token(0).type == token_type::eof) {
         return _tokens.at(_current);
     }
     auto token = _tokens.at(_current++);
     if(token.type != type) {
         report_error("Expected " + to_string(type) + ", got "
-                + to_string(token.type), skip_until);
+                + to_string(token.type));
     }
     return token;
 }
@@ -47,12 +47,15 @@ token parser::peek_token(size_t depth) const {
     return _tokens.at(_current + depth);
 }
 
-void parser::report_error(const std::string& message, token_type skip_until) {
+void parser::report_error(const std::string& message) {
     _errors_reported = true;
     auto token = peek_token(0);
     std::cerr << token.filename << ':' << token.line << ':' << token.column
             << ": " << message << ".\n";
-    while(!match_token({skip_until})) {}
+    while(!match_token({token_type::semicolon, token_type::r_brace,
+            token_type::r_paren, token_type::comma, token_type::eof})) {
+        next_token();
+    }
 }
 
 ast_node_ptr parser::statement() {
@@ -60,23 +63,16 @@ ast_node_ptr parser::statement() {
     auto token = peek_token(0);
     if(match_token({token_type::kw_func})) {
         node = function_declaration();
-    } else {
-        node = expression();
+    } else if(match_token({token_type::kw_let})) {
+        node = variable_declaration(true);
         next_token(token_type::semicolon);
-        //report_error("Unexpected token");
+    } else if(match_token({token_type::kw_var})) {
+        node = variable_declaration(false);
+        next_token(token_type::semicolon);
+    } else {
+        report_error("Unexpected token " + to_string(token.type));
     }
     return node;
-}
-
-ast_func_param parser::function_param() {
-    auto name = next_token(token_type::identifier).value;
-    next_token(token_type::colon);
-    bool constant = true;
-    if(match_token({token_type::kw_var})) {
-        constant = false;
-    }
-    auto type = next_token(token_type::identifier).value;
-    return ast_func_param{name, constant, type};
 }
 
 ast_node_ptr parser::function_declaration() {
@@ -100,7 +96,37 @@ ast_node_ptr parser::function_declaration() {
     while(!match_token({token_type::r_brace})) {
         body.push_back(statement());
     }
-    return std::make_unique<ast_function>(name, params, return_type, body);
+    return std::make_unique<ast_function_declaration>(name, params, return_type,
+            body);
+}
+
+ast_func_param parser::function_param() {
+    auto name = next_token(token_type::identifier).value;
+    next_token(token_type::colon);
+    bool constant = true;
+    if(match_token({token_type::kw_var})) {
+        constant = false;
+    }
+    auto type = next_token(token_type::identifier).value;
+    return ast_func_param{name, constant, type};
+}
+
+ast_node_ptr parser::variable_declaration(bool constant) {
+    /* Ways to declare variable:
+     * 1) var a: int;      <- explicit type, default initializer (aka zero)
+     * 2) var a: int = 10; <- explicit type + explicit initializer.
+     * these 2 are super easy to implement. the problem is 3rd one:
+     * 3) var a = 10;      <- implicit type
+     * it requires some kind of resolver to deduct type. applies to
+     * generics too. */
+    auto name = next_token(token_type::identifier).value;
+    next_token(token_type::colon);
+    auto type = next_token(token_type::identifier).value;
+    if(match_token({token_type::equals})) {
+        return std::make_unique<ast_variable_declaration>(name, constant, type,
+                expression());
+    }
+    return std::make_unique<ast_variable_declaration>(name, constant, type, nullptr);
 }
 
 ast_node_ptr parser::expression() {

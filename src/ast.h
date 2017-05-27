@@ -15,7 +15,8 @@ enum class ast_node_type {
     unary_operation,
     binary_operation,
     func_param,
-    function
+    function_declaration,
+    variable_declaration
 };
 
 struct ast_node {
@@ -88,13 +89,14 @@ struct ast_func_param final : ast_node {
 
 };
 
-struct ast_function final : ast_node {
-    ast_function(const std::string& name,
+struct ast_function_declaration final : ast_node {
+    ast_function_declaration(
+            const std::string& name,
             const std::vector<ast_func_param>& params,
             const std::string& return_type,
             std::vector<ast_node_ptr>& _body)
             : name{name}, params{params}, return_type{return_type} {
-        node_type = ast_node_type::function;
+        node_type = ast_node_type::function_declaration;
         // Stupid and naive, but works (I hope).
         body.reserve(_body.size());
         for(std::size_t i = 0; i < _body.size(); ++i) {
@@ -105,6 +107,19 @@ struct ast_function final : ast_node {
     std::vector<ast_func_param> params;
     std::string                 return_type;
     std::vector<ast_node_ptr>   body;
+};
+
+struct ast_variable_declaration final : ast_node {
+    ast_variable_declaration(const std::string& name, bool constant,
+            const std::string& type, ast_node_ptr initializer)
+            : name{name}, constant{constant}, type{type},
+              initializer{std::move(initializer)} {
+        node_type = ast_node_type::variable_declaration;
+    }
+    std::string  name;
+    bool         constant;
+    std::string  type;
+    ast_node_ptr initializer;
 };
 
 }
