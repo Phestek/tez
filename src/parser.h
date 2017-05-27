@@ -30,6 +30,7 @@ private:
     // Declarations.
     ast_node_ptr function_declaration();
     ast_func_param function_param();
+    ast_node_ptr function_call(const std::string& name);
     ast_node_ptr variable_declaration(bool constant);
 
     // Recursive descent parsing (for rvalues).

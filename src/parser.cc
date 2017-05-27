@@ -69,6 +69,11 @@ ast_node_ptr parser::statement() {
     } else if(match_token({token_type::kw_var})) {
         node = variable_declaration(false);
         next_token(token_type::semicolon);
+    } else if(match_token({token_type::identifier})) {
+        if(match_token({token_type::l_paren})) {
+            node = function_call(token.value);
+            next_token(token_type::semicolon);
+        }
     } else {
         report_error("Unexpected token " + to_string(token.type));
     }
@@ -109,6 +114,15 @@ ast_func_param parser::function_param() {
     }
     auto type = next_token(token_type::identifier).value;
     return ast_func_param{name, constant, type};
+}
+
+ast_node_ptr parser::function_call(const std::string& name) {
+    std::vector<ast_node_ptr> params;
+    while(match_token({token_type::comma})) {
+        params.push_back(statement());
+    }
+    next_token(token_type::r_paren);
+    return std::make_unique<ast_function_call>(name, params);
 }
 
 ast_node_ptr parser::variable_declaration(bool constant) {
@@ -207,7 +221,11 @@ ast_node_ptr parser::primary() {
         return std::make_unique<ast_real_number>(std::stod(token.value));
     }
     if(match_token({token_type::identifier})) {
-        return std::make_unique<ast_identifier>(token.value);
+        if(match_token({token_type::l_paren})) {
+            return function_call(token.value);
+        } else {
+            return std::make_unique<ast_identifier>(token.value);
+        }
     }
     report_error("Unexpected token");
     return nullptr;

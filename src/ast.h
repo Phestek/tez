@@ -16,6 +16,7 @@ enum class ast_node_type {
     binary_operation,
     func_param,
     function_declaration,
+    function_call,
     variable_declaration
 };
 
@@ -97,16 +98,27 @@ struct ast_function_declaration final : ast_node {
             std::vector<ast_node_ptr>& _body)
             : name{name}, params{params}, return_type{return_type} {
         node_type = ast_node_type::function_declaration;
-        // Stupid and naive, but works (I hope).
         body.reserve(_body.size());
-        for(std::size_t i = 0; i < _body.size(); ++i) {
-            body.push_back(std::move(_body[i]));
+        for(auto& statement : _body) {
+            body.push_back(std::move(statement));
         }
     }
     std::string                 name;
     std::vector<ast_func_param> params;
     std::string                 return_type;
     std::vector<ast_node_ptr>   body;
+};
+
+struct ast_function_call final : ast_node {
+    ast_function_call(const std::string& name, std::vector<ast_node_ptr>& _params)
+            : name{name} {
+        node_type = ast_node_type::function_call;
+        for(auto& param : _params) {
+            params.push_back(std::move(param));
+        }
+    }
+    std::string               name;
+    std::vector<ast_node_ptr> params;
 };
 
 struct ast_variable_declaration final : ast_node {
