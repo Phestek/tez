@@ -11,11 +11,13 @@ enum class ast_node_type {
     boolean,
     integer,
     real_number,
+    string,
     identifier,
     unary_operation,
     binary_operation,
     func_param,
     function_declaration,
+    function_return,
     function_call,
     variable_declaration
 };
@@ -48,6 +50,14 @@ struct ast_real_number final : ast_node {
         node_type = ast_node_type::real_number;
     }
     double value;
+};
+
+struct ast_string final : ast_node {
+    ast_string(const std::string& value)
+            : value{value} {
+        node_type = ast_node_type::string;
+    }
+    std::string value;
 };
 
 struct ast_identifier final : ast_node {
@@ -107,6 +117,14 @@ struct ast_function_declaration final : ast_node {
     std::vector<ast_func_param> params;
     std::string                 return_type;
     std::vector<ast_node_ptr>   body;
+};
+
+struct ast_function_return final : ast_node {
+    ast_function_return(ast_node_ptr value)
+            : value{std::move(value)} {
+        node_type = ast_node_type::function_return;
+    }
+    ast_node_ptr value;
 };
 
 struct ast_function_call final : ast_node {

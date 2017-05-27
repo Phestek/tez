@@ -14,6 +14,7 @@ enum class token_type {
     string,
 
     kw_func,
+    kw_return,
     kw_var,
     kw_let,
     kw_struct,

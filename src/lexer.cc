@@ -11,6 +11,7 @@ namespace wayward {
 
 const std::map<std::string, token_type> lexer::_keywords{
     {"func",   token_type::kw_func},
+    {"return", token_type::kw_return},
     {"var",    token_type::kw_var},
     {"let",    token_type::kw_let},
     {"struct", token_type::kw_struct},
@@ -135,11 +136,13 @@ std::vector<token> lexer::tokenize() {
 
             if(c == '"') { // String.
                 std::string string;
-                while(_wayward_source.at(++_current_char) != '"') {
-                    string += _wayward_source.at(++_current_char);
+                c = _wayward_source.at(++_current_char);
+                while(c != '"') {
+                    string += c;
+                    c = _wayward_source.at(++_current_char);
                 }
-                ++_current_char;
                 push_token(token_type::string, string);
+                ++_current_char;
                 continue;
             }
             if(c == '\'') {

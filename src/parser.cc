@@ -74,6 +74,9 @@ ast_node_ptr parser::statement() {
             node = function_call(token.value);
             next_token(token_type::semicolon);
         }
+    } else if(match_token({token_type::kw_return})) {
+        node = std::make_unique<ast_function_return>(expression());
+        next_token(token_type::semicolon);
     } else {
         report_error("Unexpected token " + to_string(token.type));
     }
@@ -118,8 +121,10 @@ ast_func_param parser::function_param() {
 
 ast_node_ptr parser::function_call(const std::string& name) {
     std::vector<ast_node_ptr> params;
-    while(match_token({token_type::comma})) {
-        params.push_back(statement());
+    if(!match_token({token_type::r_paren})) {
+        do {
+            params.push_back(expression());
+        } while(match_token({token_type::comma}));
     }
     next_token(token_type::r_paren);
     return std::make_unique<ast_function_call>(name, params);
@@ -219,6 +224,9 @@ ast_node_ptr parser::primary() {
     }
     if(match_token({token_type::real_number})) {
         return std::make_unique<ast_real_number>(std::stod(token.value));
+    }
+    if(match_token({token_type::string})) {
+        return std::make_unique<ast_string>(token.value);
     }
     if(match_token({token_type::identifier})) {
         if(match_token({token_type::l_paren})) {

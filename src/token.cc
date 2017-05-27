@@ -29,11 +29,11 @@ std::string to_string(token_type token_type) {
         case token_type::dot:            result = ".";           break;
         case token_type::comma:          result = ",";           break;
         case token_type::kw_func:        result = "func";        break;
+        case token_type::kw_return:      result = "return";      break;
         case token_type::kw_var:         result = "var";         break;
         case token_type::kw_if:          result = "if";          break;
         case token_type::eof:            result = "eof";         break;
-        default:
-            result = "not implemented yet";
+        default:                         result = "not implemented yet";
     }
     return result;
 }

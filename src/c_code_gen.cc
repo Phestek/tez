@@ -16,9 +16,11 @@ std::ostream& operator<<(std::ostream& out, const ast_binary_operation& bin);
 std::ostream& operator<<(std::ostream& out, const ast_boolean& boolean);
 std::ostream& operator<<(std::ostream& out, const ast_integer& integer);
 std::ostream& operator<<(std::ostream& out, const ast_real_number& real_number);
+std::ostream& operator<<(std::ostream& out, const ast_string& string);
 std::ostream& operator<<(std::ostream& out, const ast_identifier& identifier);
 std::ostream& operator<<(std::ostream& out, const ast_function_declaration& function);
 std::ostream& operator<<(std::ostream& out, const ast_function_call& func_call);
+std::ostream& operator<<(std::ostream& out, const ast_function_return& func_ret);
 std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var);
 
 std::ostream& indent(std::ostream& out) {
@@ -35,12 +37,16 @@ std::ostream& operator<<(std::ostream& out, const ast_node& node) {
             return out << dynamic_cast<const ast_integer&>(node);
         case ast_node_type::real_number:
             return out << dynamic_cast<const ast_real_number&>(node);
+        case ast_node_type::string:
+            return out << dynamic_cast<const ast_string&>(node);
         case ast_node_type::identifier:
             return out << dynamic_cast<const ast_identifier&>(node);
         case ast_node_type::function_declaration:
             return out << dynamic_cast<const ast_function_declaration&>(node);
         case ast_node_type::function_call:
             return out << dynamic_cast<const ast_function_call&>(node);
+        case ast_node_type::function_return:
+            return out << dynamic_cast<const ast_function_return&>(node);
         case ast_node_type::variable_declaration:
             return out << dynamic_cast<const ast_variable_declaration&>(node);
         default:
@@ -62,6 +68,10 @@ std::ostream& operator<<(std::ostream& out, const ast_integer& integer) {
 
 std::ostream& operator<<(std::ostream& out, const ast_real_number& real_number) {
     return out << real_number.value;
+}
+
+std::ostream& operator<<(std::ostream& out, const ast_string& string) {
+    return out << '"' << string.value << '"';
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_identifier& identifier) {
@@ -103,6 +113,10 @@ std::ostream& operator<<(std::ostream& out, const ast_function_call& func_call) 
     return out << ")";
 }
 
+std::ostream& operator<<(std::ostream& out, const ast_function_return& func_ret) {
+    return out << "return " << *func_ret.value;
+}
+
 std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var) {
     if(var.constant) {
         out << "const ";
@@ -120,8 +134,11 @@ std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var)
 
 std::string generate_c_code(const std::vector<ast_node_ptr>& ast) {
     std::stringstream output;
+    output
+            << "#include <stdio.h>\n"
+            << "#include <stdlib.h>\n";
     for(const auto& node : ast) {
-        output << indent << *node;
+        output << *node;
     }
     return output.str();
 }
