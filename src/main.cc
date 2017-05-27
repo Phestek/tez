@@ -14,6 +14,19 @@ bool check_flag(const std::string& flag, std::vector<std::string>& args) {
     return contains;
 }
 
+bool check_string_option(std::string& out_value, const std::string& flag_prefix, std::vector<std::string>& args) {
+    const auto it = std::find_if(std::begin(args), std::end(args), [&](const std::string& arg){
+        return !arg.compare(0, flag_prefix.size(), flag_prefix);
+    });
+
+    const bool contains = it != std::end(args);
+
+    out_value = it->substr(flag_prefix.size());
+
+    if(contains) args.erase(it);
+    return contains;
+}
+
 void print_usage() {
     std::cout << "Usage:\n"
             "waywardc <input_file>\n";
@@ -48,6 +61,9 @@ int main(int argc, char* argv[]) {
 
     std::vector<std::string> args(argv + 1, argv + argc);
 
+    std::string output_file = "output.c";
+    check_string_option(output_file, "-o=", args);
+
     for(auto& arg : args) {
         if(arg.at(0) == '-') {
             std::cerr << "Unsupported argument: " << arg << "\n";
@@ -66,12 +82,10 @@ int main(int argc, char* argv[]) {
     }
     std::cout << "\n";
 
-    std::string output_file = "output.c";
-
     std::cout << "Ouput file: " << output_file << "\n";
 
     compile(args, output_file);
-    
+
     return 0;
 }
 
