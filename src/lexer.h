@@ -11,10 +11,11 @@ namespace wayward {
 
 class lexer {
 public:
-    lexer(const std::string working_path, const std::string& filename);
+    lexer(const std::string& filename);
     
     // This constructor is only used for unit tests.
-    lexer(const std::string wayward_source);
+    // Second parameter because of stupid amigious call error.
+    lexer(const std::string& wayward_source, bool doesnt_matter);
 
     // Create tokens from given source code.
     std::vector<token> tokenize();

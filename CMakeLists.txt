@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(wayward CXX)
 
-set(CMAKE_CXX_FLAGS "-std=c++1z -Wall -Wextra -pedantic")
+set(CMAKE_CXX_FLAGS "-std=c++1z -Wall -Wextra -Weffc++ -pedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g3 -DDEBUG=1")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG -DDEBUG=0")
 

@@ -14,6 +14,8 @@ enum class ast_node_type {
     identifier,
     unary_operation,
     binary_operation,
+    func_param,
+    function
 };
 
 struct ast_node {
@@ -72,6 +74,37 @@ struct ast_binary_operation final : ast_node {
     ast_node_ptr left;
     ast_node_ptr right;
     std::string  operat;
+};
+
+struct ast_func_param final : ast_node {
+    ast_func_param(const std::string& name, bool constant,
+            const std::string& type)
+            : name{name}, constant{constant}, type{type} {
+        node_type = ast_node_type::func_param;
+    }
+    std::string name;
+    bool        constant;
+    std::string type;
+
+};
+
+struct ast_function final : ast_node {
+    ast_function(const std::string& name,
+            const std::vector<ast_func_param>& params,
+            const std::string& return_type,
+            std::vector<ast_node_ptr>& _body)
+            : name{name}, params{params}, return_type{return_type} {
+        node_type = ast_node_type::function;
+        // Stupid and naive, but works (I hope).
+        body.reserve(_body.size());
+        for(std::size_t i = 0; i < _body.size(); ++i) {
+            body.push_back(std::move(_body[i]));
+        }
+    }
+    std::string                 name;
+    std::vector<ast_func_param> params;
+    std::string                 return_type;
+    std::vector<ast_node_ptr>   body;
 };
 
 }

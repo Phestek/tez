@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #include "lexer.h"
 #include "parser.h"
@@ -10,12 +11,16 @@ void print_usage() {
             "waywardc <input_file>\n";
 }
 
-bool compile(const std::string& working_path, const std::string& input_file,
+bool compile(const std::vector<std::string>& input_files,
         const std::string& output_file) {
-    wayward::lexer lexer{working_path, input_file};
-    auto tokens = lexer.tokenize();
-    if(lexer.errors_reported()) {
-        return false;
+    std::vector<wayward::token> tokens;
+    for(const auto& f : input_files) {
+        wayward::lexer lexer{f};
+        auto t = lexer.tokenize();
+        if(lexer.errors_reported()) {
+            return false;
+        }
+        tokens.insert(tokens.end(), t.begin(), t.end());
     }
 
     wayward::parser parser{tokens};
@@ -57,16 +62,8 @@ int main(int argc, char* argv[]) {
         }
         std::cout << '\n';
         std::cout << "Output file: " << output_file << '\n';
-
-        std::string working_path = argv[1];
-        auto pos = working_path.find_last_of("/\\");
-        if(pos >= working_path.length()) {
-            compile("./", argv[1], output_file);
-        } else {
-            std::string filename = working_path.substr(pos);
-            working_path = working_path.substr(0, pos + 1);
-            compile(working_path, filename, output_file);
-        }
+        
+        compile(input_files, output_file);
     }
     return 0;
 }

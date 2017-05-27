@@ -1,0 +1,11 @@
+# ninja log v5
+0	150	0	CMakeFiles/waywardc_core.dir/src/token.cc.o	60708e16e061c1d5
+0	343	0	CMakeFiles/waywardc_core.dir/src/c_code_gen.cc.o	ff4f1a9d78c42c17
+0	484	0	CMakeFiles/waywardc_core.dir/src/lexer.cc.o	a6c33340651741c5
+0	611	0	CMakeFiles/waywardc_core.dir/src/parser.cc.o	1bf058ee4d5a344e
+611	649	0	libwaywardc_core.a	142199219a133f80
+649	1122	0	CMakeFiles/waywardc.dir/src/main.cc.o	5274c8c8592d7941
+649	1188	0	CMakeFiles/waywardc_tests.dir/test/main.cc.o	9f911243470ff305
+1122	1205	0	waywardc	b6b0954e34edd886
+650	1271	0	CMakeFiles/waywardc_tests.dir/test/lexer_test.cc.o	bab48c01f05ca79c
+1271	1331	0	waywardc_tests	cd2590d0e462d9e4

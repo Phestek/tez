@@ -74,12 +74,13 @@ std::string read_file_content(const std::string& filename) {
 
 }
 
-lexer::lexer(const std::string working_path, const std::string& filename)
-        : _working_path{working_path}, _filename{filename} {
-    _wayward_source = read_file_content(working_path + filename);
+lexer::lexer(const std::string& filename)
+        : _filename{filename} {
+    _wayward_source = read_file_content(filename);
 }
 
-lexer::lexer(const std::string wayward_source) {
+lexer::lexer(const std::string& wayward_source, bool doesnt_matter) {
+    doesnt_matter = false; // Silence this stupid warning.
     _wayward_source = wayward_source;
 }
 
@@ -109,10 +110,13 @@ std::vector<token> lexer::tokenize() {
             }
             if(c == '/' && _wayward_source.at(_current_char + 1) == '*') {
                 ++_current_char;
-                if(_current_char >= _wayward_source.length()) {
-                    report_error("Missing closing \"*/\".");
-                }
                 while(c != '*' && _wayward_source.at(_current_char + 1) != '/') {
+                    if(_current_char >= _wayward_source.length()) {
+                        report_error("Missing closing \"*/\".");
+                    }
+                    if(_wayward_source.at(_current_char) == '\n') {
+                        ++_lines_count;
+                    }
                     c = _wayward_source.at(++_current_char);
                 }
                 ++_current_char;

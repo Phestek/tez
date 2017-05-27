@@ -19,19 +19,31 @@ public:
 private:
     // Tokens iteration helpers.
     token next_token();
+    token next_token(token_type type, token_type skip_until = token_type::semicolon);
     token peek_token(size_t depth = 1) const; // depth = 0 returns current token.
 
-    // Recursive descent parsing.
-    ast_node_ptr expression();
-    ast_node_ptr equality();
-    ast_node_ptr comparison();
-    ast_node_ptr term();
-    ast_node_ptr factor();
-    ast_node_ptr unary();
-    ast_node_ptr primary();
+    // Report error for current token.
+    void report_error(const std::string& message,
+            token_type skip_until = token_type::semicolon);
+    
+    ast_node_ptr statement();
+
+    // Declarations.
+    ast_func_param function_param();
+    ast_node_ptr function_declaration();
+
+    // Recursive descent parsing (for rvalues).
+    ast_node_ptr expression();      // Base.
+    ast_node_ptr equality();        // == !=
+    ast_node_ptr comparison();      // >= <= > <
+    ast_node_ptr term();            // * / %
+    ast_node_ptr factor();          // + -
+    ast_node_ptr unary();           // ! - TODO: & ^ (for pointers)
+    ast_node_ptr primary();         // int, double, bool, identifier
     
     // Helper functions.
     bool match_token(const std::initializer_list<token_type>& types);
+    bool check_token(token_type type) const;    // Validate current token type.
 
     const std::vector<token> _tokens;
     unsigned int             _current;

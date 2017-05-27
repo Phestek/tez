@@ -4,7 +4,7 @@
 
 TEST(lexer, whitespaces) {
     std::string input = " \t\n\r\v\f";
-    wayward::lexer lexer{input};
+    wayward::lexer lexer{input, true};
     auto output = lexer.tokenize();
     
     // All whitespaces should be skipped.
@@ -13,7 +13,7 @@ TEST(lexer, whitespaces) {
 
 TEST(lexer, braces_and_parentheses) {
     std::string input = "({)}";
-    wayward::lexer lexer{input};
+    wayward::lexer lexer{input, true};
     auto output = lexer.tokenize();
 
     ASSERT_EQ(output.at(0).type, wayward::token_type::l_paren);
@@ -24,7 +24,7 @@ TEST(lexer, braces_and_parentheses) {
 
 TEST(lexer, operators) {
     std::string input = "-> == != >=";
-    wayward::lexer lexer{input};
+    wayward::lexer lexer{input, true};
     auto output = lexer.tokenize();
 
     ASSERT_EQ(output.at(0).type, wayward::token_type::arrow);
@@ -35,7 +35,7 @@ TEST(lexer, operators) {
 
 TEST(lexer, integers) {
     std::string input = "17 43 65";
-    wayward::lexer lexer{input};
+    wayward::lexer lexer{input, true};
     auto output = lexer.tokenize();
     
     // All whitespaces should be skipped.
@@ -46,7 +46,7 @@ TEST(lexer, integers) {
 
 TEST(lexer, real_numbers) {
     std::string input = "51.534 823.1 4.54767";
-    wayward::lexer lexer{input};
+    wayward::lexer lexer{input, true};
     auto output = lexer.tokenize();
     
     // All whitespaces should be skipped.
@@ -57,7 +57,7 @@ TEST(lexer, real_numbers) {
 
 TEST(lexer, identifiers) {
     std::string input = "asdf compiler lexer";
-    wayward::lexer lexer{input};
+    wayward::lexer lexer{input, true};
     auto output = lexer.tokenize();
     
     // All whitespaces should be skipped.
