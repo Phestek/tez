@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -5,6 +6,13 @@
 #include "lexer.h"
 #include "parser.h"
 #include "c_code_gen.h"
+
+bool check_flag(const std::string& flag, std::vector<std::string>& args) {
+    const auto it = std::find(std::begin(args), std::end(args), flag);
+    const bool contains = it != std::end(args);
+    if(contains) args.erase(it);
+    return contains;
+}
 
 void print_usage() {
     std::cout << "Usage:\n"
@@ -37,7 +45,34 @@ bool compile(const std::vector<std::string>& input_files,
 }
 
 int main(int argc, char* argv[]) {
-    if(argc < 2) {
+
+    std::vector<std::string> args(argv + 1, argv + argc);
+
+    for(auto& arg : args) {
+        if(arg.at(0) == '-') {
+            std::cerr << "Unsupported argument: " << arg << "\n";
+            return 1;
+        }
+    }
+
+    if(args.empty()) {
+        std::cerr << "No input files\n";
+        return 1;
+    }
+
+    std::cout << "Input files: ";
+    for(auto& f : args) {
+        std::cout << f << ' ';
+    }
+    std::cout << "\n";
+
+    std::string output_file = "output.c";
+
+    std::cout << "Ouput file: " << output_file << "\n";
+
+    compile(args, output_file);
+
+    /*if(argc < 2) {
         print_usage();
     } else {
         std::vector<std::string> input_files;
@@ -64,7 +99,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Output file: " << output_file << '\n';
         
         compile(input_files, output_file);
-    }
+    }*/
     return 0;
 }
 
