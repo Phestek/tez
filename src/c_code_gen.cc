@@ -63,7 +63,21 @@ std::ostream& operator<<(std::ostream& out, const ast_identifier& identifier) {
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_function& function) {
-    out << function.return_type << ' ' << function.name << "() {\n";
+    out << function.return_type << ' ' << function.name << '(';
+    if(function.params.size() == 0) {
+        out << "void";
+    } else {
+        for(std::size_t i = 0; i < function.params.size(); ++i) {
+            if(function.params.at(i).constant) {
+                out << "const ";
+            }
+            out << function.params.at(i).type << ' ' << function.params.at(i).name;
+            if(i < function.params.size() - 1) {
+                out << ", ";
+            }
+        }
+    }
+    out << ") {\n";
     ++indent_level;
     for(const auto& node : function.body) {
         out << indent << *node;

@@ -58,7 +58,7 @@ void parser::report_error(const std::string& message, token_type skip_until) {
 ast_node_ptr parser::statement() {
     ast_node_ptr node;
     auto token = peek_token(0);
-    if(match_token({token_type::kw_func})) {    
+    if(match_token({token_type::kw_func})) {
         node = function_declaration();
     } else {
         node = expression();
@@ -87,9 +87,8 @@ ast_node_ptr parser::function_declaration() {
     std::vector<ast_func_param> params;
     if(!check_token(token_type::r_paren)) {
         do {
-            //params.push_back(function_param());
-            next_token();
-        } while(check_token(token_type::comma));
+            params.push_back(function_param());
+        } while(match_token({token_type::comma}));
     }
     next_token(token_type::r_paren);
     // Return type.
