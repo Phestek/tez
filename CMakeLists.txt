@@ -16,7 +16,7 @@ set(SRC_FILES
         src/lexer.cc src/lexer.h
         src/parser.cc src/parser.h
         src/token.cc src/token.h
-        src/util.h)
+        src/utilities.h)
 add_library(waywardc_core STATIC ${SRC_FILES})
 
 add_executable(waywardc src/main.cc)
