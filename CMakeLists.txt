@@ -22,17 +22,19 @@ add_executable(waywardc src/main.cc)
 target_include_directories(waywardc PUBLIC src)
 target_link_libraries(waywardc waywardc_core)
 
-enable_testing()
-set(TEST_FILES
-        test/main.cc
-        test/lexer_test.cc)
+IF(DISABLE_TESTING)
+        enable_testing()
+        set(TEST_FILES
+                test/main.cc
+                test/lexer_test.cc)
 
-add_executable(waywardc_tests ${TEST_FILES})
-target_include_directories(waywardc PRIVATE src)
-add_test(
-        NAME    test_all_in_waywardc
-        COMMAND waywardc_tests)
-find_package(GTest REQUIRED)
-target_include_directories(waywardc_tests PRIVATE src ${GTEST_INCLUDE_DIRS})
-target_link_libraries(waywardc_tests waywardc_core ${GTEST_BOTH_LIBRARIES})
+        add_executable(waywardc_tests ${TEST_FILES})
+        target_include_directories(waywardc PRIVATE src)
+        add_test(
+                NAME    test_all_in_waywardc
+                COMMAND waywardc_tests)
+        find_package(GTest REQUIRED)
+        target_include_directories(waywardc_tests PRIVATE src ${GTEST_INCLUDE_DIRS})
+        target_link_libraries(waywardc_tests waywardc_core ${GTEST_BOTH_LIBRARIES})
+ENDIF(DISABLE_TESTING)
 

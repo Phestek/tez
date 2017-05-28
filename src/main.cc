@@ -21,15 +21,20 @@ bool check_string_option(std::string& out_value, const std::string& flag_prefix,
 
     const bool contains = it != std::end(args);
 
-    out_value = it->substr(flag_prefix.size());
+    if(contains) {
+        out_value = it->substr(flag_prefix.size());
+        args.erase(it);
+    }
 
-    if(contains) args.erase(it);
     return contains;
 }
 
-void print_usage() {
-    std::cout << "Usage:\n"
-            "waywardc <input_file>\n";
+void print_help() {
+    std::cout << "Wayward compiler\n\n"
+              << "Usage: waywardc <inputs> [options]\n\n"
+              << "Commands: \n"
+              << " -help        - Display this help and exit\n"
+              << " -o=<file>    - Set the output file to <file>\n";
 }
 
 bool compile(const std::vector<std::string>& input_files,
@@ -60,6 +65,12 @@ bool compile(const std::vector<std::string>& input_files,
 int main(int argc, char* argv[]) {
 
     std::vector<std::string> args(argv + 1, argv + argc);
+
+    if(check_flag("-help", args) || check_flag("--help", args)
+        	|| check_flag("-h", args)) {
+        print_help();
+        return 0;
+    }
 
     std::string output_file = "output.c";
     check_string_option(output_file, "-o=", args);
