@@ -8,6 +8,7 @@ namespace wayward {
 
 enum class ast_node_type {
     undefined,
+    block,
     boolean,
     integer,
     real_number,
@@ -19,7 +20,9 @@ enum class ast_node_type {
     function_declaration,
     function_return,
     function_call,
-    variable_declaration
+    variable_declaration,
+    _if,
+    _for,
 };
 
 struct ast_node {
@@ -27,6 +30,14 @@ struct ast_node {
     ast_node_type node_type = ast_node_type::undefined;
 };
 using ast_node_ptr = std::unique_ptr<ast_node>;
+
+struct ast_block final : ast_node {
+    ast_block(std::vector<ast_node_ptr>& statements)
+            : statements{std::move(statements)} {
+        node_type = ast_node_type::block;
+    }
+    std::vector<ast_node_ptr> statements;
+};
 
 struct ast_boolean final : ast_node {
     ast_boolean(bool value)
@@ -97,7 +108,6 @@ struct ast_func_param final : ast_node {
     std::string name;
     bool        constant;
     std::string type;
-
 };
 
 struct ast_function_declaration final : ast_node {
@@ -105,18 +115,15 @@ struct ast_function_declaration final : ast_node {
             const std::string& name,
             const std::vector<ast_func_param>& params,
             const std::string& return_type,
-            std::vector<ast_node_ptr>& _body)
-            : name{name}, params{params}, return_type{return_type} {
+            ast_block body)
+            : name{name}, params{params}, return_type{return_type},
+              body{std::move(body)} {
         node_type = ast_node_type::function_declaration;
-        body.reserve(_body.size());
-        for(auto& statement : _body) {
-            body.push_back(std::move(statement));
-        }
     }
     std::string                 name;
     std::vector<ast_func_param> params;
     std::string                 return_type;
-    std::vector<ast_node_ptr>   body;
+    ast_block                   body;
 };
 
 struct ast_function_return final : ast_node {
@@ -128,12 +135,9 @@ struct ast_function_return final : ast_node {
 };
 
 struct ast_function_call final : ast_node {
-    ast_function_call(const std::string& name, std::vector<ast_node_ptr>& _params)
-            : name{name} {
+    ast_function_call(const std::string& name, std::vector<ast_node_ptr>& params)
+            : name{name}, params{std::move(params)} {
         node_type = ast_node_type::function_call;
-        for(auto& param : _params) {
-            params.push_back(std::move(param));
-        }
     }
     std::string               name;
     std::vector<ast_node_ptr> params;
@@ -150,6 +154,17 @@ struct ast_variable_declaration final : ast_node {
     bool         constant;
     std::string  type;
     ast_node_ptr initializer;
+};
+
+struct ast_if final : ast_node {
+    ast_if(ast_node_ptr condition, ast_block if_block, ast_node_ptr else_block)
+            : condition{std::move(condition)}, if_block{std::move(if_block)},
+              else_block{std::move(else_block)} {
+        node_type = ast_node_type::_if;
+    }
+    ast_node_ptr condition;
+    ast_block    if_block;
+    ast_node_ptr else_block;
 };
 
 }

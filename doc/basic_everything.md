@@ -26,3 +26,18 @@ let a: int = 10;    // Constant.
 var b: int = 20;    // Variable.
 ```
 
+## Primitive types.
+```
+int     // 64-bit on 64-bit platform, 32-bit on 32-bit platform.
+int8
+int16
+int32
+int64
+uint    // 64-bit on 64-bit platform, 32-bit on 32-bit platform.
+uint8
+uint16
+uint32
+uint64
+float32
+float64
+

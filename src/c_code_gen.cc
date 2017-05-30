@@ -12,6 +12,7 @@ std::size_t indent_level = 0;
 
 std::ostream& indent(std::ostream& out);
 std::ostream& operator<<(std::ostream& out, const ast_node& node);
+std::ostream& operator<<(std::ostream& out, const ast_block& block);
 std::ostream& operator<<(std::ostream& out, const ast_binary_operation& bin);
 std::ostream& operator<<(std::ostream& out, const ast_boolean& boolean);
 std::ostream& operator<<(std::ostream& out, const ast_integer& integer);
@@ -22,6 +23,7 @@ std::ostream& operator<<(std::ostream& out, const ast_function_declaration& func
 std::ostream& operator<<(std::ostream& out, const ast_function_call& func_call);
 std::ostream& operator<<(std::ostream& out, const ast_function_return& func_ret);
 std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var);
+std::ostream& operator<<(std::ostream& out, const ast_if& _if);
 
 std::ostream& indent(std::ostream& out) {
     return out << ";\n" << std::string(indent_level * 4, ' ');
@@ -29,6 +31,8 @@ std::ostream& indent(std::ostream& out) {
 
 std::ostream& operator<<(std::ostream& out, const ast_node& node) {
     switch(node.node_type) {
+        case ast_node_type::block:
+            return out << dynamic_cast<const ast_block&>(node);
         case ast_node_type::binary_operation:
             return out << dynamic_cast<const ast_binary_operation&>(node);
         case ast_node_type::boolean:
@@ -49,9 +53,21 @@ std::ostream& operator<<(std::ostream& out, const ast_node& node) {
             return out << dynamic_cast<const ast_function_return&>(node);
         case ast_node_type::variable_declaration:
             return out << dynamic_cast<const ast_variable_declaration&>(node);
+        case ast_node_type::_if:
+            return out << dynamic_cast<const ast_if&>(node);
         default:
             return out << "<not implemented>";
     }
+}
+
+std::ostream& operator<<(std::ostream& out, const ast_block& block) {
+    out << '{';
+    ++indent_level;
+    for(const auto& statement : block.statements) {
+        out << indent << *statement;
+    }
+    --indent_level;
+    return out << indent << "}\n";
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_binary_operation& bin) {
@@ -93,13 +109,7 @@ std::ostream& operator<<(std::ostream& out, const ast_function_declaration& func
             }
         }
     }
-    out << ") {";
-    ++indent_level;
-    for(const auto& node : function.body) {
-        out << indent << *node;
-    }
-    --indent_level;
-    return out << ";\n}\n";
+    return out << ") " << function.body;
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_function_call& func_call) {
@@ -128,6 +138,14 @@ std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var)
         out << *var.initializer;
     }
     return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const ast_if& _if) {
+    out << "if(" << *_if.condition << ") " << _if.if_block;
+    if(_if.else_block == nullptr) {
+        return out;
+    }
+    return out << " else " << *_if.else_block;
 }
 
 }

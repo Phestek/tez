@@ -77,8 +77,10 @@ ast_node_ptr parser::statement() {
     } else if(match_token({token_type::kw_return})) {
         node = std::make_unique<ast_function_return>(expression());
         next_token(token_type::semicolon);
+    } else if(match_token({token_type::kw_if})) {
+        node = parse_if();
     } else {
-        report_error("Unexpected token " + to_string(token.type));
+        node = expression();
     }
     return node;
 }
@@ -136,8 +138,7 @@ ast_node_ptr parser::variable_declaration(bool constant) {
      * 2) var a: int = 10; <- explicit type + explicit initializer.
      * these 2 are super easy to implement. the problem is 3rd one:
      * 3) var a = 10;      <- implicit type
-     * it requires some kind of resolver to deduct type. applies to
-     * generics too. */
+     * it requires some kind of resolver to deduct type. */
     auto name = next_token(token_type::identifier).value;
     next_token(token_type::colon);
     auto type = next_token(token_type::identifier).value;
@@ -146,6 +147,31 @@ ast_node_ptr parser::variable_declaration(bool constant) {
                 expression());
     }
     return std::make_unique<ast_variable_declaration>(name, constant, type, nullptr);
+}
+
+ast_node_ptr parser::parse_if() {
+    auto condition = expression();
+    next_token(token_type::l_brace);
+    std::vector<ast_node_ptr> if_block;
+    while(!match_token({token_type::r_brace})) {
+        if_block.push_back(statement());
+    }
+    if(!match_token({token_type::kw_else})) {
+        return std::make_unique<ast_if>(std::move(condition), if_block, nullptr);
+    }
+    ast_node_ptr else_block;                // Else block may also be just if!
+    if(match_token({token_type::kw_if})) {  // Because of "else if".
+        else_block = parse_if();
+    } else {
+        std::vector<ast_node_ptr> else_body;
+        next_token(token_type::l_brace);
+        while(!match_token({token_type::r_brace})) {
+            else_body.push_back(statement());
+        }
+        else_block = std::make_unique<ast_block>(else_body);
+    }
+    return std::make_unique<ast_if>(std::move(condition), if_block,
+            std::move(else_block));
 }
 
 ast_node_ptr parser::expression() {
