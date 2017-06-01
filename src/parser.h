@@ -41,6 +41,8 @@ private:
     ast_node_ptr if_statement();
     ast_node_ptr while_statement();
     ast_node_ptr for_statement();
+    
+    ast_node_ptr assignment(token token);
 
     // Recursive descent parsing (for rvalues).
     ast_node_ptr expression();      // Base.

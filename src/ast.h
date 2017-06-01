@@ -178,6 +178,20 @@ struct ast_while final : ast_node {
     ast_block    body;
 };
 
+struct ast_for final : ast_node {
+    ast_for(ast_node_ptr init_statement, ast_node_ptr condition,
+            ast_node_ptr iteration_expr, ast_block body)
+            : init_statement{std::move(init_statement)},
+              condition{std::move(condition)},
+              iteration_expr{std::move(iteration_expr)}, body{std::move(body)} {
+        node_type = ast_node_type::_for;
+    }
+    ast_node_ptr init_statement;
+    ast_node_ptr condition;
+    ast_node_ptr iteration_expr;
+    ast_block    body;
+};
+
 }
 
 #endif //WAYWARD_AST_H
