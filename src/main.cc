@@ -7,6 +7,8 @@
 #include "parser.h"
 #include "c_code_gen.h"
 
+#include "utilities.h"
+
 bool check_flag(const std::string& flag, std::vector<std::string>& args) {
     const auto it = std::find(std::begin(args), std::end(args), flag);
     const bool contains = it != std::end(args);
@@ -77,14 +79,16 @@ int main(int argc, char* argv[]) {
 
     for(auto& arg : args) {
         if(arg.at(0) == '-') {
-            std::cerr << "Unsupported argument: " << arg << "\n";
-            return 1;
+            // std::cerr << "Unsupported argument: " << arg << "\n";
+            print_error_and_exit("Unsupport argument: ", arg);
+            // return 1;
         }
     }
 
     if(args.empty()) {
-        std::cerr << "No input files\n";
-        return 1;
+        // std::cerr << "No input files\n";
+        // return 1;
+        print_error_and_exit("No input files");
     }
 
     std::cout << "Input files: ";
