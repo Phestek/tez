@@ -17,12 +17,17 @@ public:
     bool errors_reported() const;
 
 private:
-    // Tokens iteration helpers.
+    /** Just get next token. */
     token next_token();
+    /** Validates token type and returns it. Error is reported if check fails. */
     token next_token(token_type type);
-    token peek_token(size_t depth = 1) const; // depth = 0 returns current token.
+    /** Peek token; depth = 0 returns current token. */
+    token peek_token(size_t depth = 1) const;
+    /** Check next token type. If it matches any of given types, return it. */
+    bool match_token(const std::initializer_list<token_type>& types);
+    /** Check token type; returns false if eof. */
+    bool check_token(token_type type) const;
 
-    // Report error for current token.
     void report_error(const std::string& message);
     
     ast_node_ptr statement();
@@ -44,13 +49,9 @@ private:
     ast_node_ptr factor();          // + -
     ast_node_ptr unary();           // ! - TODO: & ^ (for pointers)
     ast_node_ptr primary();         // int, double, bool, identifier
-    
-    // Helper functions.
-    bool match_token(const std::initializer_list<token_type>& types);
-    bool check_token(token_type type) const;    // Validate current token type.
 
     const std::vector<token> _tokens;
-    unsigned int             _current;
+    unsigned int             _current = 0;
 
     bool _errors_reported = false;
 };

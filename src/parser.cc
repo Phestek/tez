@@ -261,7 +261,7 @@ ast_node_ptr parser::primary() {
             return std::make_unique<ast_identifier>(token.value);
         }
     }
-    report_error("Unexpected token");
+    report_error("Expected primary expression, got " + to_string(token.type));
     return nullptr;
 }
 

@@ -10,6 +10,7 @@ namespace {
 // I know, I know - global variable.
 std::size_t indent_level = 0;
 
+std::string print_statement(const ast_node& node);
 std::ostream& indent(std::ostream& out);
 std::ostream& operator<<(std::ostream& out, const ast_node& node);
 std::ostream& operator<<(std::ostream& out, const ast_block& block);
@@ -25,8 +26,19 @@ std::ostream& operator<<(std::ostream& out, const ast_function_return& func_ret)
 std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var);
 std::ostream& operator<<(std::ostream& out, const ast_if& _if);
 
+std::string print_statement(const ast_node& node) {
+    std::stringstream ss;
+    ss << indent << node;
+    if(node.node_type != ast_node_type::block
+            && node.node_type != ast_node_type::function_declaration) {
+        ss << ';';
+    }
+    ss << '\n';
+    return ss.str();
+}
+
 std::ostream& indent(std::ostream& out) {
-    return out << ";\n" << std::string(indent_level * 4, ' ');
+    return out << std::string(indent_level * 4, ' ');
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_node& node) {
@@ -61,10 +73,10 @@ std::ostream& operator<<(std::ostream& out, const ast_node& node) {
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_block& block) {
-    out << '{';
+    out << "{\n";
     ++indent_level;
     for(const auto& statement : block.statements) {
-        out << indent << *statement;
+        out << print_statement(*statement);
     }
     --indent_level;
     return out << indent << "}\n";
@@ -156,7 +168,7 @@ std::string generate_c_code(const std::vector<ast_node_ptr>& ast) {
             << "#include <stdio.h>\n"
             << "#include <stdlib.h>\n";
     for(const auto& node : ast) {
-        output << *node;
+        output << print_statement(*node);
     }
     return output.str();
 }
