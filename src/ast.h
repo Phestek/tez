@@ -8,21 +8,23 @@ namespace wayward {
 
 enum class ast_node_type {
     undefined,
-    block,
-    boolean,
-    integer,
-    real_number,
-    string,
-    identifier,
-    unary_operation,
-    binary_operation,
-    func_param,
-    function_declaration,
-    function_return,
-    function_call,
-    variable_declaration,
-    _if,
-    _for,
+    block,                  // Represents a block of code - { ... } .
+    boolean,                // True / false value.
+    integer,                // Integer value.
+    real_number,            // Floating point value.
+    string,                 // Sequence of characters.
+    identifier,             // Variable / constant name.
+    unary_operation,        // Operation with single operand.
+    binary_operation,       // Operation with two operands.
+    func_param,             // Function parameter.
+    function_declaration,   // Function declaration.
+    function_return,        // 'return'.
+    function_call,          // Call to (previously declared) function.
+    type,                   // Type representation. Just type, pointer or array.
+    variable_declaration,   // Used both for 'var' and 'let'.
+    _if,                    // 'if else' statement.
+    _while,                 // 'while' loop.
+    _for,                   // 'for' loop.
 };
 
 struct ast_node {
@@ -165,6 +167,15 @@ struct ast_if final : ast_node {
     ast_node_ptr condition;
     ast_block    if_block;
     ast_node_ptr else_block;
+};
+
+struct ast_while final : ast_node {
+    ast_while(ast_node_ptr condition, ast_block body)
+            : condition{std::move(condition)}, body{std::move(body)} {
+        node_type = ast_node_type::_while;
+    }
+    ast_node_ptr condition;
+    ast_block    body;
 };
 
 }

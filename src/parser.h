@@ -38,8 +38,9 @@ private:
     ast_node_ptr function_call(const std::string& name);
     ast_node_ptr variable_declaration(bool constant);
 
-    ast_node_ptr parse_if();
-    ast_node_ptr parse_for();
+    ast_node_ptr if_statement();
+    ast_node_ptr while_statement();
+    ast_node_ptr for_statement();
 
     // Recursive descent parsing (for rvalues).
     ast_node_ptr expression();      // Base.

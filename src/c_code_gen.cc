@@ -25,12 +25,16 @@ std::ostream& operator<<(std::ostream& out, const ast_function_call& func_call);
 std::ostream& operator<<(std::ostream& out, const ast_function_return& func_ret);
 std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var);
 std::ostream& operator<<(std::ostream& out, const ast_if& _if);
+std::ostream& operator<<(std::ostream& out, const ast_while& _while);
 
 std::string print_statement(const ast_node& node) {
     std::stringstream ss;
     ss << indent << node;
-    if(node.node_type != ast_node_type::block
-            && node.node_type != ast_node_type::function_declaration) {
+    if(node.node_type != ast_node_type::block   // TODO: Find better way to do it.
+            && node.node_type != ast_node_type::function_declaration
+            && node.node_type != ast_node_type::_if
+            && node.node_type != ast_node_type::_while
+            && node.node_type != ast_node_type::_for) {
         ss << ';';
     }
     ss << '\n';
@@ -67,6 +71,8 @@ std::ostream& operator<<(std::ostream& out, const ast_node& node) {
             return out << dynamic_cast<const ast_variable_declaration&>(node);
         case ast_node_type::_if:
             return out << dynamic_cast<const ast_if&>(node);
+        case ast_node_type::_while:
+            return out << dynamic_cast<const ast_while&>(node);
         default:
             return out << "<not implemented>";
     }
@@ -158,6 +164,10 @@ std::ostream& operator<<(std::ostream& out, const ast_if& _if) {
         return out;
     }
     return out << " else " << *_if.else_block;
+}
+
+std::ostream& operator<<(std::ostream& out, const ast_while& _while) {
+    return out << "while(" << *_while.condition << ") " << _while.body;
 }
 
 }
