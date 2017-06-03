@@ -84,6 +84,8 @@ ast_node_ptr parser::statement() {
         node = if_statement();
     } else if(match_token({token_type::kw_while})) {
         node = while_statement();
+    } else if(match_token({token_type::kw_for})) {
+        node = for_statement();
     } else {
         node = expression();
         next_token(token_type::semicolon);
@@ -188,6 +190,20 @@ ast_node_ptr parser::while_statement() {
         body.push_back(statement());
     }
     return std::make_unique<ast_while>(std::move(condition), body);
+}
+
+ast_node_ptr parser::for_statement() {
+    auto init_statement = statement();
+    auto condition = expression();
+    next_token(token_type::semicolon);
+    auto iteration_expr = statement();
+    next_token(token_type::l_brace);
+    std::vector<ast_node_ptr> body;
+    while(!match_token({token_type::r_brace})) {
+        body.push_back(statement());
+    }
+    return std::make_unique<ast_for>(std::move(init_statement),
+            std::move(condition), std::move(iteration_expr), body);
 }
 
 ast_node_ptr parser::assignment(token token) {

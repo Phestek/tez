@@ -27,6 +27,7 @@ std::ostream& operator<<(std::ostream& out, const ast_function_return& func_ret)
 std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var);
 std::ostream& operator<<(std::ostream& out, const ast_if& _if);
 std::ostream& operator<<(std::ostream& out, const ast_while& _while);
+std::ostream& operator<<(std::ostream& out, const ast_for& _for);
 
 std::string print_statement(const ast_node& node) {
     std::stringstream ss;
@@ -76,6 +77,8 @@ std::ostream& operator<<(std::ostream& out, const ast_node& node) {
             return out << dynamic_cast<const ast_if&>(node);
         case ast_node_type::_while:
             return out << dynamic_cast<const ast_while&>(node);
+        case ast_node_type::_for:
+            return out << dynamic_cast<const ast_for&>(node);
         default:
             return out << "<not implemented>";
     }
@@ -88,7 +91,7 @@ std::ostream& operator<<(std::ostream& out, const ast_block& block) {
         out << print_statement(*statement);
     }
     --indent_level;
-    return out << indent << "}\n";
+    return out << indent << "}";
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_binary_operation& bin) {
@@ -177,6 +180,11 @@ std::ostream& operator<<(std::ostream& out, const ast_while& _while) {
     return out << "while(" << *_while.condition << ") " << _while.body;
 }
 
+std::ostream& operator<<(std::ostream& out, const ast_for& _for) {
+    return out << "for(" << *_for.init_statement << "; " << *_for.condition
+            << "; " << *_for.iteration_expr << ") "<< _for.body;
+}
+
 }
 
 std::string generate_c_code(const std::vector<ast_node_ptr>& ast) {
@@ -187,6 +195,7 @@ std::string generate_c_code(const std::vector<ast_node_ptr>& ast) {
     for(const auto& node : ast) {
         output << print_statement(*node);
     }
+    output << '\n';
     return output.str();
 }
 
