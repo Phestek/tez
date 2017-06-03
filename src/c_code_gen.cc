@@ -163,7 +163,7 @@ std::ostream& operator<<(std::ostream& out, const ast_if& _if) {
     if(_if.else_block == nullptr) {
         return out;
     }
-    return out << " else " << *_if.else_block;
+    return out << indent << "else " << *_if.else_block;
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_while& _while) {
