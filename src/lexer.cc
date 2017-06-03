@@ -124,7 +124,6 @@ std::vector<token> lexer::tokenize() {
                 ++_current_char;
                 continue;
             }
-
             if(c == '\n') {
                 ++_lines_count;
                 _columns_count = _current_char;
@@ -133,7 +132,6 @@ std::vector<token> lexer::tokenize() {
                 ++_current_char;
                 continue;
             }
-
             if(c == '"') { // String.
                 std::string string;
                 c = _wayward_source.at(++_current_char);
@@ -146,6 +144,7 @@ std::vector<token> lexer::tokenize() {
                 continue;
             }
             if(c == '\'') {
+                std::size_t beginning = _current_char - _columns_count;
                 std::string character = {_wayward_source.at(++_current_char)};
                 if(character == "\\") {
                     character += _wayward_source.at(++_current_char);
@@ -157,25 +156,21 @@ std::vector<token> lexer::tokenize() {
                     }
                 }
                 ++_current_char;
-                push_token(token_type::character, {character});
+                push_token(token_type::character, {character}, beginning);
                 continue;
             }
-
             if(std::ispunct(c)) {
                 push_operator(c);
                 continue;
             }
-
             if(std::isdigit(c)) {
                 push_number(c);
                 continue;
             }
-
             if(std::isalpha(c) || c == '_') {
                 push_identifier(c);
                 continue;
             }
-
             report_error("Unexpected character '" + std::string{c} + "'");
         }
     } catch(const std::out_of_range& e) {
@@ -184,9 +179,18 @@ std::vector<token> lexer::tokenize() {
     return _tokens;
 }
 
+char lexer::peek_char(std::size_t depth) const {
+    return _wayward_source.at(_current_char + depth);
+}
+
 void lexer::push_token(token_type type, const std::string& value) {
     _tokens.push_back({type, value, _filename, _lines_count,
             _current_char - _columns_count});
+}
+
+void lexer::push_token(token_type type, const std::string& value,
+        unsigned int col) {
+    _tokens.push_back({type, value, _filename, _lines_count, col});
 }
 
 void lexer::push_operator(char c) {
@@ -194,34 +198,74 @@ void lexer::push_operator(char c) {
         case '{':
             push_token(token_type::l_brace, "");
             ++_current_char;
-            return;
+            break;
         case '}':
             push_token(token_type::r_brace, "");
             ++_current_char;
-            return;
+            break;
         case '(':
             push_token(token_type::l_paren, "");
             ++_current_char;
-            return;
+            break;
         case ')':
             push_token(token_type::r_paren, "");
             ++_current_char;
-            return;
-    }
-    std::string operat;
-    while(std::ispunct(c)) {
-        try {
-            operat += c;
-            c = _wayward_source.at(++_current_char);
-        } catch(const std::out_of_range& e) {
+            break;
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '%': {
+            if(peek_char() == '=') {
+                auto op = std::string{c} + std::string{peek_char()};
+                auto o = _operators.find(op);   // It's sure to find.
+                push_token(o->second);
+                _current_char += 2;
+                break;
+            }
+            if(c == '-') {
+                if(peek_char() == '>') {
+                    push_token(token_type::arrow);
+                    _current_char += 2;
+                }
+                break;
+            }
+            auto o = _operators.find(std::string{c});
+            if(o != _operators.end()) {
+                push_token(o->second, "");
+            } else {
+                report_error("Unexpected character '" + std::string{c} + "'");
+            }
+            ++_current_char;
             break;
         }
-    }
-    auto o = _operators.find(operat);
-    if(o != _operators.end()) {
-        push_token(o->second, "");
-    } else {
-        report_error("Unexpected character '" + std::string{c} + "'");
+        case '=':
+        case '!':
+        case '<':
+        case '>': {
+            if(peek_char() == '=') {
+                std::string op = std::string{c} + std::string{peek_char()};
+                auto o = _operators.find(op);   // It's sure to find.
+                push_token(o->second);
+                _current_char += 2;
+            }
+            auto o = _operators.find(std::string{c});
+            if(o != _operators.end()) {
+                push_token(o->second);
+            } else {
+                report_error("Unexpected character '" + std::string{c} + "'");
+            }
+            ++_current_char;
+            break;
+        }
+        default:
+            auto o = _operators.find(std::string{c});
+            if(o != _operators.end()) {
+                push_token(o->second);
+            } else {
+                report_error("Unexpected character '" + std::string{c} + "'");
+            }
+            ++_current_char;
     }
 }
 

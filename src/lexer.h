@@ -25,7 +25,11 @@ public:
 private:
     void report_error(const std::string& message);
     
-    void push_token(token_type type, const std::string& value);
+    char peek_char(std::size_t depth = 1) const;
+
+    void push_token(token_type type, const std::string& value = "");
+    void push_token(token_type type, const std::string& value,
+            unsigned int col);
 
     void push_operator(char c);
     void push_number(char c);
