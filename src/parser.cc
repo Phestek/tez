@@ -69,14 +69,6 @@ ast_node_ptr parser::statement() {
     } else if(match_token({token_type::kw_var})) {
         node = variable_declaration(false);
         next_token(token_type::semicolon);
-    } else if(match_token({token_type::identifier})) {
-        if(match_token({token_type::l_paren})) {
-            node = function_call(token.value);
-            next_token(token_type::semicolon);
-        } else if(match_token({token_type::equals})) {
-            node = assignment(token);
-            next_token(token_type::semicolon);
-        }
     } else if(match_token({token_type::kw_return})) {
         node = std::make_unique<ast_function_return>(expression());
         next_token(token_type::semicolon);
@@ -194,9 +186,8 @@ ast_node_ptr parser::while_statement() {
 
 ast_node_ptr parser::for_statement() {
     auto init_statement = statement();
-    auto condition = expression();
-    next_token(token_type::semicolon);
-    auto iteration_expr = statement();
+    auto condition      = statement();
+    auto iteration_expr = expression();
     next_token(token_type::l_brace);
     std::vector<ast_node_ptr> body;
     while(!match_token({token_type::r_brace})) {
@@ -206,13 +197,21 @@ ast_node_ptr parser::for_statement() {
             std::move(condition), std::move(iteration_expr), body);
 }
 
-ast_node_ptr parser::assignment(token token) {
-    return std::make_unique<ast_binary_operation>(
-            std::make_unique<ast_identifier>(token.value), expression(), "=");
+ast_node_ptr parser::expression() {
+    return assignment();
 }
 
-ast_node_ptr parser::expression() {
-    return equality();
+ast_node_ptr parser::assignment() {
+    auto expr = equality();
+    while(match_token({token_type::equals, token_type::plus_equals,
+            token_type::minus_equals, token_type::multiply_equals,
+            token_type::divide_equals, token_type::modulo_equals})) {
+        const auto op = peek_token(-1);
+        auto right = equality();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(op.type));
+    }
+    return expr;
 }
 
 ast_node_ptr parser::equality() {
