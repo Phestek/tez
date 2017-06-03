@@ -16,6 +16,7 @@ enum class ast_node_type {
     identifier,             // Variable / constant name.
     unary_operation,        // Operation with single operand.
     binary_operation,       // Operation with two operands.
+    grouping_expression,    // Expression inside parenthesis.
     func_param,             // Function parameter.
     function_declaration,   // Function declaration.
     function_return,        // 'return'.
@@ -99,6 +100,14 @@ struct ast_binary_operation final : ast_node {
     ast_node_ptr left;
     ast_node_ptr right;
     std::string  operat;
+};
+
+struct ast_grouping_expression final : ast_node {
+    ast_grouping_expression(ast_node_ptr expr)
+            : expr{std::move(expr)} {
+        node_type = ast_node_type::grouping_expression;
+    }
+    ast_node_ptr expr;
 };
 
 struct ast_func_param final : ast_node {

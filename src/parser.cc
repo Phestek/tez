@@ -275,6 +275,11 @@ ast_node_ptr parser::primary() {
     if(match_token({token_type::string})) {
         return std::make_unique<ast_string>(token.value);
     }
+    if(match_token({token_type::l_paren})) {
+        auto expr = std::make_unique<ast_grouping_expression>(expression());
+        next_token(token_type::r_paren);
+        return expr;
+    }
     if(match_token({token_type::identifier})) {
         if(match_token({token_type::l_paren})) {
             return function_call(token.value);

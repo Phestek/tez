@@ -15,6 +15,7 @@ std::ostream& indent(std::ostream& out);
 std::ostream& operator<<(std::ostream& out, const ast_node& node);
 std::ostream& operator<<(std::ostream& out, const ast_block& block);
 std::ostream& operator<<(std::ostream& out, const ast_binary_operation& bin);
+std::ostream& operator<<(std::ostream& out, const ast_grouping_expression& expr);
 std::ostream& operator<<(std::ostream& out, const ast_boolean& boolean);
 std::ostream& operator<<(std::ostream& out, const ast_integer& integer);
 std::ostream& operator<<(std::ostream& out, const ast_real_number& real_number);
@@ -51,6 +52,8 @@ std::ostream& operator<<(std::ostream& out, const ast_node& node) {
             return out << dynamic_cast<const ast_block&>(node);
         case ast_node_type::binary_operation:
             return out << dynamic_cast<const ast_binary_operation&>(node);
+        case ast_node_type::grouping_expression:
+            return out << dynamic_cast<const ast_grouping_expression&>(node);
         case ast_node_type::boolean:
             return out << dynamic_cast<const ast_boolean&>(node);
         case ast_node_type::integer:
@@ -90,6 +93,10 @@ std::ostream& operator<<(std::ostream& out, const ast_block& block) {
 
 std::ostream& operator<<(std::ostream& out, const ast_binary_operation& bin) {
     return out << *bin.left << ' ' << bin.operat << ' ' << *bin.right;
+}
+
+std::ostream& operator<<(std::ostream& out, const ast_grouping_expression& expr) {
+    return out << '(' << *expr.expr << ')';
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_boolean& boolean) {
