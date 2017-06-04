@@ -25,6 +25,7 @@ enum class ast_node_type {
     variable_declaration,   // Used both for 'var' and 'let'.
     _if,                    // 'if else' statement.
     _while,                 // 'while' loop.
+    do_while,               // 'do { ... } while' loop.
     _for,                   // 'for' loop.
 };
 
@@ -182,6 +183,15 @@ struct ast_while final : ast_node {
     ast_while(ast_node_ptr condition, ast_block body)
             : condition{std::move(condition)}, body{std::move(body)} {
         node_type = ast_node_type::_while;
+    }
+    ast_node_ptr condition;
+    ast_block    body;
+};
+
+struct ast_do_while final : ast_node {
+    ast_do_while(ast_node_ptr condition, ast_block body)
+            : condition{std::move(condition)}, body{std::move(body)} {
+        node_type = ast_node_type::do_while;
     }
     ast_node_ptr condition;
     ast_block    body;

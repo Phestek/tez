@@ -40,6 +40,7 @@ private:
 
     ast_node_ptr if_statement();
     ast_node_ptr while_statement();
+    ast_node_ptr do_while_statement();
     ast_node_ptr for_statement();
 
     // Recursive descent parsing (for rvalues).

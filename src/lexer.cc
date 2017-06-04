@@ -19,6 +19,7 @@ const std::map<std::string, token_type> lexer::_keywords{
     {"if",     token_type::kw_if},
     {"else",   token_type::kw_else},
     {"while",  token_type::kw_while},
+    {"do",     token_type::kw_do},
     {"for",    token_type::kw_for},
     {"true",   token_type::kw_true},
     {"false",  token_type::kw_false},

@@ -27,6 +27,7 @@ std::ostream& operator<<(std::ostream& out, const ast_function_return& func_ret)
 std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var);
 std::ostream& operator<<(std::ostream& out, const ast_if& _if);
 std::ostream& operator<<(std::ostream& out, const ast_while& _while);
+std::ostream& operator<<(std::ostream& out, const ast_do_while& _while);
 std::ostream& operator<<(std::ostream& out, const ast_for& _for);
 
 std::string print_statement(const ast_node& node) {
@@ -77,6 +78,8 @@ std::ostream& operator<<(std::ostream& out, const ast_node& node) {
             return out << dynamic_cast<const ast_if&>(node);
         case ast_node_type::_while:
             return out << dynamic_cast<const ast_while&>(node);
+        case ast_node_type::do_while:
+            return out << dynamic_cast<const ast_do_while&>(node);
         case ast_node_type::_for:
             return out << dynamic_cast<const ast_for&>(node);
         default:
@@ -178,6 +181,11 @@ std::ostream& operator<<(std::ostream& out, const ast_if& _if) {
 
 std::ostream& operator<<(std::ostream& out, const ast_while& _while) {
     return out << "while(" << *_while.condition << ") " << _while.body;
+}
+
+std::ostream& operator<<(std::ostream& out, const ast_do_while& do_while) {
+    return out << "do " << do_while.body << " while(" << *do_while.condition
+            << ')';
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_for& _for) {

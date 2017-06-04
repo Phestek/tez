@@ -24,11 +24,11 @@ std::string to_string(token_type token_type) {
         case token_type::divide:          result = "/";           break;
         case token_type::modulo:          result = "%";           break;
         case token_type::equals:          result = "=";           break;
-        case token_type::plus_equals:     result = "+=";           break;
-        case token_type::minus_equals:    result = "-=";           break;
-        case token_type::multiply_equals: result = "*=";           break;
-        case token_type::divide_equals:   result = "/=";           break;
-        case token_type::modulo_equals:   result = "%=";           break;
+        case token_type::plus_equals:     result = "+=";          break;
+        case token_type::minus_equals:    result = "-=";          break;
+        case token_type::multiply_equals: result = "*=";          break;
+        case token_type::divide_equals:   result = "/=";          break;
+        case token_type::modulo_equals:   result = "%=";          break;
         case token_type::semicolon:       result = ";";           break;
         case token_type::colon:           result = ":";           break;
         case token_type::arrow:           result = "->";          break;
