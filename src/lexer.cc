@@ -237,6 +237,7 @@ void lexer::push_operator(char c) {
                 auto o = OPERATORS.find(op);   // It's sure to find.
                 push_token(o->second);
                 _current_char += 2;
+                break;
             }
             auto o = OPERATORS.find(std::string{c});
             if(o != OPERATORS.end()) {
