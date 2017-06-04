@@ -213,6 +213,18 @@ struct ast_for final : ast_node {
     ast_block    body;
 };
 
+struct ast_break final : ast_node {
+    ast_break() {
+        node_type = ast_node_type::BREAK;
+    }
+};
+
+struct ast_continue final : ast_node {
+    ast_continue() {
+        node_type = ast_node_type::CONTINUE;
+    }
+};
+
 }
 
 #endif //WAYWARD_AST_H

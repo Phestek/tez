@@ -1,50 +1,57 @@
-#include <algorithm>
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "lexer.h"
 #include "parser.h"
 #include "c_code_gen.h"
 
-bool check_flag(const std::string& flag, std::vector<std::string>& args) {
-    const auto it = std::find(std::begin(args), std::end(args), flag);
-    const bool contains = it != std::end(args);
-    if(contains) args.erase(it);
-    return contains;
-}
-
-bool check_string_option(std::string& out_value, const std::string& flag_prefix, std::vector<std::string>& args) {
-    const auto it = std::find_if(std::begin(args), std::end(args), [&](const std::string& arg){
-        return !arg.compare(0, flag_prefix.size(), flag_prefix);
-    });
-
-    const bool contains = it != std::end(args);
-
-    if(contains) {
-        out_value = it->substr(flag_prefix.size());
-        args.erase(it);
-    }
-
-    return contains;
-}
+struct compilation_settings {
+    std::vector<std::string> input_files;
+    std::string              output_file = "output.c";
+};
 
 void print_help() {
-    std::cout << "Wayward compiler\n\n"
-              << "Usage: waywardc <inputs> [options]\n\n"
-              << "Commands: \n"
-              << " -help        - Display this help and exit\n"
-              << " -o=<file>    - Set the output file to <file>\n";
+    std::cout << "Usage: waywardc [options] [input_files]\n"
+            << "Options: \n"
+            << "  -h, --help      - Display this information.\n"
+            << "  -o <file>       - Place the output into <file>.\n";
 }
 
-bool compile(const std::vector<std::string>& input_files,
-        const std::string& output_file) {
+bool parse_command_line_arguments(const std::vector<std::string> args,
+        compilation_settings& settings) {
+    bool errors = false;
+    for(std::size_t i = 0; i < args.size(); ++i) {
+        if(args[i][0] != '-') {
+            settings.input_files.push_back(args[i]);
+            continue;
+        }
+        if(args[i] == "-h" || args[i] == "--help") {
+            print_help();
+            continue;
+        }
+        try {
+            if(args[i] == "-o") {
+                settings.output_file = args.at(++i);
+                continue;
+            }
+        } catch(const std::out_of_range& e) {
+            std::cerr << "Error: Expected file name after '-o'.\n";
+            errors = true;
+            continue;
+        }
+        std::cerr << "Error: Unknown option '" + args[i] + "'.\n";
+        errors = true;
+    }
+    return !errors;
+}
+
+int compile(const compilation_settings& settings) {
     std::vector<wayward::token> tokens;
-    for(const auto& f : input_files) {
+    for(const auto& f : settings.input_files) {
         wayward::lexer lexer{f};
         auto t = lexer.tokenize();
         if(lexer.errors_reported()) {
-            return false;
+            return 1;
         }
         tokens.insert(tokens.end(), t.begin(), t.end());
     }
@@ -52,51 +59,35 @@ bool compile(const std::vector<std::string>& input_files,
     wayward::parser parser{tokens};
     auto ast = parser.parse();
     if(parser.errors_reported()) {
-        return false;
+        return 2;
     }
-    
+
     auto c_code = generate_c_code(ast);
-    std::ofstream of{output_file};
+    std::ofstream of{settings.output_file};
     of << c_code;
 
-    return true;
+    return 0;
 }
 
 int main(int argc, char* argv[]) {
-
-    std::vector<std::string> args(argv + 1, argv + argc);
-
-    if(check_flag("-help", args) || check_flag("--help", args)
-        	|| check_flag("-h", args)) {
+    if(argc < 2) {
         print_help();
         return 0;
     }
 
-    std::string output_file = "output.c";
-    check_string_option(output_file, "-o=", args);
-
-    for(auto& arg : args) {
-        if(arg.at(0) == '-') {
-            std::cerr << "Unsupported argument: " << arg << "\n";
-            return 1;
-        }
-    }
-
-    if(args.empty()) {
-        std::cerr << "No input files\n";
+    std::vector<std::string> args(argv + 1, argv + argc);
+    compilation_settings     settings;
+    if(!parse_command_line_arguments(args, settings)) {
         return 1;
     }
 
     std::cout << "Input files: ";
-    for(auto& f : args) {
+    for(auto& f : settings.input_files) {
         std::cout << f << ' ';
     }
     std::cout << "\n";
+    std::cout << "Ouput file: " << settings.output_file << "\n";
 
-    std::cout << "Ouput file: " << output_file << "\n";
-
-    compile(args, output_file);
-
-    return 0;
+    return compile(settings);
 }
 

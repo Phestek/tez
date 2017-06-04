@@ -27,6 +27,8 @@ enum class token_type {
     KW_TRUE,
     KW_FALSE,
     KW_NULL,
+    KW_BREAK,
+    KW_CONTINUE,
 
     L_BRACE,
     R_BRACE,

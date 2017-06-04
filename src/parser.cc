@@ -80,6 +80,10 @@ ast_node_ptr parser::statement() {
         node = do_while_statement();
     } else if(match_token({token_type::KW_FOR})) {
         node = for_statement();
+    } else if(match_token({token_type::KW_BREAK})) {
+        node = std::make_unique<ast_break>();
+    } else if(match_token({token_type::KW_CONTINUE})) {
+        node = std::make_unique<ast_continue>();
     } else {
         node = expression();
         next_token(token_type::SEMICOLON);
