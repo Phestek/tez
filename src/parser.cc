@@ -22,14 +22,14 @@ bool parser::errors_reported() const {
 }
 
 token parser::next_token() {
-    if(peek_token(0).type == token_type::eof) {
+    if(peek_token(0).type == token_type::END_OF_FILE) {
         return _tokens.at(_current);
     }
     return _tokens.at(_current++);
 }
 
 token parser::next_token(token_type type) {
-    if(peek_token(0).type == token_type::eof) {
+    if(peek_token(0).type == token_type::END_OF_FILE) {
         return _tokens.at(_current);
     }
     auto token = _tokens.at(_current++);
@@ -52,8 +52,8 @@ void parser::report_error(const std::string& message) {
     auto token = peek_token(0);
     std::cerr << token.filename << ':' << token.line << ':' << token.column
             << ": " << message << ".\n";
-    while(!match_token({token_type::semicolon, token_type::r_brace,
-            token_type::r_paren, token_type::comma, token_type::eof})) {
+    while(!match_token({token_type::SEMICOLON, token_type::R_BRACE,
+            token_type::R_PAREN, token_type::COMMA, token_type::END_OF_FILE})) {
         next_token();
     }
 }
@@ -61,51 +61,51 @@ void parser::report_error(const std::string& message) {
 ast_node_ptr parser::statement() {
     ast_node_ptr node;
     auto token = peek_token(0);
-    if(match_token({token_type::kw_func})) {
+    if(match_token({token_type::KW_FUNC})) {
         node = function_declaration();
-    } else if(match_token({token_type::kw_let})) {
+    } else if(match_token({token_type::KW_LET})) {
         node = variable_declaration(true);
-        next_token(token_type::semicolon);
-    } else if(match_token({token_type::kw_var})) {
+        next_token(token_type::SEMICOLON);
+    } else if(match_token({token_type::KW_VAR})) {
         node = variable_declaration(false);
-        next_token(token_type::semicolon);
-    } else if(match_token({token_type::kw_return})) {
+        next_token(token_type::SEMICOLON);
+    } else if(match_token({token_type::KW_RETURN})) {
         node = std::make_unique<ast_function_return>(expression());
-        next_token(token_type::semicolon);
-    } else if(match_token({token_type::kw_if})) {
+        next_token(token_type::SEMICOLON);
+    } else if(match_token({token_type::KW_IF})) {
         node = if_statement();
-    } else if(match_token({token_type::kw_while})) {
+    } else if(match_token({token_type::KW_WHILE})) {
         node = while_statement();
-    } else if(match_token({token_type::kw_do})) {
+    } else if(match_token({token_type::KW_DO})) {
         node = do_while_statement();
-    } else if(match_token({token_type::kw_for})) {
+    } else if(match_token({token_type::KW_FOR})) {
         node = for_statement();
     } else {
         node = expression();
-        next_token(token_type::semicolon);
+        next_token(token_type::SEMICOLON);
     }
     return node;
 }
 
 ast_node_ptr parser::function_declaration() {
     // Function name.
-    auto name = next_token(token_type::identifier).value;
+    auto name = next_token(token_type::IDENTIFIER).value;
     // Function parameters.
-    next_token(token_type::l_paren);
+    next_token(token_type::L_PAREN);
     std::vector<ast_func_param> params;
-    if(!check_token(token_type::r_paren)) {
+    if(!check_token(token_type::R_PAREN)) {
         do {
             params.push_back(function_param());
-        } while(match_token({token_type::comma}));
+        } while(match_token({token_type::COMMA}));
     }
-    next_token(token_type::r_paren);
+    next_token(token_type::R_PAREN);
     // Return type.
-    next_token(token_type::arrow);
-    auto return_type = next_token(token_type::identifier).value;
-    next_token(token_type::l_brace);
+    next_token(token_type::ARROW);
+    auto return_type = next_token(token_type::IDENTIFIER).value;
+    next_token(token_type::L_BRACE);
     // Body.
     std::vector<ast_node_ptr> body;
-    while(!match_token({token_type::r_brace})) {
+    while(!match_token({token_type::R_BRACE})) {
         body.push_back(statement());
     }
     return std::make_unique<ast_function_declaration>(name, params, return_type,
@@ -113,24 +113,24 @@ ast_node_ptr parser::function_declaration() {
 }
 
 ast_func_param parser::function_param() {
-    auto name = next_token(token_type::identifier).value;
-    next_token(token_type::colon);
+    auto name = next_token(token_type::IDENTIFIER).value;
+    next_token(token_type::COLON);
     bool constant = true;
-    if(match_token({token_type::kw_var})) {
+    if(match_token({token_type::KW_VAR})) {
         constant = false;
     }
-    auto type = next_token(token_type::identifier).value;
+    auto type = next_token(token_type::IDENTIFIER).value;
     return ast_func_param{name, constant, type};
 }
 
 ast_node_ptr parser::function_call(const std::string& name) {
     std::vector<ast_node_ptr> params;
-    if(!match_token({token_type::r_paren})) {
+    if(!match_token({token_type::R_PAREN})) {
         do {
             params.push_back(expression());
-        } while(match_token({token_type::comma}));
+        } while(match_token({token_type::COMMA}));
     }
-    next_token(token_type::r_paren);
+    next_token(token_type::R_PAREN);
     return std::make_unique<ast_function_call>(name, params);
 }
 
@@ -141,10 +141,10 @@ ast_node_ptr parser::variable_declaration(bool constant) {
      * these 2 are super easy to implement. the problem is 3rd one:
      * 3) var a = 10;      <- implicit type
      * it requires some kind of resolver to deduct type. */
-    auto name = next_token(token_type::identifier).value;
-    next_token(token_type::colon);
-    auto type = next_token(token_type::identifier).value;
-    if(match_token({token_type::equals})) {
+    auto name = next_token(token_type::IDENTIFIER).value;
+    next_token(token_type::COLON);
+    auto type = next_token(token_type::IDENTIFIER).value;
+    if(match_token({token_type::EQUALS})) {
         return std::make_unique<ast_variable_declaration>(name, constant, type,
                 expression());
     }
@@ -153,21 +153,21 @@ ast_node_ptr parser::variable_declaration(bool constant) {
 
 ast_node_ptr parser::if_statement() {
     auto condition = expression();
-    next_token(token_type::l_brace);
+    next_token(token_type::L_BRACE);
     std::vector<ast_node_ptr> if_block;
-    while(!match_token({token_type::r_brace})) {
+    while(!match_token({token_type::R_BRACE})) {
         if_block.push_back(statement());
     }
-    if(!match_token({token_type::kw_else})) {
+    if(!match_token({token_type::KW_ELSE})) {
         return std::make_unique<ast_if>(std::move(condition), if_block, nullptr);
     }
     ast_node_ptr else_block;                // Else block may also be just if!
-    if(match_token({token_type::kw_if})) {  // Because of "else if".
+    if(match_token({token_type::KW_IF})) {  // Because of "else if".
         else_block = if_statement();
     } else {
         std::vector<ast_node_ptr> else_body;
-        next_token(token_type::l_brace);
-        while(!match_token({token_type::r_brace})) {
+        next_token(token_type::L_BRACE);
+        while(!match_token({token_type::R_BRACE})) {
             else_body.push_back(statement());
         }
         else_block = std::make_unique<ast_block>(else_body);
@@ -178,9 +178,9 @@ ast_node_ptr parser::if_statement() {
 
 ast_node_ptr parser::while_statement() {
     auto condition = expression();
-    next_token(token_type::l_brace);
+    next_token(token_type::L_BRACE);
     std::vector<ast_node_ptr> body;
-    while(!match_token({token_type::r_brace})) {
+    while(!match_token({token_type::R_BRACE})) {
         body.push_back(statement());
     }
     return std::make_unique<ast_while>(std::move(condition), body);
@@ -188,13 +188,13 @@ ast_node_ptr parser::while_statement() {
 
 ast_node_ptr parser::do_while_statement() {
     std::vector<ast_node_ptr> body;
-    next_token(token_type::l_brace);
-    while(!match_token({token_type::r_brace})) {
+    next_token(token_type::L_BRACE);
+    while(!match_token({token_type::R_BRACE})) {
         body.push_back(statement());
     }
-    next_token(token_type::kw_while);
+    next_token(token_type::KW_WHILE);
     auto condition = expression();
-    next_token(token_type::semicolon);
+    next_token(token_type::SEMICOLON);
     return std::make_unique<ast_do_while>(std::move(condition), body);
 }
 
@@ -202,9 +202,9 @@ ast_node_ptr parser::for_statement() {
     auto init_statement = statement();
     auto condition      = statement();
     auto iteration_expr = expression();
-    next_token(token_type::l_brace);
+    next_token(token_type::L_BRACE);
     std::vector<ast_node_ptr> body;
-    while(!match_token({token_type::r_brace})) {
+    while(!match_token({token_type::R_BRACE})) {
         body.push_back(statement());
     }
     return std::make_unique<ast_for>(std::move(init_statement),
@@ -217,9 +217,9 @@ ast_node_ptr parser::expression() {
 
 ast_node_ptr parser::assignment() {
     auto expr = equality();
-    while(match_token({token_type::equals, token_type::plus_equals,
-            token_type::minus_equals, token_type::multiply_equals,
-            token_type::divide_equals, token_type::modulo_equals})) {
+    while(match_token({token_type::EQUALS, token_type::PLUS_EQUALS,
+            token_type::MINUS_EQUALS, token_type::MULTIPLY_EQUALS,
+            token_type::DIVIDE_EQUALS, token_type::MODULO_EQUALS})) {
         const auto op = peek_token(-1);
         auto right = equality();
         expr = std::make_unique<ast_binary_operation>(std::move(expr),
@@ -230,7 +230,7 @@ ast_node_ptr parser::assignment() {
 
 ast_node_ptr parser::equality() {
     auto expr = comparison();
-    while(match_token({token_type::bang_equals, token_type::equals_equals})) {
+    while(match_token({token_type::BANG_EQUALS, token_type::EQUALS_EQUALS})) {
         const auto operat = peek_token(-1);
         auto right = comparison();
         expr = std::make_unique<ast_binary_operation>(std::move(expr),
@@ -241,8 +241,8 @@ ast_node_ptr parser::equality() {
 
 ast_node_ptr parser::comparison() {
     auto expr = term();
-    while(match_token({token_type::greater, token_type::greater_equals,
-            token_type::less, token_type::less_equals})) {
+    while(match_token({token_type::GREATER, token_type::GREATER_EQUALS,
+            token_type::LESS, token_type::LESS_EQUALS})) {
         const auto operat = peek_token(-1);
         auto right = term();
         expr = std::make_unique<ast_binary_operation>(std::move(expr),
@@ -253,8 +253,8 @@ ast_node_ptr parser::comparison() {
 
 ast_node_ptr parser::term() {
     auto expr = factor();
-    while(match_token({token_type::multiply, token_type::divide,
-            token_type::modulo})) {
+    while(match_token({token_type::MULTIPLY, token_type::DIVIDE,
+            token_type::MODULO})) {
         const auto operat = peek_token(-1);
         auto right = factor();
         expr = std::make_unique<ast_binary_operation>(std::move(expr),
@@ -265,7 +265,7 @@ ast_node_ptr parser::term() {
 
 ast_node_ptr parser::factor() {
     auto expr = unary();
-    while(match_token({token_type::plus, token_type::minus})) {
+    while(match_token({token_type::PLUS, token_type::MINUS})) {
         const auto operat = peek_token(-1);
         auto right = unary();
         expr = std::make_unique<ast_binary_operation>(std::move(expr),
@@ -275,7 +275,7 @@ ast_node_ptr parser::factor() {
 }
 
 ast_node_ptr parser::unary() {
-    if(match_token({token_type::bang, token_type::minus})) {
+    if(match_token({token_type::BANG, token_type::MINUS})) {
         auto operat = peek_token(-1);
         auto right = unary();
         return std::make_unique<ast_unary_operation>(std::move(right),
@@ -286,31 +286,31 @@ ast_node_ptr parser::unary() {
 
 ast_node_ptr parser::primary() {
     auto token = peek_token(0);
-    if(match_token({token_type::kw_true})) {
+    if(match_token({token_type::KW_TRUE})) {
         return std::make_unique<ast_boolean>(true);
     }
-    if(match_token({token_type::kw_false})) {
+    if(match_token({token_type::KW_FALSE})) {
         return std::make_unique<ast_boolean>(false);
     }
     //if(match({token_type::kw_nullptr})) {
     //    return std::make_unique<ast_boolean>(true);
     //}
-    if(match_token({token_type::integer})) {
+    if(match_token({token_type::INTEGER})) {
         return std::make_unique<ast_integer>(std::stoi(token.value));
     }
-    if(match_token({token_type::real_number})) {
+    if(match_token({token_type::REAL_NUMBER})) {
         return std::make_unique<ast_real_number>(std::stod(token.value));
     }
-    if(match_token({token_type::string})) {
+    if(match_token({token_type::STRING})) {
         return std::make_unique<ast_string>(token.value);
     }
-    if(match_token({token_type::l_paren})) {
+    if(match_token({token_type::L_PAREN})) {
         auto expr = std::make_unique<ast_grouping_expression>(expression());
-        next_token(token_type::r_paren);
+        next_token(token_type::R_PAREN);
         return expr;
     }
-    if(match_token({token_type::identifier})) {
-        if(match_token({token_type::l_paren})) {
+    if(match_token({token_type::IDENTIFIER})) {
+        if(match_token({token_type::L_PAREN})) {
             return function_call(token.value);
         } else {
             return std::make_unique<ast_identifier>(token.value);
@@ -323,7 +323,7 @@ ast_node_ptr parser::primary() {
 bool parser::match_token(const std::initializer_list<token_type>& types) {
     const auto token = peek_token(0);
     for(const auto& type : types) {
-        if(token.type == type && peek_token().type != token_type::eof) {
+        if(token.type == type && peek_token().type != token_type::END_OF_FILE) {
             ++_current;
             return true;
         }
@@ -333,7 +333,7 @@ bool parser::match_token(const std::initializer_list<token_type>& types) {
 
 bool parser::check_token(token_type type) const {
     const auto token = peek_token(0);
-    if(token.type == type && peek_token().type != token_type::eof) {
+    if(token.type == type && peek_token().type != token_type::END_OF_FILE) {
         return true;
     }
     return false;

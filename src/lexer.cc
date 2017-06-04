@@ -9,47 +9,51 @@
 
 namespace wayward {
 
-const std::map<std::string, token_type> lexer::_keywords{
-    {"func",   token_type::kw_func},
-    {"return", token_type::kw_return},
-    {"var",    token_type::kw_var},
-    {"let",    token_type::kw_let},
-    {"struct", token_type::kw_struct},
-    {"class",  token_type::kw_class},
-    {"if",     token_type::kw_if},
-    {"else",   token_type::kw_else},
-    {"while",  token_type::kw_while},
-    {"do",     token_type::kw_do},
-    {"for",    token_type::kw_for},
-    {"true",   token_type::kw_true},
-    {"false",  token_type::kw_false},
-    {"null",   token_type::kw_null}
+const std::map<std::string, token_type> lexer::KEYWORDS{
+    {"func",   token_type::KW_FUNC},
+    {"return", token_type::KW_RETURN},
+    {"var",    token_type::KW_VAR},
+    {"let",    token_type::KW_LET},
+    {"struct", token_type::KW_STRUCT},
+    {"class",  token_type::KW_CLASS},
+    {"if",     token_type::KW_IF},
+    {"else",   token_type::KW_ELSE},
+    {"while",  token_type::KW_WHILE},
+    {"do",     token_type::KW_DO},
+    {"for",    token_type::KW_FOR},
+    {"true",   token_type::KW_TRUE},
+    {"false",  token_type::KW_FALSE},
+    {"null",   token_type::KW_NULL}
 };
 
-const std::map<std::string, token_type> lexer::_operators{
-    {"+",  token_type::plus},
-    {"-",  token_type::minus},
-    {"*",  token_type::multiply},
-    {"/",  token_type::divide},
-    {"%",  token_type::modulo},
-    {"+=", token_type::plus_equals},
-    {"-=", token_type::minus_equals},
-    {"*=", token_type::multiply_equals},
-    {"/=", token_type::divide_equals},
-    {"%=", token_type::modulo_equals},
-    {"!",  token_type::bang},
-    {"=",  token_type::equals},
-    {"!=", token_type::bang_equals},
-    {"==", token_type::equals_equals},
-    {">",  token_type::greater},
-    {">=", token_type::greater_equals},
-    {"<",  token_type::less},
-    {"<=", token_type::less_equals},
-    {";",  token_type::semicolon},
-    {":",  token_type::colon},
-    {",",  token_type::comma},
-    {".",  token_type::dot},
-    {"->", token_type::arrow},
+const std::map<std::string, token_type> lexer::OPERATORS{
+    {"{",  token_type::L_BRACE},
+    {"}",  token_type::R_BRACE},
+    {"(",  token_type::L_PAREN},
+    {")",  token_type::R_PAREN},
+    {"+",  token_type::PLUS},
+    {"-",  token_type::MINUS},
+    {"*",  token_type::MULTIPLY},
+    {"/",  token_type::DIVIDE},
+    {"%",  token_type::MODULO},
+    {"+=", token_type::PLUS_EQUALS},
+    {"-=", token_type::MINUS_EQUALS},
+    {"*=", token_type::MULTIPLY_EQUALS},
+    {"/=", token_type::DIVIDE_EQUALS},
+    {"%=", token_type::MODULO_EQUALS},
+    {"!",  token_type::BANG},
+    {"=",  token_type::EQUALS},
+    {"!=", token_type::BANG_EQUALS},
+    {"==", token_type::EQUALS_EQUALS},
+    {">",  token_type::GREATER},
+    {">=", token_type::GREATER_EQUALS},
+    {"<",  token_type::LESS},
+    {"<=", token_type::LESS_EQUALS},
+    {";",  token_type::SEMICOLON},
+    {":",  token_type::COLON},
+    {",",  token_type::COMMA},
+    {".",  token_type::DOT},
+    {"->", token_type::ARROW},
 };
 
 namespace {
@@ -93,7 +97,7 @@ bool lexer::errors_reported() const {
 void lexer::report_error(const std::string& message) {
     _errors_reported = true;
     std::cerr << "<filename>:" << std::to_string(_lines_count) << ":"
-            << std::to_string(_current_char - _columns_count) << ": "
+            << std::to_string(_current_char - _columns_count + 1) << ": "
             << message << ".\n";
 }
 
@@ -140,7 +144,7 @@ std::vector<token> lexer::tokenize() {
                     string += c;
                     c = _wayward_source.at(++_current_char);
                 }
-                push_token(token_type::string, string);
+                push_token(token_type::STRING, string);
                 ++_current_char;
                 continue;
             }
@@ -157,7 +161,7 @@ std::vector<token> lexer::tokenize() {
                     }
                 }
                 ++_current_char;
-                push_token(token_type::character, {character}, beginning);
+                push_token(token_type::CHARACTER, {character}, beginning);
                 continue;
             }
             if(std::ispunct(c)) {
@@ -186,7 +190,7 @@ char lexer::peek_char(std::size_t depth) const {
 
 void lexer::push_token(token_type type, const std::string& value) {
     _tokens.push_back({type, value, _filename, _lines_count,
-            _current_char - _columns_count});
+            _current_char - _columns_count + 1});
 }
 
 void lexer::push_token(token_type type, const std::string& value,
@@ -196,22 +200,6 @@ void lexer::push_token(token_type type, const std::string& value,
 
 void lexer::push_operator(char c) {
     switch(c) {
-        case '{':
-            push_token(token_type::l_brace, "");
-            ++_current_char;
-            break;
-        case '}':
-            push_token(token_type::r_brace, "");
-            ++_current_char;
-            break;
-        case '(':
-            push_token(token_type::l_paren, "");
-            ++_current_char;
-            break;
-        case ')':
-            push_token(token_type::r_paren, "");
-            ++_current_char;
-            break;
         case '+':
         case '-':
         case '*':
@@ -219,20 +207,20 @@ void lexer::push_operator(char c) {
         case '%': {
             if(peek_char() == '=') {
                 auto op = std::string{c} + std::string{peek_char()};
-                auto o = _operators.find(op);   // It's sure to find.
+                auto o = OPERATORS.find(op);   // It's sure to find.
                 push_token(o->second);
                 _current_char += 2;
                 break;
             }
             if(c == '-') {
                 if(peek_char() == '>') {
-                    push_token(token_type::arrow);
+                    push_token(token_type::ARROW);
                     _current_char += 2;
                 }
                 break;
             }
-            auto o = _operators.find(std::string{c});
-            if(o != _operators.end()) {
+            auto o = OPERATORS.find(std::string{c});
+            if(o != OPERATORS.end()) {
                 push_token(o->second, "");
             } else {
                 report_error("Unexpected character '" + std::string{c} + "'");
@@ -246,12 +234,12 @@ void lexer::push_operator(char c) {
         case '>': {
             if(peek_char() == '=') {
                 std::string op = std::string{c} + std::string{peek_char()};
-                auto o = _operators.find(op);   // It's sure to find.
+                auto o = OPERATORS.find(op);   // It's sure to find.
                 push_token(o->second);
                 _current_char += 2;
             }
-            auto o = _operators.find(std::string{c});
-            if(o != _operators.end()) {
+            auto o = OPERATORS.find(std::string{c});
+            if(o != OPERATORS.end()) {
                 push_token(o->second);
             } else {
                 report_error("Unexpected character '" + std::string{c} + "'");
@@ -260,8 +248,8 @@ void lexer::push_operator(char c) {
             break;
         }
         default:
-            auto o = _operators.find(std::string{c});
-            if(o != _operators.end()) {
+            auto o = OPERATORS.find(std::string{c});
+            if(o != OPERATORS.end()) {
                 push_token(o->second);
             } else {
                 report_error("Unexpected character '" + std::string{c} + "'");
@@ -288,9 +276,9 @@ void lexer::push_number(char c) {
         }
     }
     if(is_real) {
-        push_token(token_type::real_number, number);
+        push_token(token_type::REAL_NUMBER, number);
     } else {
-        push_token(token_type::integer, number);
+        push_token(token_type::INTEGER, number);
     }
 }
 
@@ -304,11 +292,11 @@ void lexer::push_identifier(char c) {
             break;
         }
     }
-    auto keyword = _keywords.find(word);
-    if(keyword != _keywords.end()) {
+    auto keyword = KEYWORDS.find(word);
+    if(keyword != KEYWORDS.end()) {
         push_token(keyword->second, "");
     } else {
-        push_token(token_type::identifier, word);
+        push_token(token_type::IDENTIFIER, word);
     }
 }
 

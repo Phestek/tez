@@ -7,38 +7,40 @@
 namespace wayward {
 
 enum class ast_node_type {
-    undefined,
-    block,                  // Represents a block of code - { ... } .
-    boolean,                // True / false value.
-    integer,                // Integer value.
-    real_number,            // Floating point value.
-    string,                 // Sequence of characters.
-    identifier,             // Variable / constant name.
-    unary_operation,        // Operation with single operand.
-    binary_operation,       // Operation with two operands.
-    grouping_expression,    // Expression inside parenthesis.
-    func_param,             // Function parameter.
-    function_declaration,   // Function declaration.
-    function_return,        // 'return'.
-    function_call,          // Call to (previously declared) function.
-    type,                   // Type representation. Just type, pointer or array.
-    variable_declaration,   // Used both for 'var' and 'let'.
-    _if,                    // 'if else' statement.
-    _while,                 // 'while' loop.
-    do_while,               // 'do { ... } while' loop.
-    _for,                   // 'for' loop.
+    UNDEFINED,
+    BLOCK,                  // Represents a block of code - { ... } .
+    BOOLEAN,                // True / false value.
+    INTEGER,                // Integer value.
+    REAL_NUMBER,            // Floating point value.
+    STRING,                 // Sequence of characters.
+    IDENTIFIER,             // Variable / constant name.
+    UNARY_OPERATION,        // Operation with single operand.
+    BINARY_OPERATION,       // Operation with two operands.
+    GROUPING_EXPRESSION,    // Expression inside parenthesis.
+    FUNC_PARAM,             // Function parameter.
+    FUNCTION_DECLARATION,   // Function declaration.
+    FUNCTION_RETURN,        // 'return'.
+    FUNCTION_CALL,          // Call to (previously declared) function.
+    TYPE,                   // Type representation. Just type, pointer or array.
+    VARIABLE_DECLARATION,   // Used both for 'var' and 'let'.
+    IF,                     // 'if else' statement.
+    WHILE,                  // 'while' loop.
+    DO_WHILE,               // 'do { ... } while' loop.
+    FOR,                    // 'for' loop.
+    BREAK,                  // Breaks current loop.
+    CONTINUE,               // Goes to top of current loop.
 };
 
 struct ast_node {
     virtual ~ast_node() {}
-    ast_node_type node_type = ast_node_type::undefined;
+    ast_node_type node_type = ast_node_type::UNDEFINED;
 };
 using ast_node_ptr = std::unique_ptr<ast_node>;
 
 struct ast_block final : ast_node {
     ast_block(std::vector<ast_node_ptr>& statements)
             : statements{std::move(statements)} {
-        node_type = ast_node_type::block;
+        node_type = ast_node_type::BLOCK;
     }
     std::vector<ast_node_ptr> statements;
 };
@@ -46,7 +48,7 @@ struct ast_block final : ast_node {
 struct ast_boolean final : ast_node {
     ast_boolean(bool value)
             : value{value} {
-        node_type = ast_node_type::boolean;
+        node_type = ast_node_type::BOOLEAN;
     }
     bool value;
 };
@@ -54,7 +56,7 @@ struct ast_boolean final : ast_node {
 struct ast_integer final : ast_node {
     ast_integer(long long value)
             : value{value} {
-        node_type = ast_node_type::integer;
+        node_type = ast_node_type::INTEGER;
     }
     long long value;
 };
@@ -62,7 +64,7 @@ struct ast_integer final : ast_node {
 struct ast_real_number final : ast_node {
     ast_real_number(double value)
             : value{value} {
-        node_type = ast_node_type::real_number;
+        node_type = ast_node_type::REAL_NUMBER;
     }
     double value;
 };
@@ -70,7 +72,7 @@ struct ast_real_number final : ast_node {
 struct ast_string final : ast_node {
     ast_string(const std::string& value)
             : value{value} {
-        node_type = ast_node_type::string;
+        node_type = ast_node_type::STRING;
     }
     std::string value;
 };
@@ -78,7 +80,7 @@ struct ast_string final : ast_node {
 struct ast_identifier final : ast_node {
     ast_identifier(const std::string& value)
             : value{value} {
-        node_type = ast_node_type::identifier;
+        node_type = ast_node_type::IDENTIFIER;
     }
     std::string value;
 };
@@ -86,7 +88,7 @@ struct ast_identifier final : ast_node {
 struct ast_unary_operation final : ast_node {
     ast_unary_operation(ast_node_ptr left, const std::string& operat)
             : left{std::move(left)}, operat{operat} {
-        node_type = ast_node_type::unary_operation;
+        node_type = ast_node_type::UNARY_OPERATION;
     }
     ast_node_ptr left;
     std::string  operat;
@@ -96,7 +98,7 @@ struct ast_binary_operation final : ast_node {
     ast_binary_operation(ast_node_ptr left, ast_node_ptr right,
             const std::string& operat)
             : left{std::move(left)}, right{std::move(right)}, operat{operat} {
-        node_type = ast_node_type::binary_operation;
+        node_type = ast_node_type::BINARY_OPERATION;
     }
     ast_node_ptr left;
     ast_node_ptr right;
@@ -106,7 +108,7 @@ struct ast_binary_operation final : ast_node {
 struct ast_grouping_expression final : ast_node {
     ast_grouping_expression(ast_node_ptr expr)
             : expr{std::move(expr)} {
-        node_type = ast_node_type::grouping_expression;
+        node_type = ast_node_type::GROUPING_EXPRESSION;
     }
     ast_node_ptr expr;
 };
@@ -115,7 +117,7 @@ struct ast_func_param final : ast_node {
     ast_func_param(const std::string& name, bool constant,
             const std::string& type)
             : name{name}, constant{constant}, type{type} {
-        node_type = ast_node_type::func_param;
+        node_type = ast_node_type::FUNC_PARAM;
     }
     std::string name;
     bool        constant;
@@ -130,7 +132,7 @@ struct ast_function_declaration final : ast_node {
             ast_block body)
             : name{name}, params{params}, return_type{return_type},
               body{std::move(body)} {
-        node_type = ast_node_type::function_declaration;
+        node_type = ast_node_type::FUNCTION_DECLARATION;
     }
     std::string                 name;
     std::vector<ast_func_param> params;
@@ -141,7 +143,7 @@ struct ast_function_declaration final : ast_node {
 struct ast_function_return final : ast_node {
     ast_function_return(ast_node_ptr value)
             : value{std::move(value)} {
-        node_type = ast_node_type::function_return;
+        node_type = ast_node_type::FUNCTION_RETURN;
     }
     ast_node_ptr value;
 };
@@ -149,7 +151,7 @@ struct ast_function_return final : ast_node {
 struct ast_function_call final : ast_node {
     ast_function_call(const std::string& name, std::vector<ast_node_ptr>& params)
             : name{name}, params{std::move(params)} {
-        node_type = ast_node_type::function_call;
+        node_type = ast_node_type::FUNCTION_CALL;
     }
     std::string               name;
     std::vector<ast_node_ptr> params;
@@ -160,7 +162,7 @@ struct ast_variable_declaration final : ast_node {
             const std::string& type, ast_node_ptr initializer)
             : name{name}, constant{constant}, type{type},
               initializer{std::move(initializer)} {
-        node_type = ast_node_type::variable_declaration;
+        node_type = ast_node_type::VARIABLE_DECLARATION;
     }
     std::string  name;
     bool         constant;
@@ -172,7 +174,7 @@ struct ast_if final : ast_node {
     ast_if(ast_node_ptr condition, ast_block if_block, ast_node_ptr else_block)
             : condition{std::move(condition)}, if_block{std::move(if_block)},
               else_block{std::move(else_block)} {
-        node_type = ast_node_type::_if;
+        node_type = ast_node_type::IF;
     }
     ast_node_ptr condition;
     ast_block    if_block;
@@ -182,7 +184,7 @@ struct ast_if final : ast_node {
 struct ast_while final : ast_node {
     ast_while(ast_node_ptr condition, ast_block body)
             : condition{std::move(condition)}, body{std::move(body)} {
-        node_type = ast_node_type::_while;
+        node_type = ast_node_type::WHILE;
     }
     ast_node_ptr condition;
     ast_block    body;
@@ -191,7 +193,7 @@ struct ast_while final : ast_node {
 struct ast_do_while final : ast_node {
     ast_do_while(ast_node_ptr condition, ast_block body)
             : condition{std::move(condition)}, body{std::move(body)} {
-        node_type = ast_node_type::do_while;
+        node_type = ast_node_type::DO_WHILE;
     }
     ast_node_ptr condition;
     ast_block    body;
@@ -203,7 +205,7 @@ struct ast_for final : ast_node {
             : init_statement{std::move(init_statement)},
               condition{std::move(condition)},
               iteration_expr{std::move(iteration_expr)}, body{std::move(body)} {
-        node_type = ast_node_type::_for;
+        node_type = ast_node_type::FOR;
     }
     ast_node_ptr init_statement;
     ast_node_ptr condition;

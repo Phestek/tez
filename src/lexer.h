@@ -42,12 +42,12 @@ private:
 
     unsigned int _current_char = 0;
     unsigned int _lines_count = 1;
-    unsigned int _columns_count = 1;
+    unsigned int _columns_count = 0;
     
     bool _errors_reported = false;
 
-    static const std::map<std::string, token_type> _keywords;
-    static const std::map<std::string, token_type> _operators;
+    static const std::map<std::string, token_type> KEYWORDS;
+    static const std::map<std::string, token_type> OPERATORS;
 };
 
 std::string to_string(token_type token_type);
