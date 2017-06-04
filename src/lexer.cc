@@ -227,22 +227,22 @@ void lexer::push_operator(char c) {
                 if(peek_char() == '>') {
                     push_token(token_type::ARROW);
                     _current_char += 2;
+                    break;
                 }
-                break;
             }
             if(c == '<') {
                 if(peek_char() == '<') {
                     push_token(token_type::BITWISE_SHIFT_LEFT);
                     _current_char += 2;
+                    break;
                 }
-                break;
             }
             if(c == '>') {
                 if(peek_char() == '>') {
                     push_token(token_type::BITWISE_SHIFT_RIGHT);
                     _current_char += 2;
+                    break;
                 }
-                break;
             }
             auto o = OPERATORS.find(std::string{c});
             if(o != OPERATORS.end()) {

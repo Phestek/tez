@@ -91,6 +91,19 @@ ast_node_ptr parser::statement() {
     return node;
 }
 
+ast_block parser::block() {
+    next_token(token_type::L_BRACE);
+    std::vector<ast_node_ptr> statements;
+    try {
+        while(!match_token({token_type::R_BRACE})) {
+            statements.push_back(statement());
+        }
+    } catch(const std::out_of_range& e) {
+        report_error("Missing closing '}'");
+    }
+    return ast_block{statements};
+}
+
 ast_node_ptr parser::function_declaration() {
     // Function name.
     auto name = next_token(token_type::IDENTIFIER).value;
@@ -106,14 +119,10 @@ ast_node_ptr parser::function_declaration() {
     // Return type.
     next_token(token_type::ARROW);
     auto return_type = next_token(token_type::IDENTIFIER).value;
-    next_token(token_type::L_BRACE);
     // Body.
-    std::vector<ast_node_ptr> body;
-    while(!match_token({token_type::R_BRACE})) {
-        body.push_back(statement());
-    }
+    auto body = block();
     return std::make_unique<ast_function_declaration>(name, params, return_type,
-            body);
+            std::move(body));
 }
 
 ast_func_param parser::function_param() {
@@ -157,62 +166,42 @@ ast_node_ptr parser::variable_declaration(bool constant) {
 
 ast_node_ptr parser::if_statement() {
     auto condition = expression();
-    next_token(token_type::L_BRACE);
-    std::vector<ast_node_ptr> if_block;
-    while(!match_token({token_type::R_BRACE})) {
-        if_block.push_back(statement());
-    }
+    auto if_block = block();
     if(!match_token({token_type::KW_ELSE})) {
-        return std::make_unique<ast_if>(std::move(condition), if_block, nullptr);
+        return std::make_unique<ast_if>(std::move(condition),
+                std::move(if_block), nullptr);
     }
     ast_node_ptr else_block;                // Else block may also be just if!
     if(match_token({token_type::KW_IF})) {  // Because of "else if".
         else_block = if_statement();
     } else {
-        std::vector<ast_node_ptr> else_body;
-        next_token(token_type::L_BRACE);
-        while(!match_token({token_type::R_BRACE})) {
-            else_body.push_back(statement());
-        }
-        else_block = std::make_unique<ast_block>(else_body);
+        else_block = std::make_unique<ast_block>(block());
     }
-    return std::make_unique<ast_if>(std::move(condition), if_block,
+    return std::make_unique<ast_if>(std::move(condition), std::move(if_block),
             std::move(else_block));
 }
 
 ast_node_ptr parser::while_statement() {
     auto condition = expression();
-    next_token(token_type::L_BRACE);
-    std::vector<ast_node_ptr> body;
-    while(!match_token({token_type::R_BRACE})) {
-        body.push_back(statement());
-    }
-    return std::make_unique<ast_while>(std::move(condition), body);
+    auto body = block();
+    return std::make_unique<ast_while>(std::move(condition), std::move(body));
 }
 
 ast_node_ptr parser::do_while_statement() {
-    std::vector<ast_node_ptr> body;
-    next_token(token_type::L_BRACE);
-    while(!match_token({token_type::R_BRACE})) {
-        body.push_back(statement());
-    }
+    auto body = block();
     next_token(token_type::KW_WHILE);
     auto condition = expression();
     next_token(token_type::SEMICOLON);
-    return std::make_unique<ast_do_while>(std::move(condition), body);
+    return std::make_unique<ast_do_while>(std::move(condition), std::move(body));
 }
 
 ast_node_ptr parser::for_statement() {
     auto init_statement = statement();
     auto condition      = statement();
     auto iteration_expr = expression();
-    next_token(token_type::L_BRACE);
-    std::vector<ast_node_ptr> body;
-    while(!match_token({token_type::R_BRACE})) {
-        body.push_back(statement());
-    }
+    auto body           = block();
     return std::make_unique<ast_for>(std::move(init_statement),
-            std::move(condition), std::move(iteration_expr), body);
+            std::move(condition), std::move(iteration_expr), std::move(body));
 }
 
 ast_node_ptr parser::expression() {

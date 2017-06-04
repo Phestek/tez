@@ -32,12 +32,13 @@ private:
     
     ast_node_ptr statement();
 
-    // Declarations.
+    ast_block block();
+    
     ast_node_ptr function_declaration();
     ast_func_param function_param();
     ast_node_ptr function_call(const std::string& name);
     ast_node_ptr variable_declaration(bool constant);
-
+    
     ast_node_ptr if_statement();
     ast_node_ptr while_statement();
     ast_node_ptr do_while_statement();
@@ -53,10 +54,10 @@ private:
     ast_node_ptr bitwise_and();     // &
     ast_node_ptr equality();        // == !=
     ast_node_ptr comparison();      // >= <= > <
-    ast_node_ptr bitwise_shift();
+    ast_node_ptr bitwise_shift();   // << >>
     ast_node_ptr term();            // * / %
     ast_node_ptr factor();          // + -
-    ast_node_ptr unary();           // ! -  & ^
+    ast_node_ptr unary();           // ! -
     ast_node_ptr primary();         // int, double, bool, identifier
 
     const std::vector<token> _tokens;
