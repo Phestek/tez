@@ -45,6 +45,8 @@ std::string to_string(token_type token_type) {
         case token_type::KW_RETURN:           result = "return";      break;
         case token_type::KW_VAR:              result = "var";         break;
         case token_type::KW_IF:               result = "if";          break;
+        case token_type::KW_STRUCT:           result = "if";          break;
+        case token_type::KW_ENUM:             result = "if";          break;
         default:                              result = "not implemented yet";
     }
     return result;

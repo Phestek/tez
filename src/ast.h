@@ -29,6 +29,8 @@ enum class ast_node_type {
     FOR,                    // 'for' loop.
     BREAK,                  // Breaks current loop.
     CONTINUE,               // Goes to top of current loop.
+    STRUCT,
+    ENUM,
 };
 
 struct ast_node {
@@ -222,6 +224,25 @@ struct ast_break final : ast_node {
 struct ast_continue final : ast_node {
     ast_continue() {
         node_type = ast_node_type::CONTINUE;
+    }
+};
+
+struct ast_struct final : ast_node {
+    struct field {
+        std::string name;
+        std::string type;
+    };
+    ast_struct(const std::string& name, std::vector<field>& fields)
+            : name{name}, fields{std::move(fields)} {
+        node_type = ast_node_type::STRUCT;
+    }
+    std::string        name;
+    std::vector<field> fields;
+};
+
+struct ast_enum final : ast_node {
+    ast_enum() {
+        node_type = ast_node_type::ENUM;
     }
 };
 

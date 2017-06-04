@@ -29,6 +29,8 @@ std::ostream& operator<<(std::ostream& out, const ast_if& _if);
 std::ostream& operator<<(std::ostream& out, const ast_while& _while);
 std::ostream& operator<<(std::ostream& out, const ast_do_while& _while);
 std::ostream& operator<<(std::ostream& out, const ast_for& _for);
+std::ostream& operator<<(std::ostream& out, const ast_struct& _struct);
+std::ostream& operator<<(std::ostream& out, const ast_enum& _enum);
 
 std::string print_statement(const ast_node& node) {
     std::stringstream ss;
@@ -82,6 +84,10 @@ std::ostream& operator<<(std::ostream& out, const ast_node& node) {
             return out << dynamic_cast<const ast_do_while&>(node);
         case ast_node_type::FOR:
             return out << dynamic_cast<const ast_for&>(node);
+        case ast_node_type::STRUCT:
+            return out << dynamic_cast<const ast_struct&>(node);
+        case ast_node_type::ENUM:
+            return out << dynamic_cast<const ast_enum&>(node);
         default:
             return out << "<not implemented>";
     }
@@ -191,6 +197,19 @@ std::ostream& operator<<(std::ostream& out, const ast_do_while& do_while) {
 std::ostream& operator<<(std::ostream& out, const ast_for& _for) {
     return out << "for(" << *_for.init_statement << "; " << *_for.condition
             << "; " << *_for.iteration_expr << ") "<< _for.body;
+}
+
+std::ostream& operator<<(std::ostream& out, const ast_struct& _struct) {
+    out << "struct " << _struct.name << " {\n";
+    ++indent_level;
+    for(const auto& field : _struct.fields) {
+        out << indent << field.type << ' ' << field.name << ";\n";
+    }
+    --indent_level;
+    return out << "}";
+}
+
+std::ostream& operator<<(std::ostream& out, const ast_enum& _enum) {
 }
 
 }

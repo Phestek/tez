@@ -84,6 +84,10 @@ ast_node_ptr parser::statement() {
         node = std::make_unique<ast_break>();
     } else if(match_token({token_type::KW_CONTINUE})) {
         node = std::make_unique<ast_continue>();
+    } else if(match_token({token_type::KW_STRUCT})) {
+        node = structure();
+    } else if(match_token({token_type::KW_ENUM})) {
+        node = enumeration();
     } else {
         node = expression();
         next_token(token_type::SEMICOLON);
@@ -162,6 +166,25 @@ ast_node_ptr parser::variable_declaration(bool constant) {
                 expression());
     }
     return std::make_unique<ast_variable_declaration>(name, constant, type, nullptr);
+}
+
+ast_node_ptr parser::structure() {
+    auto name = next_token(token_type::IDENTIFIER).value;
+    next_token(token_type::L_BRACE);
+    std::vector<ast_struct::field> fields;
+    while(!match_token({token_type::R_BRACE})) {
+        ast_struct::field field;
+        field.name = next_token(token_type::IDENTIFIER).value;
+        next_token(token_type::COLON);
+        field.type = next_token(token_type::IDENTIFIER).value;
+        next_token(token_type::SEMICOLON);
+        fields.push_back(field);
+    }
+    return std::make_unique<ast_struct>(name, fields);
+}
+
+ast_node_ptr parser::enumeration() {
+    return std::make_unique<ast_enum>();
 }
 
 ast_node_ptr parser::if_statement() {

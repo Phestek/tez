@@ -17,6 +17,7 @@ enum class token_type {
     KW_RETURN,
     KW_VAR,
     KW_LET,
+    KW_ENUM,
     KW_STRUCT,
     KW_CLASS,
     KW_IF,

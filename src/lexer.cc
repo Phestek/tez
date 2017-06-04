@@ -23,7 +23,9 @@ const std::map<std::string, token_type> lexer::KEYWORDS{
     {"for",    token_type::KW_FOR},
     {"true",   token_type::KW_TRUE},
     {"false",  token_type::KW_FALSE},
-    {"null",   token_type::KW_NULL}
+    {"null",   token_type::KW_NULL},
+    {"struct", token_type::KW_STRUCT},
+    {"enum",   token_type::KW_ENUM},
 };
 
 const std::map<std::string, token_type> lexer::OPERATORS{
