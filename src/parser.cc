@@ -220,10 +220,65 @@ ast_node_ptr parser::expression() {
 }
 
 ast_node_ptr parser::assignment() {
-    auto expr = equality();
+    auto expr = logical_or();
     while(match_token({token_type::EQUALS, token_type::PLUS_EQUALS,
             token_type::MINUS_EQUALS, token_type::MULTIPLY_EQUALS,
             token_type::DIVIDE_EQUALS, token_type::MODULO_EQUALS})) {
+        const auto op = peek_token(-1);
+        auto right = logical_or();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(op.type));
+    }
+    return expr;
+}
+
+ast_node_ptr parser::logical_or() {
+    auto expr = logical_and();
+    while(match_token({token_type::LOGICAL_OR})) {
+        const auto op = peek_token(-1);
+        auto right = logical_and();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(op.type));
+    }
+    return expr;
+}
+
+ast_node_ptr parser::logical_and() {
+    auto expr = bitwise_or();
+    while(match_token({token_type::LOGICAL_AND})) {
+        const auto op = peek_token(-1);
+        auto right = bitwise_or();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(op.type));
+    }
+    return expr;
+}
+
+ast_node_ptr parser::bitwise_or() {
+    auto expr = bitwise_xor();
+    while(match_token({token_type::BITWISE_OR})) {
+        const auto op = peek_token(-1);
+        auto right = bitwise_xor();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(op.type));
+    }
+    return expr;
+}
+
+ast_node_ptr parser::bitwise_xor() {
+    auto expr = bitwise_and();
+    while(match_token({token_type::CARET})) {
+        const auto op = peek_token(-1);
+        auto right = bitwise_and();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(op.type));
+    }
+    return expr;
+}
+
+ast_node_ptr parser::bitwise_and() {
+    auto expr = equality();
+    while(match_token({token_type::AMPERSAND})) {
         const auto op = peek_token(-1);
         auto right = equality();
         expr = std::make_unique<ast_binary_operation>(std::move(expr),
@@ -244,9 +299,21 @@ ast_node_ptr parser::equality() {
 }
 
 ast_node_ptr parser::comparison() {
-    auto expr = term();
+    auto expr = bitwise_shift();
     while(match_token({token_type::GREATER, token_type::GREATER_EQUALS,
             token_type::LESS, token_type::LESS_EQUALS})) {
+        const auto operat = peek_token(-1);
+        auto right = bitwise_shift();
+        expr = std::make_unique<ast_binary_operation>(std::move(expr),
+                std::move(right), to_string(operat.type));
+    }
+    return expr;
+}
+
+ast_node_ptr parser::bitwise_shift() {
+    auto expr = term();
+    while(match_token({token_type::BITWISE_SHIFT_LEFT,
+            token_type::BITWISE_SHIFT_RIGHT})) {
         const auto operat = peek_token(-1);
         auto right = term();
         expr = std::make_unique<ast_binary_operation>(std::move(expr),
@@ -257,7 +324,7 @@ ast_node_ptr parser::comparison() {
 
 ast_node_ptr parser::term() {
     auto expr = factor();
-    while(match_token({token_type::MULTIPLY, token_type::DIVIDE,
+    while(match_token({token_type::ASTERISK, token_type::SLASH,
             token_type::MODULO})) {
         const auto operat = peek_token(-1);
         auto right = factor();
@@ -279,8 +346,7 @@ ast_node_ptr parser::factor() {
 }
 
 ast_node_ptr parser::unary() {
-    if(match_token({token_type::BANG, token_type::MINUS,
-            token_type::AMPERSAND, token_type::CIRCUMFLEX})) {
+    if(match_token({token_type::BANG, token_type::MINUS})) {
         auto operat = peek_token(-1);
         auto right = unary();
         return std::make_unique<ast_unary_operation>(std::move(right),

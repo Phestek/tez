@@ -43,11 +43,17 @@ private:
     ast_node_ptr do_while_statement();
     ast_node_ptr for_statement();
 
-    // Recursive descent parsing (for rvalues).
+    // Recursive descent parsing.
     ast_node_ptr expression();      // Base.
     ast_node_ptr assignment();      // = += -= *= /= %=
+    ast_node_ptr logical_or();      // ||
+    ast_node_ptr logical_and();     // &&
+    ast_node_ptr bitwise_or();      // |
+    ast_node_ptr bitwise_xor();     // ^
+    ast_node_ptr bitwise_and();     // &
     ast_node_ptr equality();        // == !=
     ast_node_ptr comparison();      // >= <= > <
+    ast_node_ptr bitwise_shift();
     ast_node_ptr term();            // * / %
     ast_node_ptr factor();          // + -
     ast_node_ptr unary();           // ! -  & ^

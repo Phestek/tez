@@ -33,8 +33,15 @@ const std::map<std::string, token_type> lexer::OPERATORS{
     {")",  token_type::R_PAREN},
     {"+",  token_type::PLUS},
     {"-",  token_type::MINUS},
-    {"*",  token_type::MULTIPLY},
-    {"/",  token_type::DIVIDE},
+    {"*",  token_type::ASTERISK},
+    {"/",  token_type::SLASH},
+    {"&&", token_type::LOGICAL_AND},
+    {"||", token_type::LOGICAL_OR},
+    {"&",  token_type::AMPERSAND},
+    {"|",  token_type::BITWISE_OR},
+    {"^",  token_type::CARET},
+    {"<<", token_type::BITWISE_SHIFT_LEFT},
+    {">>", token_type::BITWISE_SHIFT_RIGHT},
     {"%",  token_type::MODULO},
     {"+=", token_type::PLUS_EQUALS},
     {"-=", token_type::MINUS_EQUALS},
@@ -53,7 +60,6 @@ const std::map<std::string, token_type> lexer::OPERATORS{
     {":",  token_type::COLON},
     {",",  token_type::COMMA},
     {".",  token_type::DOT},
-    {"^",  token_type::CIRCUMFLEX},
     {"->", token_type::ARROW},
 };
 
@@ -220,6 +226,20 @@ void lexer::push_operator(char c) {
             if(c == '-') {  // Arrow is special case.
                 if(peek_char() == '>') {
                     push_token(token_type::ARROW);
+                    _current_char += 2;
+                }
+                break;
+            }
+            if(c == '<') {
+                if(peek_char() == '<') {
+                    push_token(token_type::BITWISE_SHIFT_LEFT);
+                    _current_char += 2;
+                }
+                break;
+            }
+            if(c == '>') {
+                if(peek_char() == '>') {
+                    push_token(token_type::BITWISE_SHIFT_RIGHT);
                     _current_char += 2;
                 }
                 break;

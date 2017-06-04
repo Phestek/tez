@@ -37,8 +37,8 @@ enum class token_type {
 
     PLUS,
     MINUS,
-    MULTIPLY,
-    DIVIDE,
+    ASTERISK,
+    SLASH,
     MODULO,
     PLUS_EQUALS,
     MINUS_EQUALS,
@@ -46,7 +46,7 @@ enum class token_type {
     DIVIDE_EQUALS,
     MODULO_EQUALS,
 
-    BANG,               // !
+    BANG,
     EQUALS,
     BANG_EQUALS,
     EQUALS_EQUALS,
@@ -54,16 +54,24 @@ enum class token_type {
     GREATER_EQUALS,
     LESS,
     LESS_EQUALS,
+    // BITWISE_AND uses AMPERSAND, because ADDRESS_OF also uses it.
+    BITWISE_OR,
+    BITWISE_XOR,
+    BITWISE_SHIFT_LEFT,
+    BITWISE_SHIFT_RIGHT,
+    LOGICAL_OR,
+    LOGICAL_AND,
 
     SEMICOLON,
     COLON,
     COMMA,
     DOT,
     AMPERSAND,
-    CIRCUMFLEX,
-    ARROW,              // ->
-
-    END_OF_FILE         // Stupid macro, can't use just "EOF".
+    CARET,
+    ARROW,
+    
+    // TODO: Remove it.
+    END_OF_FILE
 };
 
 struct token {
