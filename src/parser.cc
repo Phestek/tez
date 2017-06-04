@@ -279,7 +279,8 @@ ast_node_ptr parser::factor() {
 }
 
 ast_node_ptr parser::unary() {
-    if(match_token({token_type::BANG, token_type::MINUS})) {
+    if(match_token({token_type::BANG, token_type::MINUS,
+            token_type::AMPERSAND, token_type::CIRCUMFLEX})) {
         auto operat = peek_token(-1);
         auto right = unary();
         return std::make_unique<ast_unary_operation>(std::move(right),

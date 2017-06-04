@@ -50,7 +50,7 @@ private:
     ast_node_ptr comparison();      // >= <= > <
     ast_node_ptr term();            // * / %
     ast_node_ptr factor();          // + -
-    ast_node_ptr unary();           // ! - TODO: & ^ (for pointers)
+    ast_node_ptr unary();           // ! -  & ^
     ast_node_ptr primary();         // int, double, bool, identifier
 
     const std::vector<token> _tokens;

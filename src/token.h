@@ -59,6 +59,7 @@ enum class token_type {
     COLON,
     COMMA,
     DOT,
+    AMPERSAND,
     CIRCUMFLEX,
     ARROW,              // ->
 

@@ -53,6 +53,7 @@ const std::map<std::string, token_type> lexer::OPERATORS{
     {":",  token_type::COLON},
     {",",  token_type::COMMA},
     {".",  token_type::DOT},
+    {"^",  token_type::CIRCUMFLEX},
     {"->", token_type::ARROW},
 };
 
@@ -204,7 +205,11 @@ void lexer::push_operator(char c) {
         case '-':
         case '*':
         case '/':
-        case '%': {
+        case '%':
+        case '=':
+        case '!':
+        case '<':
+        case '>': {
             if(peek_char() == '=') {
                 auto op = std::string{c} + std::string{peek_char()};
                 auto o = OPERATORS.find(op);   // It's sure to find.
@@ -212,7 +217,7 @@ void lexer::push_operator(char c) {
                 _current_char += 2;
                 break;
             }
-            if(c == '-') {
+            if(c == '-') {  // Arrow is special case.
                 if(peek_char() == '>') {
                     push_token(token_type::ARROW);
                     _current_char += 2;
@@ -222,26 +227,6 @@ void lexer::push_operator(char c) {
             auto o = OPERATORS.find(std::string{c});
             if(o != OPERATORS.end()) {
                 push_token(o->second, "");
-            } else {
-                report_error("Unexpected character '" + std::string{c} + "'");
-            }
-            ++_current_char;
-            break;
-        }
-        case '=':
-        case '!':
-        case '<':
-        case '>': {
-            if(peek_char() == '=') {
-                std::string op = std::string{c} + std::string{peek_char()};
-                auto o = OPERATORS.find(op);   // It's sure to find.
-                push_token(o->second);
-                _current_char += 2;
-                break;
-            }
-            auto o = OPERATORS.find(std::string{c});
-            if(o != OPERATORS.end()) {
-                push_token(o->second);
             } else {
                 report_error("Unexpected character '" + std::string{c} + "'");
             }
