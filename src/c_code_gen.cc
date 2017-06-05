@@ -21,10 +21,10 @@ std::ostream& operator<<(std::ostream& out, const ast_integer& integer);
 std::ostream& operator<<(std::ostream& out, const ast_real_number& real_number);
 std::ostream& operator<<(std::ostream& out, const ast_string& string);
 std::ostream& operator<<(std::ostream& out, const ast_identifier& identifier);
-std::ostream& operator<<(std::ostream& out, const ast_function_declaration& function);
-std::ostream& operator<<(std::ostream& out, const ast_function_call& func_call);
-std::ostream& operator<<(std::ostream& out, const ast_function_return& func_ret);
-std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var);
+std::ostream& operator<<(std::ostream& out, const ast_func_decl& function);
+std::ostream& operator<<(std::ostream& out, const ast_func_call& func_call);
+std::ostream& operator<<(std::ostream& out, const ast_return& ret);
+std::ostream& operator<<(std::ostream& out, const ast_var_decl& var);
 std::ostream& operator<<(std::ostream& out, const ast_if& _if);
 std::ostream& operator<<(std::ostream& out, const ast_while& _while);
 std::ostream& operator<<(std::ostream& out, const ast_do_while& _while);
@@ -69,13 +69,13 @@ std::ostream& operator<<(std::ostream& out, const ast_node& node) {
         case ast_node_type::IDENTIFIER:
             return out << dynamic_cast<const ast_identifier&>(node);
         case ast_node_type::FUNCTION_DECLARATION:
-            return out << dynamic_cast<const ast_function_declaration&>(node);
+            return out << dynamic_cast<const ast_func_decl&>(node);
         case ast_node_type::FUNCTION_CALL:
-            return out << dynamic_cast<const ast_function_call&>(node);
-        case ast_node_type::FUNCTION_RETURN:
-            return out << dynamic_cast<const ast_function_return&>(node);
+            return out << dynamic_cast<const ast_func_call&>(node);
+        case ast_node_type::RETURN:
+            return out << dynamic_cast<const ast_return&>(node);
         case ast_node_type::VARIABLE_DECLARATION:
-            return out << dynamic_cast<const ast_variable_declaration&>(node);
+            return out << dynamic_cast<const ast_var_decl&>(node);
         case ast_node_type::IF:
             return out << dynamic_cast<const ast_if&>(node);
         case ast_node_type::WHILE:
@@ -128,43 +128,43 @@ std::ostream& operator<<(std::ostream& out, const ast_string& string) {
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_identifier& identifier) {
-    return out << identifier.value;
+    return out << identifier.name;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_function_declaration& function) {
-    out << function.return_type << ' ' << function.name << '(';
-    if(function.params.size() == 0) {
+std::ostream& operator<<(std::ostream& out, const ast_func_decl& func) {
+    out << func.return_type << ' ' << func.name << '(';
+    if(func.params.size() == 0) {
         out << "void";
     } else {
-        for(std::size_t i = 0; i < function.params.size(); ++i) {
-            if(function.params.at(i).constant) {
+        for(std::size_t i = 0; i < func.params.size(); ++i) {
+            if(func.params.at(i).constant) {
                 out << "const ";
             }
-            out << function.params.at(i).type << ' ' << function.params.at(i).name;
-            if(i < function.params.size() - 1) {
+            out << func.params.at(i).type << ' ' << func.params.at(i).name;
+            if(i < func.params.size() - 1) {
                 out << ", ";
             }
         }
     }
-    return out << ") " << function.body;
+    return out << ") " << func.body;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_function_call& func_call) {
+std::ostream& operator<<(std::ostream& out, const ast_func_call& func_call) {
     out << func_call.name << '(';
-    for(std::size_t i = 0; i < func_call.params.size(); ++i) {
-        out << *func_call.params.at(i);
-        if(i < func_call.params.size() - 1) {
+    for(std::size_t i = 0; i < func_call.args.size(); ++i) {
+        out << *func_call.args.at(i);
+        if(i < func_call.args.size() - 1) {
             out << ", ";
         }
     }
     return out << ")";
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_function_return& func_ret) {
-    return out << "return " << *func_ret.value;
+std::ostream& operator<<(std::ostream& out, const ast_return& ret) {
+    return out << "return " << *ret.value;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_variable_declaration& var) {
+std::ostream& operator<<(std::ostream& out, const ast_var_decl& var) {
     if(var.constant) {
         out << "const ";
     }

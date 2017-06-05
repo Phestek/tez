@@ -70,7 +70,8 @@ ast_node_ptr parser::statement() {
         node = variable_declaration(false);
         next_token(token_type::SEMICOLON);
     } else if(match_token({token_type::KW_RETURN})) {
-        node = std::make_unique<ast_function_return>(expression());
+        node = std::make_unique<ast_return>(); 
+        dynamic_cast<ast_return&>(*node).value = expression();
         next_token(token_type::SEMICOLON);
     } else if(match_token({token_type::KW_IF})) {
         node = if_statement();
@@ -96,91 +97,82 @@ ast_node_ptr parser::statement() {
 }
 
 ast_block parser::block() {
+    ast_block _block;
     next_token(token_type::L_BRACE);
-    std::vector<ast_node_ptr> statements;
     try {
         while(!match_token({token_type::R_BRACE})) {
-            statements.push_back(statement());
+            _block.statements.push_back(statement());
         }
     } catch(const std::out_of_range& e) {
         report_error("Missing closing '}'");
     }
-    return ast_block{statements};
+    return _block;
 }
 
 ast_node_ptr parser::function_declaration() {
-    // Function name.
-    auto name = next_token(token_type::IDENTIFIER).value;
-    // Function parameters.
+    auto func = std::make_unique<ast_func_decl>();
+    func->name = next_token(token_type::IDENTIFIER).value;
     next_token(token_type::L_PAREN);
-    std::vector<ast_func_param> params;
     if(!check_token(token_type::R_PAREN)) {
         do {
-            params.push_back(function_param());
+            func->params.push_back(function_param());
         } while(match_token({token_type::COMMA}));
     }
     next_token(token_type::R_PAREN);
-    // Return type.
     next_token(token_type::ARROW);
-    auto return_type = next_token(token_type::IDENTIFIER).value;
-    // Body.
-    auto body = block();
-    return std::make_unique<ast_function_declaration>(name, params, return_type,
-            std::move(body));
+    func->return_type = next_token(token_type::IDENTIFIER).value;
+    func->body = block();
+    return func;
 }
 
-ast_func_param parser::function_param() {
-    auto name = next_token(token_type::IDENTIFIER).value;
+ast_func_decl::param parser::function_param() {
+    ast_func_decl::param param;
+    param.name = next_token(token_type::IDENTIFIER).value;
     next_token(token_type::COLON);
-    bool constant = true;
     if(match_token({token_type::KW_VAR})) {
-        constant = false;
+        param.constant = false;
     }
-    auto type = next_token(token_type::IDENTIFIER).value;
-    return ast_func_param{name, constant, type};
+    param.type = next_token(token_type::IDENTIFIER).value;
+    return param;
 }
 
 ast_node_ptr parser::function_call(const std::string& name) {
-    std::vector<ast_node_ptr> params;
+    auto call = std::make_unique<ast_func_call>();
+    call->name = name;
     if(!match_token({token_type::R_PAREN})) {
         do {
-            params.push_back(expression());
+            call->args.push_back(expression());
         } while(match_token({token_type::COMMA}));
     }
     next_token(token_type::R_PAREN);
-    return std::make_unique<ast_function_call>(name, params);
+    return call;
 }
 
 ast_node_ptr parser::variable_declaration(bool constant) {
-    /* Ways to declare variable:
-     * 1) var a: int;      <- explicit type, default initializer (aka zero)
-     * 2) var a: int = 10; <- explicit type + explicit initializer.
-     * these 2 are super easy to implement. the problem is 3rd one:
-     * 3) var a = 10;      <- implicit type
-     * it requires some kind of resolver to deduct type. */
-    auto name = next_token(token_type::IDENTIFIER).value;
+    auto decl = std::make_unique<ast_var_decl>();
+    decl->constant = constant;
+    decl->name = next_token(token_type::IDENTIFIER).value;
     next_token(token_type::COLON);
-    auto type = next_token(token_type::IDENTIFIER).value;
+    decl->type = next_token(token_type::IDENTIFIER).value;
     if(match_token({token_type::EQUALS})) {
-        return std::make_unique<ast_variable_declaration>(name, constant, type,
-                expression());
+        decl->initializer = expression();
     }
-    return std::make_unique<ast_variable_declaration>(name, constant, type, nullptr);
+    return decl;
 }
 
 ast_node_ptr parser::structure() {
-    auto name = next_token(token_type::IDENTIFIER).value;
+    auto struct_decl = std::make_unique<ast_struct>();
+    struct_decl->name = next_token(token_type::IDENTIFIER).value;
     next_token(token_type::L_BRACE);
-    std::vector<ast_struct::field> fields;
     while(!match_token({token_type::R_BRACE})) {
         ast_struct::field field;
         field.name = next_token(token_type::IDENTIFIER).value;
         next_token(token_type::COLON);
         field.type = next_token(token_type::IDENTIFIER).value;
         next_token(token_type::SEMICOLON);
-        fields.push_back(field);
+        struct_decl->fields.push_back(field);
     }
-    return std::make_unique<ast_struct>(name, fields);
+    return struct_decl;
 }
 
 ast_node_ptr parser::enumeration() {
@@ -203,11 +195,11 @@ ast_node_ptr parser::enumeration() {
 }
 
 ast_node_ptr parser::if_statement() {
-    auto condition = expression();
+    auto if_stat = std::make_unique<ast_if>();
+    if_stat->condition = expression();
     auto if_block = block();
     if(!match_token({token_type::KW_ELSE})) {
-        return std::make_unique<ast_if>(std::move(condition),
-                std::move(if_block), nullptr);
+        return if_stat;
     }
     ast_node_ptr else_block;                // Else block may also be just if!
     if(match_token({token_type::KW_IF})) {  // Because of "else if".
@@ -215,31 +207,33 @@ ast_node_ptr parser::if_statement() {
     } else {
         else_block = std::make_unique<ast_block>(block());
     }
-    return std::make_unique<ast_if>(std::move(condition), std::move(if_block),
-            std::move(else_block));
+    if_stat->else_block = std::move(else_block);
+    return if_stat;
 }
 
 ast_node_ptr parser::while_statement() {
-    auto condition = expression();
-    auto body = block();
-    return std::make_unique<ast_while>(std::move(condition), std::move(body));
+    auto while_loop = std::make_unique<ast_while>();
+    while_loop->condition = expression();
+    while_loop->body = block();
+    return while_loop;
 }
 
 ast_node_ptr parser::do_while_statement() {
-    auto body = block();
+    auto do_while = std::make_unique<ast_do_while>();
+    do_while->body = block();
     next_token(token_type::KW_WHILE);
-    auto condition = expression();
+    do_while->condition = expression();
     next_token(token_type::SEMICOLON);
-    return std::make_unique<ast_do_while>(std::move(condition), std::move(body));
+    return do_while;
 }
 
 ast_node_ptr parser::for_statement() {
-    auto init_statement = statement();
-    auto condition      = statement();
-    auto iteration_expr = expression();
-    auto body           = block();
-    return std::make_unique<ast_for>(std::move(init_statement),
-            std::move(condition), std::move(iteration_expr), std::move(body));
+    auto for_loop = std::make_unique<ast_for>();
+    for_loop->init_statement = statement();
+    for_loop->condition      = statement();
+    for_loop->iteration_expr = expression();
+    for_loop->body           = block();
+    return for_loop;
 }
 
 ast_node_ptr parser::expression() {
@@ -251,10 +245,11 @@ ast_node_ptr parser::assignment() {
     while(match_token({token_type::EQUALS, token_type::PLUS_EQUALS,
             token_type::MINUS_EQUALS, token_type::MULTIPLY_EQUALS,
             token_type::DIVIDE_EQUALS, token_type::MODULO_EQUALS})) {
-        const auto op = peek_token(-1);
-        auto right = logical_or();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(op.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = logical_or();
+        return op;
     }
     return expr;
 }
@@ -262,10 +257,11 @@ ast_node_ptr parser::assignment() {
 ast_node_ptr parser::logical_or() {
     auto expr = logical_and();
     while(match_token({token_type::LOGICAL_OR})) {
-        const auto op = peek_token(-1);
-        auto right = logical_and();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(op.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = logical_and();
+        return op;
     }
     return expr;
 }
@@ -273,10 +269,11 @@ ast_node_ptr parser::logical_or() {
 ast_node_ptr parser::logical_and() {
     auto expr = bitwise_or();
     while(match_token({token_type::LOGICAL_AND})) {
-        const auto op = peek_token(-1);
-        auto right = bitwise_or();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(op.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = bitwise_or();
+        return op;
     }
     return expr;
 }
@@ -284,10 +281,11 @@ ast_node_ptr parser::logical_and() {
 ast_node_ptr parser::bitwise_or() {
     auto expr = bitwise_xor();
     while(match_token({token_type::BITWISE_OR})) {
-        const auto op = peek_token(-1);
-        auto right = bitwise_xor();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(op.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = bitwise_xor();
+        return op;
     }
     return expr;
 }
@@ -295,10 +293,11 @@ ast_node_ptr parser::bitwise_or() {
 ast_node_ptr parser::bitwise_xor() {
     auto expr = bitwise_and();
     while(match_token({token_type::CARET})) {
-        const auto op = peek_token(-1);
-        auto right = bitwise_and();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(op.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = bitwise_and();
+        return op;
     }
     return expr;
 }
@@ -306,10 +305,11 @@ ast_node_ptr parser::bitwise_xor() {
 ast_node_ptr parser::bitwise_and() {
     auto expr = equality();
     while(match_token({token_type::AMPERSAND})) {
-        const auto op = peek_token(-1);
-        auto right = equality();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(op.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = equality();
+        return op;
     }
     return expr;
 }
@@ -317,10 +317,11 @@ ast_node_ptr parser::bitwise_and() {
 ast_node_ptr parser::equality() {
     auto expr = comparison();
     while(match_token({token_type::BANG_EQUALS, token_type::EQUALS_EQUALS})) {
-        const auto operat = peek_token(-1);
-        auto right = comparison();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(operat.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = comparison();
+        return op;
     }
     return expr;
 }
@@ -329,10 +330,11 @@ ast_node_ptr parser::comparison() {
     auto expr = bitwise_shift();
     while(match_token({token_type::GREATER, token_type::GREATER_EQUALS,
             token_type::LESS, token_type::LESS_EQUALS})) {
-        const auto operat = peek_token(-1);
-        auto right = bitwise_shift();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(operat.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = bitwise_shift();
+        return op;
     }
     return expr;
 }
@@ -341,10 +343,11 @@ ast_node_ptr parser::bitwise_shift() {
     auto expr = term();
     while(match_token({token_type::BITWISE_SHIFT_LEFT,
             token_type::BITWISE_SHIFT_RIGHT})) {
-        const auto operat = peek_token(-1);
-        auto right = term();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(operat.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = term();
+        return op;
     }
     return expr;
 }
@@ -353,10 +356,11 @@ ast_node_ptr parser::term() {
     auto expr = factor();
     while(match_token({token_type::ASTERISK, token_type::SLASH,
             token_type::MODULO})) {
-        const auto operat = peek_token(-1);
-        auto right = factor();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(operat.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = factor();
+        return op;
     }
     return expr;
 }
@@ -364,20 +368,21 @@ ast_node_ptr parser::term() {
 ast_node_ptr parser::factor() {
     auto expr = unary();
     while(match_token({token_type::PLUS, token_type::MINUS})) {
-        const auto operat = peek_token(-1);
-        auto right = unary();
-        expr = std::make_unique<ast_binary_operation>(std::move(expr),
-                std::move(right), to_string(operat.type));
+        auto op = std::make_unique<ast_binary_operation>();
+        op->left = std::move(expr);
+        op->operat = to_string(peek_token(-1).type);
+        op->right = unary();
+        return op;
     }
     return expr;
 }
 
 ast_node_ptr parser::unary() {
     if(match_token({token_type::BANG, token_type::MINUS})) {
-        auto operat = peek_token(-1);
-        auto right = unary();
-        return std::make_unique<ast_unary_operation>(std::move(right),
-                to_string(operat.type));
+        auto op = std::make_unique<ast_unary_operation>();
+        op->operat = to_string(peek_token(-1).type);
+        op->left = unary();
+        return op;
     }
     return primary();
 }
@@ -385,25 +390,36 @@ ast_node_ptr parser::unary() {
 ast_node_ptr parser::primary() {
     auto token = peek_token(0);
     if(match_token({token_type::KW_TRUE})) {
-        return std::make_unique<ast_boolean>(true);
+        auto b = std::make_unique<ast_boolean>();
+        b->value = true;
+        return b;
     }
     if(match_token({token_type::KW_FALSE})) {
-        return std::make_unique<ast_boolean>(false);
+        auto b = std::make_unique<ast_boolean>();
+        b->value = false;
+        return b;
     }
     //if(match({token_type::kw_nullptr})) {
     //    return std::make_unique<ast_boolean>(true);
     //}
     if(match_token({token_type::INTEGER})) {
-        return std::make_unique<ast_integer>(std::stoi(token.value));
+        auto i = std::make_unique<ast_integer>();
+        i->value = false;
+        return i;
     }
     if(match_token({token_type::REAL_NUMBER})) {
-        return std::make_unique<ast_real_number>(std::stod(token.value));
+        auto r = std::make_unique<ast_integer>();
+        r->value = false;
+        return r;
     }
     if(match_token({token_type::STRING})) {
-        return std::make_unique<ast_string>(token.value);
+        auto s = std::make_unique<ast_string>();
+        s->value = token.value;
+        return s;
     }
     if(match_token({token_type::L_PAREN})) {
-        auto expr = std::make_unique<ast_grouping_expression>(expression());
+        auto expr = std::make_unique<ast_grouping_expression>();
+        expr->expr = expression();
         next_token(token_type::R_PAREN);
         return expr;
     }
@@ -411,7 +427,9 @@ ast_node_ptr parser::primary() {
         if(match_token({token_type::L_PAREN})) {
             return function_call(token.value);
         } else {
-            return std::make_unique<ast_identifier>(token.value);
+            auto id = std::make_unique<ast_identifier>();
+            id->name = token.value;
+            return id;
         }
     }
     report_error("Expected primary expression, got " + to_string(token.type));
