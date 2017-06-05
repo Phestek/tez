@@ -213,7 +213,8 @@ std::ostream& operator<<(std::ostream& out, const ast_enum& _enum) {
     out << "enum " << _enum.name << " {\n";
     ++indent_level;
     for(const auto& enumeration : _enum.enumerations) {
-        out << indent << enumeration.name << " = " << enumeration.value << ",\n";
+        out << indent << _enum.name << '_' << enumeration.name << " = "
+                << enumeration.value << ",\n";
     }
     --indent_level;
     return out << '}';
