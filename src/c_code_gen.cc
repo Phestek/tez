@@ -206,10 +206,17 @@ std::ostream& operator<<(std::ostream& out, const ast_struct& _struct) {
         out << indent << field.type << ' ' << field.name << ";\n";
     }
     --indent_level;
-    return out << "}";
+    return out << '}';
 }
 
 std::ostream& operator<<(std::ostream& out, const ast_enum& _enum) {
+    out << "enum " << _enum.name << " {\n";
+    ++indent_level;
+    for(const auto& enumeration : _enum.enumerations) {
+        out << indent << enumeration.name << " = " << enumeration.value << ",\n";
+    }
+    --indent_level;
+    return out << '}';
 }
 
 }

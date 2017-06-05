@@ -241,9 +241,13 @@ struct ast_struct final : ast_node {
 };
 
 struct ast_enum final : ast_node {
-    ast_enum() {
-        node_type = ast_node_type::ENUM;
-    }
+    struct enumerator {
+        std::string name;
+        int         value;
+    };
+    ast_enum() { node_type = ast_node_type::ENUM; }
+    std::string             name;
+    std::vector<enumerator> enumerations;
 };
 
 }

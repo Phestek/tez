@@ -184,7 +184,22 @@ ast_node_ptr parser::structure() {
 }
 
 ast_node_ptr parser::enumeration() {
-    return std::make_unique<ast_enum>();
+    auto enumeration = std::make_unique<ast_enum>();
+    std::size_t counter = 0;
+    enumeration->name = next_token(token_type::IDENTIFIER).value;
+    next_token(token_type::L_BRACE);
+    do {
+        ast_enum::enumerator enumerator;
+        enumerator.name = next_token(token_type::IDENTIFIER).value;
+        if(match_token({token_type::EQUALS})) {
+            counter = std::stoi(next_token(token_type::INTEGER).value);
+        }
+        enumerator.value = counter;
+        enumeration->enumerations.push_back(enumerator);
+        ++counter;
+    } while(match_token({token_type::COMMA}));
+    next_token(token_type::R_BRACE);
+    return enumeration;
 }
 
 ast_node_ptr parser::if_statement() {
