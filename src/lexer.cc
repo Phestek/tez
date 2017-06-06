@@ -94,8 +94,8 @@ lexer::lexer(const std::string& filename)
     _wayward_source = read_file_content(filename);
 }
 
-lexer::lexer(const std::string& wayward_source, bool doesnt_matter) {
-    doesnt_matter = false; // Silence this stupid warning.
+lexer::lexer(const std::string& wayward_source,
+        [[maybe_unused]] bool doesnt_matter) {
     _wayward_source = wayward_source;
 }
 

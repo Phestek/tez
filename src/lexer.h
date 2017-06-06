@@ -14,7 +14,8 @@ public:
     lexer(const std::string& filename);
     
     // This constructor is only used for unit tests.
-    // Second parameter because of stupid amigious call error.
+    // Second parameter is workaround for ambigious call (1st constructor
+    // also takes only 1 std::string parameter).
     lexer(const std::string& wayward_source, bool doesnt_matter);
 
     // Create tokens from given source code.
