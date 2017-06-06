@@ -7,62 +7,62 @@
 #include <stdexcept>
 #include <algorithm>
 
-namespace wayward {
+namespace tez {
 
-const std::map<std::string, token_type> lexer::KEYWORDS{
-    {"func",   token_type::KW_FUNC},
-    {"return", token_type::KW_RETURN},
-    {"var",    token_type::KW_VAR},
-    {"let",    token_type::KW_LET},
-    {"struct", token_type::KW_STRUCT},
-    {"class",  token_type::KW_CLASS},
-    {"if",     token_type::KW_IF},
-    {"else",   token_type::KW_ELSE},
-    {"while",  token_type::KW_WHILE},
-    {"do",     token_type::KW_DO},
-    {"for",    token_type::KW_FOR},
-    {"true",   token_type::KW_TRUE},
-    {"false",  token_type::KW_FALSE},
-    {"null",   token_type::KW_NULL},
-    {"struct", token_type::KW_STRUCT},
-    {"enum",   token_type::KW_ENUM},
+const std::map<std::string, Token_Type> Lexer::KEYWORDS{
+    {"func",   Token_Type::KW_FUNC},
+    {"return", Token_Type::KW_RETURN},
+    {"var",    Token_Type::KW_VAR},
+    {"let",    Token_Type::KW_LET},
+    {"struct", Token_Type::KW_STRUCT},
+    {"class",  Token_Type::KW_CLASS},
+    {"if",     Token_Type::KW_IF},
+    {"else",   Token_Type::KW_ELSE},
+    {"while",  Token_Type::KW_WHILE},
+    {"do",     Token_Type::KW_DO},
+    {"for",    Token_Type::KW_FOR},
+    {"true",   Token_Type::KW_TRUE},
+    {"false",  Token_Type::KW_FALSE},
+    {"null",   Token_Type::KW_NULL},
+    {"struct", Token_Type::KW_STRUCT},
+    {"enum",   Token_Type::KW_ENUM},
 };
 
-const std::map<std::string, token_type> lexer::OPERATORS{
-    {"{",  token_type::L_BRACE},
-    {"}",  token_type::R_BRACE},
-    {"(",  token_type::L_PAREN},
-    {")",  token_type::R_PAREN},
-    {"+",  token_type::PLUS},
-    {"-",  token_type::MINUS},
-    {"*",  token_type::ASTERISK},
-    {"/",  token_type::SLASH},
-    {"&&", token_type::LOGICAL_AND},
-    {"||", token_type::LOGICAL_OR},
-    {"&",  token_type::AMPERSAND},
-    {"|",  token_type::BITWISE_OR},
-    {"^",  token_type::CARET},
-    {"<<", token_type::BITWISE_SHIFT_LEFT},
-    {">>", token_type::BITWISE_SHIFT_RIGHT},
-    {"%",  token_type::MODULO},
-    {"+=", token_type::PLUS_EQUALS},
-    {"-=", token_type::MINUS_EQUALS},
-    {"*=", token_type::MULTIPLY_EQUALS},
-    {"/=", token_type::DIVIDE_EQUALS},
-    {"%=", token_type::MODULO_EQUALS},
-    {"!",  token_type::BANG},
-    {"=",  token_type::EQUALS},
-    {"!=", token_type::BANG_EQUALS},
-    {"==", token_type::EQUALS_EQUALS},
-    {">",  token_type::GREATER},
-    {">=", token_type::GREATER_EQUALS},
-    {"<",  token_type::LESS},
-    {"<=", token_type::LESS_EQUALS},
-    {";",  token_type::SEMICOLON},
-    {":",  token_type::COLON},
-    {",",  token_type::COMMA},
-    {".",  token_type::DOT},
-    {"->", token_type::ARROW},
+const std::map<std::string, Token_Type> Lexer::OPERATORS{
+    {"{",  Token_Type::L_BRACE},
+    {"}",  Token_Type::R_BRACE},
+    {"(",  Token_Type::L_PAREN},
+    {")",  Token_Type::R_PAREN},
+    {"+",  Token_Type::PLUS},
+    {"-",  Token_Type::MINUS},
+    {"*",  Token_Type::ASTERISK},
+    {"/",  Token_Type::SLASH},
+    {"&&", Token_Type::LOGICAL_AND},
+    {"||", Token_Type::LOGICAL_OR},
+    {"&",  Token_Type::AMPERSAND},
+    {"|",  Token_Type::BITWISE_OR},
+    {"^",  Token_Type::CARET},
+    {"<<", Token_Type::BITWISE_SHIFT_LEFT},
+    {">>", Token_Type::BITWISE_SHIFT_RIGHT},
+    {"%",  Token_Type::MODULO},
+    {"+=", Token_Type::PLUS_EQUALS},
+    {"-=", Token_Type::MINUS_EQUALS},
+    {"*=", Token_Type::MULTIPLY_EQUALS},
+    {"/=", Token_Type::DIVIDE_EQUALS},
+    {"%=", Token_Type::MODULO_EQUALS},
+    {"!",  Token_Type::BANG},
+    {"=",  Token_Type::EQUALS},
+    {"!=", Token_Type::BANG_EQUALS},
+    {"==", Token_Type::EQUALS_EQUALS},
+    {">",  Token_Type::GREATER},
+    {">=", Token_Type::GREATER_EQUALS},
+    {"<",  Token_Type::LESS},
+    {"<=", Token_Type::LESS_EQUALS},
+    {";",  Token_Type::SEMICOLON},
+    {":",  Token_Type::COLON},
+    {",",  Token_Type::COMMA},
+    {".",  Token_Type::DOT},
+    {"->", Token_Type::ARROW},
 };
 
 namespace {
@@ -89,28 +89,28 @@ std::string read_file_content(const std::string& filename) {
 
 }
 
-lexer::lexer(const std::string& filename)
+Lexer::Lexer(const std::string& filename)
         : _filename{filename} {
     _wayward_source = read_file_content(filename);
 }
 
-lexer::lexer(const std::string& wayward_source,
+Lexer::Lexer(const std::string& wayward_source,
         [[maybe_unused]] bool doesnt_matter) {
     _wayward_source = wayward_source;
 }
 
-bool lexer::errors_reported() const {
+bool Lexer::errors_reported() const {
     return _errors_reported;
 }
 
-void lexer::report_error(const std::string& message) {
+void Lexer::report_error(const std::string& message) {
     _errors_reported = true;
     std::cerr << "<filename>:" << std::to_string(_lines_count) << ":"
             << std::to_string(_current_char - _columns_count + 1) << ": "
             << message << ".\n";
 }
 
-std::vector<token> lexer::tokenize() {
+std::vector<Token> Lexer::tokenize() {
     _tokens.clear();
     // TODO: Make it cleaner, this is Jonathan Blow style function.
     try {
@@ -153,7 +153,7 @@ std::vector<token> lexer::tokenize() {
                     string += c;
                     c = _wayward_source.at(++_current_char);
                 }
-                push_token(token_type::STRING, string);
+                push_token(Token_Type::STRING, string);
                 ++_current_char;
                 continue;
             }
@@ -170,7 +170,7 @@ std::vector<token> lexer::tokenize() {
                     }
                 }
                 ++_current_char;
-                push_token(token_type::CHARACTER, {character}, beginning);
+                push_token(Token_Type::CHARACTER, {character}, beginning);
                 continue;
             }
             if(std::ispunct(c)) {
@@ -193,21 +193,21 @@ std::vector<token> lexer::tokenize() {
     return _tokens;
 }
 
-char lexer::peek_char(std::size_t depth) const {
+char Lexer::peek_char(std::size_t depth) const {
     return _wayward_source.at(_current_char + depth);
 }
 
-void lexer::push_token(token_type type, const std::string& value) {
+void Lexer::push_token(Token_Type type, const std::string& value) {
     _tokens.push_back({type, value, _filename, _lines_count,
             _current_char - _columns_count + 1});
 }
 
-void lexer::push_token(token_type type, const std::string& value,
+void Lexer::push_token(Token_Type type, const std::string& value,
         unsigned int col) {
     _tokens.push_back({type, value, _filename, _lines_count, col});
 }
 
-void lexer::push_operator(char c) {
+void Lexer::push_operator(char c) {
     switch(c) {
         case '+':
         case '-':
@@ -227,21 +227,21 @@ void lexer::push_operator(char c) {
             }
             if(c == '-') {  // Arrow is special case.
                 if(peek_char() == '>') {
-                    push_token(token_type::ARROW);
+                    push_token(Token_Type::ARROW);
                     _current_char += 2;
                     break;
                 }
             }
             if(c == '<') {
                 if(peek_char() == '<') {
-                    push_token(token_type::BITWISE_SHIFT_LEFT);
+                    push_token(Token_Type::BITWISE_SHIFT_LEFT);
                     _current_char += 2;
                     break;
                 }
             }
             if(c == '>') {
                 if(peek_char() == '>') {
-                    push_token(token_type::BITWISE_SHIFT_RIGHT);
+                    push_token(Token_Type::BITWISE_SHIFT_RIGHT);
                     _current_char += 2;
                     break;
                 }
@@ -266,7 +266,7 @@ void lexer::push_operator(char c) {
     }
 }
 
-void lexer::push_number(char c) {
+void Lexer::push_number(char c) {
     std::string number;
     bool is_real = false;   // False means integer value.
     while(std::isdigit(c) || c == '.') {
@@ -284,13 +284,13 @@ void lexer::push_number(char c) {
         }
     }
     if(is_real) {
-        push_token(token_type::REAL_NUMBER, number);
+        push_token(Token_Type::REAL_NUMBER, number);
     } else {
-        push_token(token_type::INTEGER, number);
+        push_token(Token_Type::INTEGER, number);
     }
 }
 
-void lexer::push_identifier(char c) {
+void Lexer::push_identifier(char c) {
     std::string word;
     while(std::isalpha(c) || c == '_') {
         try {
@@ -304,7 +304,7 @@ void lexer::push_identifier(char c) {
     if(keyword != KEYWORDS.end()) {
         push_token(keyword->second, "");
     } else {
-        push_token(token_type::IDENTIFIER, word);
+        push_token(Token_Type::IDENTIFIER, word);
     }
 }
 

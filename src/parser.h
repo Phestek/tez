@@ -1,68 +1,68 @@
-#ifndef WAYWARD_PARSER_H
-#define WAYWARD_PARSER_H
+#ifndef TEZ_PARSER_H
+#define TEZ_PARSER_H
 
 #include <vector>
 
 #include "ast.h"
 #include "token.h"
 
-namespace wayward {
+namespace tez {
 
-class parser {
+class Parser {
 public:
-    parser(const std::vector<token>& tokens);
+    Parser(const std::vector<Token>& tokens);
 
-    std::vector<ast_node_ptr> parse();
+    std::vector<Ast_Node_Ptr> parse();
 
     bool errors_reported() const;
 
 private:
     /** Just get next token. */
-    token next_token();
+    Token next_token();
     /** Validates token type and returns it. Error is reported if check fails. */
-    token next_token(token_type type);
+    Token next_token(Token_Type type);
     /** Peek token; depth = 0 returns current token. */
-    token peek_token(size_t depth = 1) const;
+    Token peek_token(size_t depth = 1) const;
     /** Check next token type. If it matches any of given types, return it. */
-    bool match_token(const std::initializer_list<token_type>& types);
+    bool match_token(const std::initializer_list<Token_Type>& types);
     /** Check token type; returns false if eof. */
-    bool check_token(token_type type) const;
+    bool check_token(Token_Type type) const;
 
     void report_error(const std::string& message);
     
-    ast_node_ptr statement();
+    Ast_Node_Ptr statement();
 
-    ast_block block();
+    Ast_Block block();
     
-    ast_node_ptr function_declaration();
-    ast_func_decl::param function_param();
-    ast_node_ptr function_call(const std::string& name);
-    ast_node_ptr variable_declaration(bool constant);
-    ast_node_ptr structure();
-    ast_node_ptr enumeration();
+    Ast_Node_Ptr function_declaration();
+    Ast_Func_Decl::Param function_param();
+    Ast_Node_Ptr function_call(const std::string& name);
+    Ast_Node_Ptr variable_declaration(bool constant);
+    Ast_Node_Ptr structure();
+    Ast_Node_Ptr enumeration();
     
-    ast_node_ptr if_statement();
-    ast_node_ptr while_statement();
-    ast_node_ptr do_while_statement();
-    ast_node_ptr for_statement();
+    Ast_Node_Ptr if_statement();
+    Ast_Node_Ptr while_statement();
+    Ast_Node_Ptr do_while_statement();
+    Ast_Node_Ptr for_statement();
 
     // Recursive descent parsing.
-    ast_node_ptr expression();      // Base.
-    ast_node_ptr assignment();      // = += -= *= /= %=
-    ast_node_ptr logical_or();      // ||
-    ast_node_ptr logical_and();     // &&
-    ast_node_ptr bitwise_or();      // |
-    ast_node_ptr bitwise_xor();     // ^
-    ast_node_ptr bitwise_and();     // &
-    ast_node_ptr equality();        // == !=
-    ast_node_ptr comparison();      // >= <= > <
-    ast_node_ptr bitwise_shift();   // << >>
-    ast_node_ptr term();            // * / %
-    ast_node_ptr factor();          // + -
-    ast_node_ptr unary();           // ! -
-    ast_node_ptr primary();         // int, double, bool, identifier
+    Ast_Node_Ptr expression();      // Base.
+    Ast_Node_Ptr assignment();      // = += -= *= /= %=
+    Ast_Node_Ptr logical_or();      // ||
+    Ast_Node_Ptr logical_and();     // &&
+    Ast_Node_Ptr bitwise_or();      // |
+    Ast_Node_Ptr bitwise_xor();     // ^
+    Ast_Node_Ptr bitwise_and();     // &
+    Ast_Node_Ptr equality();        // == !=
+    Ast_Node_Ptr comparison();      // >= <= > <
+    Ast_Node_Ptr bitwise_shift();   // << >>
+    Ast_Node_Ptr term();            // * / %
+    Ast_Node_Ptr factor();          // + -
+    Ast_Node_Ptr unary();           // ! -
+    Ast_Node_Ptr primary();         // int, double, bool, identifier
 
-    const std::vector<token> _tokens;
+    const std::vector<Token> _tokens;
     unsigned int             _current = 0;
 
     bool _errors_reported = false;
@@ -70,5 +70,5 @@ private:
 
 }
 
-#endif //WAYWARD_PARSER_H
+#endif //TEZ_PARSER_H
 

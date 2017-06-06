@@ -1,12 +1,12 @@
-#ifndef WAYWARD_AST_H
-#define WAYWARD_AST_H
+#ifndef TEZ_AST_H
+#define TEZ_AST_H
 
 #include <string>
 #include <memory>
 
-namespace wayward {
+namespace tez {
 
-enum class ast_node_type {
+enum class Ast_Node_Type {
     UNDEFINED,
 
     BLOCK,
@@ -40,148 +40,148 @@ enum class ast_node_type {
     CLASS,  // Not implemented yet.
 };
 
-struct ast_node {
-    virtual ~ast_node() = default;
-    ast_node_type node_type = ast_node_type::UNDEFINED;
+struct Ast_Node {
+    virtual ~Ast_Node() = default;
+    Ast_Node_Type node_type = Ast_Node_Type::UNDEFINED;
 };
-using ast_node_ptr = std::unique_ptr<ast_node>;
+using Ast_Node_Ptr = std::unique_ptr<Ast_Node>;
 
-struct ast_block final : ast_node {
-    ast_block() { node_type = ast_node_type::BLOCK; }
-    std::vector<ast_node_ptr> statements;
+struct Ast_Block final : Ast_Node {
+    Ast_Block() { node_type = Ast_Node_Type::BLOCK; }
+    std::vector<Ast_Node_Ptr> statements;
 };
 
-struct ast_boolean final : ast_node {
-    ast_boolean() {node_type = ast_node_type::BOOLEAN; }
+struct Ast_Boolean final : Ast_Node {
+    Ast_Boolean() { node_type = Ast_Node_Type::BOOLEAN; }
     bool value;
 };
 
-struct ast_integer final : ast_node {
-    ast_integer() { node_type = ast_node_type::INTEGER; }
+struct Ast_Integer final : Ast_Node {
+    Ast_Integer() { node_type = Ast_Node_Type::INTEGER; }
     long long value;
 };
 
-struct ast_real_number final : ast_node {
-    ast_real_number() { node_type = ast_node_type::REAL_NUMBER; }
+struct Ast_Real_Number final : Ast_Node {
+    Ast_Real_Number() { node_type = Ast_Node_Type::REAL_NUMBER; }
     double value;
 };
 
-struct ast_string final : ast_node {
-    ast_string() { node_type = ast_node_type::STRING; }
+struct Ast_String final : Ast_Node {
+    Ast_String() { node_type = Ast_Node_Type::STRING; }
     std::string value;
 };
 
-struct ast_identifier final : ast_node {
-    ast_identifier() { node_type = ast_node_type::IDENTIFIER; }
+struct Ast_Identifier final : Ast_Node {
+    Ast_Identifier() { node_type = Ast_Node_Type::IDENTIFIER; }
     std::string name;
 };
 
-struct ast_unary_operation final : ast_node {
-    ast_unary_operation() { node_type = ast_node_type::UNARY_OPERATION; }
-    ast_node_ptr left;
+struct Ast_Unary_Operation final : Ast_Node {
+    Ast_Unary_Operation() { node_type = Ast_Node_Type::UNARY_OPERATION; }
+    Ast_Node_Ptr left;
     std::string  operat;
 };
 
-struct ast_binary_operation final : ast_node {
-    ast_binary_operation() { node_type = ast_node_type::BINARY_OPERATION; }
-    ast_node_ptr left;
-    ast_node_ptr right;
+struct Ast_Binary_Operation final : Ast_Node {
+    Ast_Binary_Operation() { node_type = Ast_Node_Type::BINARY_OPERATION; }
+    Ast_Node_Ptr left;
+    Ast_Node_Ptr right;
     std::string  operat;
 };
 
-struct ast_grouping_expression final : ast_node {
-    ast_grouping_expression() {node_type = ast_node_type::GROUPING_EXPRESSION; }
-    ast_node_ptr expr;
+struct Ast_Grouping_Expression final : Ast_Node {
+    Ast_Grouping_Expression() {node_type = Ast_Node_Type::GROUPING_EXPRESSION; }
+    Ast_Node_Ptr expr;
 };
 
-struct ast_func_decl final : ast_node {
-    struct param {
+struct Ast_Func_Decl final : Ast_Node {
+    struct Param {
         std::string name;
         bool        constant;
         std::string type;
     };
-    ast_func_decl() { node_type = ast_node_type::FUNCTION_DECLARATION; }
+    Ast_Func_Decl() { node_type = Ast_Node_Type::FUNCTION_DECLARATION; }
     std::string        name;
-    std::vector<param> params;
+    std::vector<Param> params;
     std::string        return_type;
-    ast_block          body;
+    Ast_Block          body;
 };
 
-struct ast_return final : ast_node {
-    ast_return() { node_type = ast_node_type::RETURN; }
-    ast_node_ptr value;
+struct Ast_Return final : Ast_Node {
+    Ast_Return() { node_type = Ast_Node_Type::RETURN; }
+    Ast_Node_Ptr value;
 };
 
-struct ast_func_call final : ast_node {
-    ast_func_call() { node_type = ast_node_type::FUNCTION_CALL; }
+struct Ast_Func_Call final : Ast_Node {
+    Ast_Func_Call() { node_type = Ast_Node_Type::FUNCTION_CALL; }
     std::string               name;
-    std::vector<ast_node_ptr> args;
+    std::vector<Ast_Node_Ptr> args;
 };
 
-struct ast_var_decl final : ast_node {
-    ast_var_decl() { node_type = ast_node_type::VARIABLE_DECLARATION; }
+struct Ast_Var_Decl final : Ast_Node {
+    Ast_Var_Decl() { node_type = Ast_Node_Type::VARIABLE_DECLARATION; }
     std::string  name;
     bool         constant;
     std::string  type;
-    ast_node_ptr initializer;
+    Ast_Node_Ptr initializer;
 };
 
-struct ast_if final : ast_node {
-    ast_if() { node_type = ast_node_type::IF; }
-    ast_node_ptr condition;
-    ast_block    if_block;
-    ast_node_ptr else_block;
+struct Ast_If final : Ast_Node {
+    Ast_If() { node_type = Ast_Node_Type::IF; }
+    Ast_Node_Ptr condition;
+    Ast_Block    if_block;
+    Ast_Node_Ptr else_block;
 };
 
-struct ast_while final : ast_node {
-    ast_while() { node_type = ast_node_type::WHILE; }
-    ast_node_ptr condition;
-    ast_block    body;
+struct Ast_While final : Ast_Node {
+    Ast_While() { node_type = Ast_Node_Type::WHILE; }
+    Ast_Node_Ptr condition;
+    Ast_Block    body;
 };
 
-struct ast_do_while final : ast_node {
-    ast_do_while() { node_type = ast_node_type::DO_WHILE; }
-    ast_node_ptr condition;
-    ast_block    body;
+struct Ast_Do_While final : Ast_Node {
+    Ast_Do_While() { node_type = Ast_Node_Type::DO_WHILE; }
+    Ast_Node_Ptr condition;
+    Ast_Block    body;
 };
 
-struct ast_for final : ast_node {
-    ast_for() { node_type = ast_node_type::FOR; }
-    ast_node_ptr init_statement;
-    ast_node_ptr condition;
-    ast_node_ptr iteration_expr;
-    ast_block    body;
+struct Ast_For final : Ast_Node {
+    Ast_For() { node_type = Ast_Node_Type::FOR; }
+    Ast_Node_Ptr init_statement;
+    Ast_Node_Ptr condition;
+    Ast_Node_Ptr iteration_expr;
+    Ast_Block    body;
 };
 
-struct ast_break final : ast_node {
-    ast_break() { node_type = ast_node_type::BREAK; }
+struct Ast_Break final : Ast_Node {
+    Ast_Break() { node_type = Ast_Node_Type::BREAK; }
 };
 
-struct ast_continue final : ast_node {
-    ast_continue() { node_type = ast_node_type::CONTINUE; }
+struct Ast_Continue final : Ast_Node {
+    Ast_Continue() { node_type = Ast_Node_Type::CONTINUE; }
 };
 
-struct ast_struct final : ast_node {
-    struct field {
+struct Ast_Struct final : Ast_Node {
+    struct Field {
         std::string name;
         std::string type;
     };
-    ast_struct() { node_type = ast_node_type::STRUCT; }
+    Ast_Struct() { node_type = Ast_Node_Type::STRUCT; }
     std::string        name;
-    std::vector<field> fields;
+    std::vector<Field> fields;
 };
 
-struct ast_enum final : ast_node {
-    struct enumerator {
+struct Ast_Enum final : Ast_Node {
+    struct Enumerator {
         std::string name;
         int         value;
     };
-    ast_enum() { node_type = ast_node_type::ENUM; }
+    Ast_Enum() { node_type = Ast_Node_Type::ENUM; }
     std::string             name;
-    std::vector<enumerator> enumerations;
+    std::vector<Enumerator> enumerations;
 };
 
 }
 
-#endif //WAYWARD_AST_H
+#endif //TEZ_AST_H
 

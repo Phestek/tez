@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-project(wayward CXX)
+project(tez CXX)
 
 set(CMAKE_CXX_FLAGS "-std=c++1z -Wall -Wextra -pedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g3 -DDEBUG=1")
@@ -16,11 +16,11 @@ set(SRC_FILES
         src/lexer.cc src/lexer.h
         src/parser.cc src/parser.h
         src/token.cc src/token.h)
-add_library(waywardc_core STATIC ${SRC_FILES})
+add_library(tezc_core STATIC ${SRC_FILES})
 
-add_executable(waywardc src/main.cc)
-target_include_directories(waywardc PUBLIC src)
-target_link_libraries(waywardc waywardc_core)
+add_executable(tezc src/main.cc)
+target_include_directories(tezc PUBLIC src)
+target_link_libraries(tezc tezc_core)
 
 IF(DISABLE_TESTING)
         enable_testing()
@@ -28,13 +28,13 @@ IF(DISABLE_TESTING)
                 test/main.cc
                 test/lexer_test.cc)
 
-        add_executable(waywardc_tests ${TEST_FILES})
-        target_include_directories(waywardc PRIVATE src)
+        add_executable(tezc_tests ${TEST_FILES})
+        target_include_directories(tezc PRIVATE src)
         add_test(
-                NAME    test_all_in_waywardc
-                COMMAND waywardc_tests)
+                NAME    test_all_in_tezc
+                COMMAND tezc_tests)
         find_package(GTest REQUIRED)
-        target_include_directories(waywardc_tests PRIVATE src ${GTEST_INCLUDE_DIRS})
-        target_link_libraries(waywardc_tests waywardc_core ${GTEST_BOTH_LIBRARIES})
+        target_include_directories(tezc_tests PRIVATE src ${GTEST_INCLUDE_DIRS})
+        target_link_libraries(tezc_tests tezc_core ${GTEST_BOTH_LIBRARIES})
 ENDIF(DISABLE_TESTING)
 

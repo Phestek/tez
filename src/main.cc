@@ -5,7 +5,7 @@
 #include "parser.h"
 #include "c_code_gen.h"
 
-struct compilation_settings {
+struct Compilation_Settings {
     std::vector<std::string> input_files;
     std::string              output_file = "output.c";
 };
@@ -18,7 +18,7 @@ void print_help() {
 }
 
 bool parse_command_line_arguments(const std::vector<std::string> args,
-        compilation_settings& settings) {
+        Compilation_Settings& settings) {
     bool errors = false;
     for(std::size_t i = 0; i < args.size(); ++i) {
         if(args[i][0] != '-') {
@@ -45,10 +45,10 @@ bool parse_command_line_arguments(const std::vector<std::string> args,
     return !errors;
 }
 
-int compile(const compilation_settings& settings) {
-    std::vector<wayward::token> tokens;
+int compile(const Compilation_Settings& settings) {
+    std::vector<tez::Token> tokens;
     for(const auto& f : settings.input_files) {
-        wayward::lexer lexer{f};
+        tez::Lexer lexer{f};
         auto t = lexer.tokenize();
         if(lexer.errors_reported()) {
             return 1;
@@ -56,7 +56,7 @@ int compile(const compilation_settings& settings) {
         tokens.insert(tokens.end(), t.begin(), t.end());
     }
 
-    wayward::parser parser{tokens};
+    tez::Parser parser{tokens};
     auto ast = parser.parse();
     if(parser.errors_reported()) {
         return 2;
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::vector<std::string> args(argv + 1, argv + argc);
-    compilation_settings     settings;
+    Compilation_Settings     settings;
     if(!parse_command_line_arguments(args, settings)) {
         return 1;
     }

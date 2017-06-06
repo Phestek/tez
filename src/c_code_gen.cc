@@ -3,43 +3,43 @@
 #include <ostream>
 #include <sstream>
 
-namespace wayward {
+namespace tez {
 
 namespace {
 
 // I know, I know - global variable.
 std::size_t indent_level = 0;
 
-std::string print_statement(const ast_node& node);
+std::string print_statement(const Ast_Node& node);
 std::ostream& indent(std::ostream& out);
-std::ostream& operator<<(std::ostream& out, const ast_node& node);
-std::ostream& operator<<(std::ostream& out, const ast_block& block);
-std::ostream& operator<<(std::ostream& out, const ast_binary_operation& bin);
-std::ostream& operator<<(std::ostream& out, const ast_grouping_expression& expr);
-std::ostream& operator<<(std::ostream& out, const ast_boolean& boolean);
-std::ostream& operator<<(std::ostream& out, const ast_integer& integer);
-std::ostream& operator<<(std::ostream& out, const ast_real_number& real_number);
-std::ostream& operator<<(std::ostream& out, const ast_string& string);
-std::ostream& operator<<(std::ostream& out, const ast_identifier& identifier);
-std::ostream& operator<<(std::ostream& out, const ast_func_decl& function);
-std::ostream& operator<<(std::ostream& out, const ast_func_call& func_call);
-std::ostream& operator<<(std::ostream& out, const ast_return& ret);
-std::ostream& operator<<(std::ostream& out, const ast_var_decl& var);
-std::ostream& operator<<(std::ostream& out, const ast_if& _if);
-std::ostream& operator<<(std::ostream& out, const ast_while& _while);
-std::ostream& operator<<(std::ostream& out, const ast_do_while& _while);
-std::ostream& operator<<(std::ostream& out, const ast_for& _for);
-std::ostream& operator<<(std::ostream& out, const ast_struct& _struct);
-std::ostream& operator<<(std::ostream& out, const ast_enum& _enum);
+std::ostream& operator<<(std::ostream& out, const Ast_Node& node);
+std::ostream& operator<<(std::ostream& out, const Ast_Block& block);
+std::ostream& operator<<(std::ostream& out, const Ast_Binary_Operation& bin);
+std::ostream& operator<<(std::ostream& out, const Ast_Grouping_Expression& expr);
+std::ostream& operator<<(std::ostream& out, const Ast_Boolean& boolean);
+std::ostream& operator<<(std::ostream& out, const Ast_Integer& integer);
+std::ostream& operator<<(std::ostream& out, const Ast_Real_Number& real_number);
+std::ostream& operator<<(std::ostream& out, const Ast_String& string);
+std::ostream& operator<<(std::ostream& out, const Ast_Identifier& identifier);
+std::ostream& operator<<(std::ostream& out, const Ast_Func_Decl& function);
+std::ostream& operator<<(std::ostream& out, const Ast_Func_Call& func_call);
+std::ostream& operator<<(std::ostream& out, const Ast_Return& ret);
+std::ostream& operator<<(std::ostream& out, const Ast_Var_Decl& var);
+std::ostream& operator<<(std::ostream& out, const Ast_If& _if);
+std::ostream& operator<<(std::ostream& out, const Ast_While& _while);
+std::ostream& operator<<(std::ostream& out, const Ast_Do_While& _while);
+std::ostream& operator<<(std::ostream& out, const Ast_For& _for);
+std::ostream& operator<<(std::ostream& out, const Ast_Struct& _struct);
+std::ostream& operator<<(std::ostream& out, const Ast_Enum& _enum);
 
-std::string print_statement(const ast_node& node) {
+std::string print_statement(const Ast_Node& node) {
     std::stringstream ss;
     ss << indent << node;
-    if(node.node_type != ast_node_type::BLOCK   // TODO: Find better way to do it.
-            && node.node_type != ast_node_type::FUNCTION_DECLARATION
-            && node.node_type != ast_node_type::IF
-            && node.node_type != ast_node_type::WHILE
-            && node.node_type != ast_node_type::FOR) {
+    if(node.node_type != Ast_Node_Type::BLOCK   // TODO: Find better way to do it.
+            && node.node_type != Ast_Node_Type::FUNCTION_DECLARATION
+            && node.node_type != Ast_Node_Type::IF
+            && node.node_type != Ast_Node_Type::WHILE
+            && node.node_type != Ast_Node_Type::FOR) {
         ss << ';';
     }
     ss << '\n';
@@ -50,50 +50,50 @@ std::ostream& indent(std::ostream& out) {
     return out << std::string(indent_level * 4, ' ');
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_node& node) {
+std::ostream& operator<<(std::ostream& out, const Ast_Node& node) {
     switch(node.node_type) {
-        case ast_node_type::BLOCK:
-            return out << dynamic_cast<const ast_block&>(node);
-        case ast_node_type::BINARY_OPERATION:
-            return out << dynamic_cast<const ast_binary_operation&>(node);
-        case ast_node_type::GROUPING_EXPRESSION:
-            return out << dynamic_cast<const ast_grouping_expression&>(node);
-        case ast_node_type::BOOLEAN:
-            return out << dynamic_cast<const ast_boolean&>(node);
-        case ast_node_type::INTEGER:
-            return out << dynamic_cast<const ast_integer&>(node);
-        case ast_node_type::REAL_NUMBER:
-            return out << dynamic_cast<const ast_real_number&>(node);
-        case ast_node_type::STRING:
-            return out << dynamic_cast<const ast_string&>(node);
-        case ast_node_type::IDENTIFIER:
-            return out << dynamic_cast<const ast_identifier&>(node);
-        case ast_node_type::FUNCTION_DECLARATION:
-            return out << dynamic_cast<const ast_func_decl&>(node);
-        case ast_node_type::FUNCTION_CALL:
-            return out << dynamic_cast<const ast_func_call&>(node);
-        case ast_node_type::RETURN:
-            return out << dynamic_cast<const ast_return&>(node);
-        case ast_node_type::VARIABLE_DECLARATION:
-            return out << dynamic_cast<const ast_var_decl&>(node);
-        case ast_node_type::IF:
-            return out << dynamic_cast<const ast_if&>(node);
-        case ast_node_type::WHILE:
-            return out << dynamic_cast<const ast_while&>(node);
-        case ast_node_type::DO_WHILE:
-            return out << dynamic_cast<const ast_do_while&>(node);
-        case ast_node_type::FOR:
-            return out << dynamic_cast<const ast_for&>(node);
-        case ast_node_type::STRUCT:
-            return out << dynamic_cast<const ast_struct&>(node);
-        case ast_node_type::ENUM:
-            return out << dynamic_cast<const ast_enum&>(node);
+        case Ast_Node_Type::BLOCK:
+            return out << dynamic_cast<const Ast_Block&>(node);
+        case Ast_Node_Type::BINARY_OPERATION:
+            return out << dynamic_cast<const Ast_Binary_Operation&>(node);
+        case Ast_Node_Type::GROUPING_EXPRESSION:
+            return out << dynamic_cast<const Ast_Grouping_Expression&>(node);
+        case Ast_Node_Type::BOOLEAN:
+            return out << dynamic_cast<const Ast_Boolean&>(node);
+        case Ast_Node_Type::INTEGER:
+            return out << dynamic_cast<const Ast_Integer&>(node);
+        case Ast_Node_Type::REAL_NUMBER:
+            return out << dynamic_cast<const Ast_Real_Number&>(node);
+        case Ast_Node_Type::STRING:
+            return out << dynamic_cast<const Ast_String&>(node);
+        case Ast_Node_Type::IDENTIFIER:
+            return out << dynamic_cast<const Ast_Identifier&>(node);
+        case Ast_Node_Type::FUNCTION_DECLARATION:
+            return out << dynamic_cast<const Ast_Func_Decl&>(node);
+        case Ast_Node_Type::FUNCTION_CALL:
+            return out << dynamic_cast<const Ast_Func_Call&>(node);
+        case Ast_Node_Type::RETURN:
+            return out << dynamic_cast<const Ast_Return&>(node);
+        case Ast_Node_Type::VARIABLE_DECLARATION:
+            return out << dynamic_cast<const Ast_Var_Decl&>(node);
+        case Ast_Node_Type::IF:
+            return out << dynamic_cast<const Ast_If&>(node);
+        case Ast_Node_Type::WHILE:
+            return out << dynamic_cast<const Ast_While&>(node);
+        case Ast_Node_Type::DO_WHILE:
+            return out << dynamic_cast<const Ast_Do_While&>(node);
+        case Ast_Node_Type::FOR:
+            return out << dynamic_cast<const Ast_For&>(node);
+        case Ast_Node_Type::STRUCT:
+            return out << dynamic_cast<const Ast_Struct&>(node);
+        case Ast_Node_Type::ENUM:
+            return out << dynamic_cast<const Ast_Enum&>(node);
         default:
             return out << "<not implemented>";
     }
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_block& block) {
+std::ostream& operator<<(std::ostream& out, const Ast_Block& block) {
     out << "{\n";
     ++indent_level;
     for(const auto& statement : block.statements) {
@@ -103,35 +103,35 @@ std::ostream& operator<<(std::ostream& out, const ast_block& block) {
     return out << indent << "}";
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_binary_operation& bin) {
+std::ostream& operator<<(std::ostream& out, const Ast_Binary_Operation& bin) {
     return out << *bin.left << ' ' << bin.operat << ' ' << *bin.right;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_grouping_expression& expr) {
+std::ostream& operator<<(std::ostream& out, const Ast_Grouping_Expression& expr) {
     return out << '(' << *expr.expr << ')';
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_boolean& boolean) {
+std::ostream& operator<<(std::ostream& out, const Ast_Boolean& boolean) {
     return out << boolean.value;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_integer& integer) {
+std::ostream& operator<<(std::ostream& out, const Ast_Integer& integer) {
     return out << integer.value;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_real_number& real_number) {
+std::ostream& operator<<(std::ostream& out, const Ast_Real_Number& real_number) {
     return out << real_number.value;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_string& string) {
+std::ostream& operator<<(std::ostream& out, const Ast_String& string) {
     return out << '"' << string.value << '"';
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_identifier& identifier) {
+std::ostream& operator<<(std::ostream& out, const Ast_Identifier& identifier) {
     return out << identifier.name;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_func_decl& func) {
+std::ostream& operator<<(std::ostream& out, const Ast_Func_Decl& func) {
     out << func.return_type << ' ' << func.name << '(';
     if(func.params.size() == 0) {
         out << "void";
@@ -149,7 +149,7 @@ std::ostream& operator<<(std::ostream& out, const ast_func_decl& func) {
     return out << ") " << func.body;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_func_call& func_call) {
+std::ostream& operator<<(std::ostream& out, const Ast_Func_Call& func_call) {
     out << func_call.name << '(';
     for(std::size_t i = 0; i < func_call.args.size(); ++i) {
         out << *func_call.args.at(i);
@@ -160,11 +160,11 @@ std::ostream& operator<<(std::ostream& out, const ast_func_call& func_call) {
     return out << ")";
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_return& ret) {
+std::ostream& operator<<(std::ostream& out, const Ast_Return& ret) {
     return out << "return " << *ret.value;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_var_decl& var) {
+std::ostream& operator<<(std::ostream& out, const Ast_Var_Decl& var) {
     if(var.constant) {
         out << "const ";
     }
@@ -177,7 +177,7 @@ std::ostream& operator<<(std::ostream& out, const ast_var_decl& var) {
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_if& _if) {
+std::ostream& operator<<(std::ostream& out, const Ast_If& _if) {
     out << "if(" << *_if.condition << ") " << _if.if_block;
     if(_if.else_block == nullptr) {
         return out;
@@ -185,21 +185,21 @@ std::ostream& operator<<(std::ostream& out, const ast_if& _if) {
     return out << indent << "else " << *_if.else_block;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_while& _while) {
+std::ostream& operator<<(std::ostream& out, const Ast_While& _while) {
     return out << "while(" << *_while.condition << ") " << _while.body;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_do_while& do_while) {
+std::ostream& operator<<(std::ostream& out, const Ast_Do_While& do_while) {
     return out << "do " << do_while.body << " while(" << *do_while.condition
             << ')';
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_for& _for) {
+std::ostream& operator<<(std::ostream& out, const Ast_For& _for) {
     return out << "for(" << *_for.init_statement << "; " << *_for.condition
             << "; " << *_for.iteration_expr << ") "<< _for.body;
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_struct& _struct) {
+std::ostream& operator<<(std::ostream& out, const Ast_Struct& _struct) {
     out << "struct " << _struct.name << " {\n";
     ++indent_level;
     for(const auto& field : _struct.fields) {
@@ -209,7 +209,7 @@ std::ostream& operator<<(std::ostream& out, const ast_struct& _struct) {
     return out << '}';
 }
 
-std::ostream& operator<<(std::ostream& out, const ast_enum& _enum) {
+std::ostream& operator<<(std::ostream& out, const Ast_Enum& _enum) {
     out << "enum " << _enum.name << " {\n";
     ++indent_level;
     for(const auto& enumeration : _enum.enumerations) {
@@ -222,7 +222,7 @@ std::ostream& operator<<(std::ostream& out, const ast_enum& _enum) {
 
 }
 
-std::string generate_c_code(const std::vector<ast_node_ptr>& ast) {
+std::string generate_c_code(const std::vector<Ast_Node_Ptr>& ast) {
     std::stringstream output;
     output
             << "#include <stdio.h>\n"

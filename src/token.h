@@ -1,11 +1,11 @@
-#ifndef WAYWARD_TOKEN_H
-#define WAYWARD_TOKEN_H
+#ifndef TEZ_TOKEN_H
+#define TEZ_TOKEN_H
 
 #include <string>
 
-namespace wayward {
+namespace tez {
 
-enum class token_type {
+enum class Token_Type {
     IDENTIFIER,
 
     INTEGER,
@@ -75,17 +75,17 @@ enum class token_type {
     END_OF_FILE
 };
 
-struct token {
-    token_type   type;
+struct Token {
+    Token_Type   type;
     std::string  value;
     std::string  filename;
     unsigned int line;
     unsigned int column;
 };
 
-std::string to_string(token_type token_type);
+std::string to_string(Token_Type token_type);
 
 }
 
-#endif //WAYWARD_TOKEN_H
+#endif //TEZ_TOKEN_H
 

@@ -1,15 +1,15 @@
-#ifndef WAYWARD_C_CODE_GEN_H
-#define WAYWARD_C_CODE_GEN_H
+#ifndef TEZ_C_CODE_GEN_H
+#define TEZ_C_CODE_GEN_H
 
 #include <vector>
 
 #include "ast.h"
 
-namespace wayward {
+namespace tez {
 
-std::string generate_c_code(const std::vector<ast_node_ptr>& ast);
+std::string generate_c_code(const std::vector<Ast_Node_Ptr>& ast);
 
 }
 
-#endif //WAYWARD_C_CODE_GEN_H
+#endif //TEZ_C_CODE_GEN_H
 
