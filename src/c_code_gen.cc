@@ -14,6 +14,7 @@ std::string print_statement(const Ast_Node& node);
 std::ostream& indent(std::ostream& out);
 std::ostream& operator<<(std::ostream& out, const Ast_Node& node);
 std::ostream& operator<<(std::ostream& out, const Ast_Block& block);
+std::ostream& operator<<(std::ostream& out, const Ast_Unary_Operation& unary);
 std::ostream& operator<<(std::ostream& out, const Ast_Binary_Operation& bin);
 std::ostream& operator<<(std::ostream& out, const Ast_Grouping_Expression& expr);
 std::ostream& operator<<(std::ostream& out, const Ast_Boolean& boolean);
@@ -54,6 +55,8 @@ std::ostream& operator<<(std::ostream& out, const Ast_Node& node) {
     switch(node.node_type) {
         case Ast_Node_Type::BLOCK:
             return out << dynamic_cast<const Ast_Block&>(node);
+        case Ast_Node_Type::UNARY_OPERATION:
+            return out << dynamic_cast<const Ast_Unary_Operation&>(node);
         case Ast_Node_Type::BINARY_OPERATION:
             return out << dynamic_cast<const Ast_Binary_Operation&>(node);
         case Ast_Node_Type::GROUPING_EXPRESSION:
@@ -101,6 +104,10 @@ std::ostream& operator<<(std::ostream& out, const Ast_Block& block) {
     }
     --indent_level;
     return out << indent << "}";
+}
+
+std::ostream& operator<<(std::ostream& out, const Ast_Unary_Operation& unary) {
+    return out << unary.operat << *unary.left;
 }
 
 std::ostream& operator<<(std::ostream& out, const Ast_Binary_Operation& bin) {

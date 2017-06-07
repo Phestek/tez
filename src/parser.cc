@@ -404,12 +404,12 @@ Ast_Node_Ptr Parser::primary() {
     //}
     if(match_token({Token_Type::INTEGER})) {
         auto i = std::make_unique<Ast_Integer>();
-        i->value = false;
+        i->value = std::stoll(token.value);
         return i;
     }
     if(match_token({Token_Type::REAL_NUMBER})) {
-        auto r = std::make_unique<Ast_Integer>();
-        r->value = false;
+        auto r = std::make_unique<Ast_Real_Number>();
+        r->value = std::stod(token.value);
         return r;
     }
     if(match_token({Token_Type::STRING})) {

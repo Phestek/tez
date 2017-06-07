@@ -81,13 +81,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::cout << "Input files: ";
-    for(auto& f : settings.input_files) {
-        std::cout << f << ' ';
-    }
-    std::cout << "\n";
-    std::cout << "Ouput file: " << settings.output_file << "\n";
-
     return compile(settings);
 }
 
