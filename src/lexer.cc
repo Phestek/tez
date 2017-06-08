@@ -27,6 +27,8 @@ const std::map<std::string, Token_Type> Lexer::KEYWORDS{
     {"null",      Token_Type::KW_NULL},
     {"struct",    Token_Type::KW_STRUCT},
     {"enum",      Token_Type::KW_ENUM},
+    {"break",     Token_Type::KW_BREAK},
+    {"continue",  Token_Type::KW_CONTINUE},
 };
 
 const std::map<std::string, Token_Type> Lexer::OPERATORS{
