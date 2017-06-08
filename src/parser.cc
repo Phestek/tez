@@ -152,8 +152,8 @@ Ast_Node_Ptr Parser::function_call(const std::string& name) {
         do {
             call->args.push_back(expression());
         } while(match_token({Token_Type::COMMA}));
+        next_token(Token_Type::R_PAREN);
     }
-    next_token(Token_Type::R_PAREN);
     return call;
 }
 
