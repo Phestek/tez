@@ -128,8 +128,11 @@ Ast_Node_Ptr Parser::function_declaration() {
         } while(match_token({Token_Type::COMMA}));
     }
     next_token(Token_Type::R_PAREN);
-    next_token(Token_Type::ARROW);
-    func->return_type = next_token(Token_Type::IDENTIFIER).value;
+    if(match_token({Token_Type::ARROW})) {
+        func->return_type = next_token(Token_Type::IDENTIFIER).value;
+    } else {
+        func->return_type = "void";
+    }
     func->body = block();
     return func;
 }
