@@ -61,7 +61,9 @@ void Parser::report_error(const std::string& message) {
 Ast_Node_Ptr Parser::statement() {
     Ast_Node_Ptr node;
     auto token = peek_token(0);
-    if(match_token({Token_Type::KW_FUNC})) {
+    if(match_token({Token_Type::KW_NAMESPACE})) {
+        node = namespace_declaration();
+    } else if(match_token({Token_Type::KW_FUNC})) {
         node = function_declaration();
     } else if(match_token({Token_Type::KW_LET})) {
         node = variable_declaration(true);
@@ -71,7 +73,7 @@ Ast_Node_Ptr Parser::statement() {
         next_token(Token_Type::SEMICOLON);
     } else if(match_token({Token_Type::KW_RETURN})) {
         node = std::make_unique<Ast_Return>(); 
-        dynamic_cast<Ast_Return&>(*node).value = expression();
+        dynamic_cast<Ast_Return&>(*node).expr = expression();
         next_token(Token_Type::SEMICOLON);
     } else if(match_token({Token_Type::KW_IF})) {
         node = if_statement();
@@ -94,6 +96,13 @@ Ast_Node_Ptr Parser::statement() {
         next_token(Token_Type::SEMICOLON);
     }
     return node;
+}
+
+Ast_Node_Ptr Parser::namespace_declaration() {
+    auto ns = std::make_unique<Ast_Namespace>();
+    ns->name = next_token(Token_Type::IDENTIFIER).value;
+    ns->body = block();
+    return ns;
 }
 
 Ast_Block Parser::block() {

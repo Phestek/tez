@@ -4,7 +4,7 @@
 
 TEST(lexer, whitespaces) {
     std::string input = " \t\n\r\v\f";
-    wayward::lexer lexer{input, true};
+    tez::Lexer lexer{input, true};
     auto output = lexer.tokenize();
     
     // All whitespaces should be skipped.
@@ -13,29 +13,29 @@ TEST(lexer, whitespaces) {
 
 TEST(lexer, braces_and_parentheses) {
     std::string input = "({)}";
-    wayward::lexer lexer{input, true};
+    tez::Lexer lexer{input, true};
     auto output = lexer.tokenize();
 
-    ASSERT_EQ(output.at(0).type, wayward::token_type::l_paren);
-    ASSERT_EQ(output.at(1).type, wayward::token_type::l_brace);
-    ASSERT_EQ(output.at(2).type, wayward::token_type::r_paren);
-    ASSERT_EQ(output.at(3).type, wayward::token_type::r_brace);
+    ASSERT_EQ(output.at(0).type, tez::Token_Type::L_PAREN);
+    ASSERT_EQ(output.at(1).type, tez::Token_Type::L_BRACE);
+    ASSERT_EQ(output.at(2).type, tez::Token_Type::R_PAREN);
+    ASSERT_EQ(output.at(3).type, tez::Token_Type::R_BRACE);
 }
 
 TEST(lexer, operators) {
     std::string input = "-> == != >=";
-    wayward::lexer lexer{input, true};
+    tez::Lexer lexer{input, true};
     auto output = lexer.tokenize();
 
-    ASSERT_EQ(output.at(0).type, wayward::token_type::arrow);
-    ASSERT_EQ(output.at(1).type, wayward::token_type::equals_equals);
-    ASSERT_EQ(output.at(2).type, wayward::token_type::bang_equals);
-    ASSERT_EQ(output.at(3).type, wayward::token_type::greater_equals);
+    ASSERT_EQ(output.at(0).type, tez::Token_Type::ARROW);
+    ASSERT_EQ(output.at(1).type, tez::Token_Type::EQUALS_EQUALS);
+    ASSERT_EQ(output.at(2).type, tez::Token_Type::BANG_EQUALS);
+    ASSERT_EQ(output.at(3).type, tez::Token_Type::GREATER_EQUALS);
 }
 
 TEST(lexer, integers) {
     std::string input = "17 43 65";
-    wayward::lexer lexer{input, true};
+    tez::Lexer lexer{input, true};
     auto output = lexer.tokenize();
     
     // All whitespaces should be skipped.
@@ -46,7 +46,7 @@ TEST(lexer, integers) {
 
 TEST(lexer, real_numbers) {
     std::string input = "51.534 823.1 4.54767";
-    wayward::lexer lexer{input, true};
+    tez::Lexer lexer{input, true};
     auto output = lexer.tokenize();
     
     // All whitespaces should be skipped.
@@ -57,7 +57,7 @@ TEST(lexer, real_numbers) {
 
 TEST(lexer, identifiers) {
     std::string input = "asdf compiler lexer";
-    wayward::lexer lexer{input, true};
+    tez::Lexer lexer{input, true};
     auto output = lexer.tokenize();
     
     // All whitespaces should be skipped.

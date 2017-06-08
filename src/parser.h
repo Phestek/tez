@@ -31,8 +31,9 @@ private:
     void report_error(const std::string& message);
     
     Ast_Node_Ptr statement();
-
+    
     Ast_Block block();
+    Ast_Node_Ptr namespace_declaration();
     
     Ast_Node_Ptr function_declaration();
     Ast_Func_Decl::Param function_param();

@@ -39,6 +39,7 @@ std::string to_string(Token_Type token_type) {
         case Token_Type::SEMICOLON:           result = ";";           break;
         case Token_Type::COLON:               result = ":";           break;
         case Token_Type::ARROW:               result = "->";          break;
+        case Token_Type::SCOPE_RESOLUTION:    result = "::";          break;
         case Token_Type::DOT:                 result = ".";           break;
         case Token_Type::COMMA:               result = ",";           break;
         case Token_Type::KW_FUNC:             result = "func";        break;

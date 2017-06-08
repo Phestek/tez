@@ -3,37 +3,39 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 namespace tez {
 
 enum class Ast_Node_Type {
     UNDEFINED,
 
+    NAMESPACE,
     BLOCK,
-    
+
     BOOLEAN,
     INTEGER,
     REAL_NUMBER,
     STRING,
-    
+
     IDENTIFIER,
-    
+
     UNARY_OPERATION,
     BINARY_OPERATION,
     GROUPING_EXPRESSION,
-    
+
     FUNCTION_DECLARATION,
     FUNCTION_CALL,
     RETURN,
     VARIABLE_DECLARATION,
-    
+
     IF,
     WHILE,
     DO_WHILE,
     FOR,
     BREAK,
     CONTINUE,
-    
+
     STRUCT,
     ENUM,
     UNION,  // Not implemented yet.
@@ -45,10 +47,17 @@ struct Ast_Node {
     Ast_Node_Type node_type = Ast_Node_Type::UNDEFINED;
 };
 using Ast_Node_Ptr = std::unique_ptr<Ast_Node>;
+using Ast          = std::vector<Ast_Node_Ptr>;
 
 struct Ast_Block final : Ast_Node {
     Ast_Block() { node_type = Ast_Node_Type::BLOCK; }
     std::vector<Ast_Node_Ptr> statements;
+};
+
+struct Ast_Namespace final : Ast_Node {
+    Ast_Namespace() { node_type = Ast_Node_Type::NAMESPACE; }
+    std::string name;
+    Ast_Block   body;
 };
 
 struct Ast_Boolean final : Ast_Node {
@@ -109,7 +118,7 @@ struct Ast_Func_Decl final : Ast_Node {
 
 struct Ast_Return final : Ast_Node {
     Ast_Return() { node_type = Ast_Node_Type::RETURN; }
-    Ast_Node_Ptr value;
+    Ast_Node_Ptr expr;
 };
 
 struct Ast_Func_Call final : Ast_Node {

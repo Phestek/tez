@@ -10,22 +10,23 @@
 namespace tez {
 
 const std::map<std::string, Token_Type> Lexer::KEYWORDS{
-    {"func",   Token_Type::KW_FUNC},
-    {"return", Token_Type::KW_RETURN},
-    {"var",    Token_Type::KW_VAR},
-    {"let",    Token_Type::KW_LET},
-    {"struct", Token_Type::KW_STRUCT},
-    {"class",  Token_Type::KW_CLASS},
-    {"if",     Token_Type::KW_IF},
-    {"else",   Token_Type::KW_ELSE},
-    {"while",  Token_Type::KW_WHILE},
-    {"do",     Token_Type::KW_DO},
-    {"for",    Token_Type::KW_FOR},
-    {"true",   Token_Type::KW_TRUE},
-    {"false",  Token_Type::KW_FALSE},
-    {"null",   Token_Type::KW_NULL},
-    {"struct", Token_Type::KW_STRUCT},
-    {"enum",   Token_Type::KW_ENUM},
+    {"namespace", Token_Type::KW_NAMESPACE},
+    {"func",      Token_Type::KW_FUNC},
+    {"return",    Token_Type::KW_RETURN},
+    {"var",       Token_Type::KW_VAR},
+    {"let",       Token_Type::KW_LET},
+    {"struct",    Token_Type::KW_STRUCT},
+    {"class",     Token_Type::KW_CLASS},
+    {"if",        Token_Type::KW_IF},
+    {"else",      Token_Type::KW_ELSE},
+    {"while",     Token_Type::KW_WHILE},
+    {"do",        Token_Type::KW_DO},
+    {"for",       Token_Type::KW_FOR},
+    {"true",      Token_Type::KW_TRUE},
+    {"false",     Token_Type::KW_FALSE},
+    {"null",      Token_Type::KW_NULL},
+    {"struct",    Token_Type::KW_STRUCT},
+    {"enum",      Token_Type::KW_ENUM},
 };
 
 const std::map<std::string, Token_Type> Lexer::OPERATORS{
@@ -63,6 +64,7 @@ const std::map<std::string, Token_Type> Lexer::OPERATORS{
     {",",  Token_Type::COMMA},
     {".",  Token_Type::DOT},
     {"->", Token_Type::ARROW},
+    {"::", Token_Type::SCOPE_RESOLUTION},
 };
 
 namespace {
@@ -254,6 +256,14 @@ void Lexer::push_operator(char c) {
             }
             ++_current_char;
             break;
+        }
+        case ':': {
+            if(peek_char() == ':') {
+                push_token(Token_Type::SCOPE_RESOLUTION);
+                _current_char += 2;
+                break;
+            }
+            [[fallthrough]];
         }
         default:
             auto o = OPERATORS.find(std::string{c});

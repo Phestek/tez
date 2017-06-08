@@ -13,6 +13,7 @@ enum class Token_Type {
     CHARACTER,
     STRING,
 
+    KW_NAMESPACE,
     KW_FUNC,
     KW_RETURN,
     KW_VAR,
@@ -62,7 +63,8 @@ enum class Token_Type {
     BITWISE_SHIFT_RIGHT,
     LOGICAL_OR,
     LOGICAL_AND,
-
+    
+    SCOPE_RESOLUTION,
     SEMICOLON,
     COLON,
     COMMA,

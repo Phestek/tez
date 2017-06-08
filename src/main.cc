@@ -3,7 +3,7 @@
 
 #include "lexer.h"
 #include "parser.h"
-#include "c_code_gen.h"
+#include "codegen/c_code_generator.h"
 
 struct Compilation_Settings {
     std::vector<std::string> input_files;
@@ -62,9 +62,10 @@ int compile(const Compilation_Settings& settings) {
         return 2;
     }
 
-    auto c_code = generate_c_code(ast);
+    tez::C_Code_Generator c_code_gen{ast};
+    auto c_source = c_code_gen.generate();
     std::ofstream of{settings.output_file};
-    of << c_code;
+    of << c_source;
 
     return 0;
 }
