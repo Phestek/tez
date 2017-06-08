@@ -1,7 +1,7 @@
 #ifndef TEZ_C_CODE_GENERATOR_H
 #define TEZ_C_CODE_GENERATOR_H
 
-#include "ast.h"
+#include "syntax/ast.h"
 
 namespace tez {
 

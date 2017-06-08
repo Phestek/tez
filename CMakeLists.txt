@@ -12,10 +12,10 @@ endif()
 
 set(SRC_FILES
         src/codegen/c_code_generator.cc src/codegen/c_code_generator.h
-        src/ast.h
-        src/lexer.cc src/lexer.h
-        src/parser.cc src/parser.h
-        src/token.cc src/token.h)
+        src/syntax/ast.h
+        src/syntax/lexer.cc src/syntax/lexer.h
+        src/syntax/parser.cc src/syntax/parser.h
+        src/syntax/token.cc src/syntax/token.h)
 add_library(tezc_core STATIC ${SRC_FILES})
 target_include_directories(tezc_core PUBLIC src)
 

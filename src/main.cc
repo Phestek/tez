@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
 
-#include "lexer.h"
-#include "parser.h"
 #include "codegen/c_code_generator.h"
+#include "syntax/lexer.h"
+#include "syntax/parser.h"
 
 struct Compilation_Settings {
     std::vector<std::string> input_files;

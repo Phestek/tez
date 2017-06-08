@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 
-#include "token.h"
+#include "syntax/token.h"
 
 namespace tez {
 

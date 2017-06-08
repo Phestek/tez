@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "lexer.h"
-#include "parser.h"
+#include "syntax/lexer.h"
+#include "syntax/parser.h"
 
 TEST(Parser, Namespaces) {
     std::string input = "namespace qwer {}";

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "lexer.h"
+#include "syntax/lexer.h"
 
 TEST(Lexer, Whitespaces) {
     std::string input = " \t\n\r\v\f";

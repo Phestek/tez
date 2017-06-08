@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "ast.h"
-#include "token.h"
+#include "syntax/ast.h"
+#include "syntax/token.h"
 
 namespace tez {
 
