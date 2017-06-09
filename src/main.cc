@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 #include "codegen/c_code_generator.h"
 #include "syntax/lexer.h"
@@ -71,6 +72,8 @@ int compile(const Compilation_Settings& settings) {
 }
 
 int main(int argc, char* argv[]) {
+    auto start = std::chrono::steady_clock::now();
+
     if(argc < 2) {
         print_help();
         return 0;
@@ -82,6 +85,23 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    return compile(settings);
+    auto return_code = compile(settings);
+    if(return_code) {
+        std::cout << "<> errors reported.\n"
+     } else {
+        std::cout << "No errors reported.\n";
+     }
+
+#if TEZ_DEBUG
+    auto end = std::chrono::steady_clock::now();
+    auto elapsed
+            = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    auto seconds = elapsed.count() / 1000;
+    auto milliseconds = elapsed.count() % 1000;
+    std::cout << "Compilation time: " << seconds << '.' << milliseconds 
+            << "s.\n";
+#endif
+
+    return 0;
 }
 
