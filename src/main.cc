@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
 
     auto return_code = compile(settings);
     if(return_code) {
-        std::cout << "<> errors reported.\n"
+        std::cout << "<> errors reported.\n";
      } else {
         std::cout << "No errors reported.\n";
      }
