@@ -60,6 +60,7 @@ private:
     Ast_Node_Ptr bitwise_shift();   // << >>
     Ast_Node_Ptr term();            // * / %
     Ast_Node_Ptr factor();          // + -
+    Ast_Node_Ptr cast();            // 'as'
     Ast_Node_Ptr unary();           // ! -
     Ast_Node_Ptr primary();         // int, double, bool, identifier
 

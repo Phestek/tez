@@ -20,6 +20,7 @@ private:
     std::string print(const Ast_Unary_Operation& unary);
     std::string print(const Ast_Binary_Operation& bin);
     std::string print(const Ast_Grouping_Expression& grouping);
+    std::string print(const Ast_Cast& cast);
     std::string print(const Ast_Boolean& boolean);
     std::string print(const Ast_Integer& integer);
     std::string print(const Ast_Real_Number& real);

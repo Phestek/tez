@@ -48,6 +48,8 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
             return print(dynamic_cast<const Ast_Binary_Operation&>(node));
         case Ast_Node_Type::GROUPING_EXPRESSION:
             return print(dynamic_cast<const Ast_Grouping_Expression&>(node));
+        case Ast_Node_Type::CAST:
+            return print(dynamic_cast<const Ast_Cast&>(node));
         case Ast_Node_Type::BOOLEAN:
             return print(dynamic_cast<const Ast_Boolean&>(node));
         case Ast_Node_Type::INTEGER:
@@ -113,6 +115,10 @@ std::string C_Code_Generator::print(const Ast_Binary_Operation& bin) {
 
 std::string C_Code_Generator::print(const Ast_Grouping_Expression& grouping) {
     return "(" + print(*grouping.expr) + ")";
+}
+
+std::string C_Code_Generator::print(const Ast_Cast& cast) {
+    return "(" + print(*cast.to) + ")" + print(*cast.expr);
 }
 
 std::string C_Code_Generator::print(const Ast_Boolean& boolean) {

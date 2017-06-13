@@ -23,6 +23,7 @@ enum class Ast_Node_Type {
     UNARY_OPERATION,
     BINARY_OPERATION,
     GROUPING_EXPRESSION,
+    CAST,
 
     FUNCTION_DECLARATION,
     FUNCTION_CALL,
@@ -99,8 +100,14 @@ struct Ast_Binary_Operation final : Ast_Node {
 };
 
 struct Ast_Grouping_Expression final : Ast_Node {
-    Ast_Grouping_Expression() {node_type = Ast_Node_Type::GROUPING_EXPRESSION; }
+    Ast_Grouping_Expression() { node_type = Ast_Node_Type::GROUPING_EXPRESSION; }
     Ast_Node_Ptr expr;
+};
+
+struct Ast_Cast final : Ast_Node {
+    Ast_Cast() { node_type = Ast_Node_Type::CAST; }
+    Ast_Node_Ptr expr;      // Expression to cast.
+    Ast_Node_Ptr to;        // Type to cast to.
 };
 
 struct Ast_Func_Decl final : Ast_Node {

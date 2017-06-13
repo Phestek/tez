@@ -378,12 +378,23 @@ Ast_Node_Ptr Parser::term() {
 }
 
 Ast_Node_Ptr Parser::factor() {
-    auto expr = unary();
+    auto expr = cast();
     while(match_token({Token_Type::PLUS, Token_Type::MINUS})) {
         auto op = std::make_unique<Ast_Binary_Operation>();
         op->left = std::move(expr);
         op->operat = to_string(peek_token(-1).type);
-        op->right = unary();
+        op->right = cast();
+        return op;
+    }
+    return expr;
+}
+
+Ast_Node_Ptr Parser::cast() {
+    auto expr = unary();
+    while(match_token({Token_Type::KW_AS})) {
+        auto op = std::make_unique<Ast_Cast>();
+        op->expr = std::move(expr);
+        op->to = unary();
         return op;
     }
     return expr;
