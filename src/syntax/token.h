@@ -73,9 +73,6 @@ enum class Token_Type {
     AMPERSAND,
     CARET,
     ARROW,
-    
-    // TODO: Remove it.
-    END_OF_FILE
 };
 
 struct Token {

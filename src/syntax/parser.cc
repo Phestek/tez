@@ -22,14 +22,14 @@ bool Parser::errors_reported() const {
 }
 
 Token Parser::next_token() {
-    if(peek_token(0).type == Token_Type::END_OF_FILE) {
-        return _tokens.at(_current);
+    if(_current < _tokens.size()) {
+        return _tokens.at(_current++);
     }
-    return _tokens.at(_current++);
+    return _tokens.at(_current);
 }
 
 Token Parser::next_token(Token_Type type) {
-    if(peek_token(0).type == Token_Type::END_OF_FILE) {
+    if(_current >= _tokens.size()) {    // All tokens were consumed.
         return _tokens.at(_current);
     }
     auto token = _tokens.at(_current++);
@@ -53,7 +53,7 @@ void Parser::report_error(const std::string& message) {
     std::cerr << token.filename << ':' << token.line << ':' << token.column
             << ": " << message << ".\n";
     while(!match_token({Token_Type::SEMICOLON, Token_Type::R_BRACE,
-            Token_Type::R_PAREN, Token_Type::COMMA, Token_Type::END_OF_FILE})) {
+            Token_Type::R_PAREN, Token_Type::COMMA})) {
         next_token();
     }
 }
@@ -462,7 +462,7 @@ Ast_Node_Ptr Parser::primary() {
 bool Parser::match_token(const std::initializer_list<Token_Type>& types) {
     const auto token = peek_token(0);
     for(const auto& type : types) {
-        if(token.type == type && peek_token().type != Token_Type::END_OF_FILE) {
+        if(token.type == type && _current < _tokens.size()) {
             ++_current;
             return true;
         }
@@ -472,7 +472,7 @@ bool Parser::match_token(const std::initializer_list<Token_Type>& types) {
 
 bool Parser::check_token(Token_Type type) const {
     const auto token = peek_token(0);
-    if(token.type == type && peek_token().type != Token_Type::END_OF_FILE) {
+    if(token.type == type && _current < _tokens.size()) {
         return true;
     }
     return false;
