@@ -68,6 +68,12 @@ private:
     Ast_Node_Ptr scope_resolution(); // ::
     Ast_Node_Ptr primary();          // int, double, bool, identifier
 
+    // Types also are parsed using recursive descent parsing.
+    Ast_Node_Ptr type_pointer();            // ^
+    Ast_Node_Ptr type_array();              // [size]
+    Ast_Node_Ptr type_scope_resolution();   // ::
+    Ast_Node_Ptr type_identifier();         // identifier
+
     const std::vector<Token> _tokens;
     unsigned int             _current = 0;
 

@@ -84,6 +84,8 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
             return print_indent() + "break";
         case Ast_Node_Type::CONTINUE:
             return print_indent() + "continue";
+        case Ast_Node_Type::ARRAY_ACCESS:
+            return print(dynamic_cast<const Ast_Array_Access&>(node));
         default:
             std::cerr << "Error: Tried to print undefined node!\n";
     }
@@ -234,6 +236,10 @@ std::string C_Code_Generator::print(const Ast_Enum& enum_decl) {
     }
     --_indent_level;
     return result + "} " + enum_decl.name;
+}
+
+std::string C_Code_Generator::print(const Ast_Array_Access& array_access) {
+    return print(*array_access.array) + "[" + print(*array_access.at) + "]";
 }
 
 }

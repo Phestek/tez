@@ -36,6 +36,7 @@ private:
     std::string print(const Ast_For& for_loop);
     std::string print(const Ast_Struct& struct_decl);
     std::string print(const Ast_Enum& enum_decl);
+    std::string print(const Ast_Array_Access& array_access);
 
     Ast& _ast;
 

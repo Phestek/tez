@@ -417,6 +417,13 @@ Ast_Node_Ptr Parser::postfix_unary() {
         if(peek_token(-1).type == Token_Type::L_PAREN) {
             return function_call(std::move(expr));
         }
+        if(peek_token(-1).type == Token_Type::L_BRACKET) {
+            auto aa = std::make_unique<Ast_Array_Access>();
+            aa->array = std::move(expr);
+            aa->at = expression();
+            next_token(Token_Type::R_BRACKET);
+            return aa;
+        }
     }
     return expr;
 }

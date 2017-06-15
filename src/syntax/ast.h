@@ -201,11 +201,13 @@ struct Ast_Enum final : Ast_Node {
 };
 
 struct Ast_Array_Access final : Ast_Node {
+    Ast_Array_Access() { node_type = Ast_Node_Type::ARRAY_ACCESS; }
     Ast_Node_Ptr array;
     Ast_Node_Ptr at;
 };
 
 struct Ast_Scope_Resolution final : Ast_Node {
+    Ast_Scope_Resolution() { node_type = Ast_Node_Type::SCOPE_RESOLUTION; }
     Ast_Node_Ptr left;
     Ast_Node_Ptr right;
 };
