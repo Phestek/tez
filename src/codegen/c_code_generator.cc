@@ -160,7 +160,7 @@ std::string C_Code_Generator::print(const Ast_Func_Decl& func) {
 }
 
 std::string C_Code_Generator::print(const Ast_Func_Call& func_call) {
-    std::string result = func_call.name + "(";
+    std::string result = print(*func_call.name) + "(";
     for(std::size_t i = 0; i < func_call.args.size(); ++i) {
         result += print(*func_call.args.at(i));
         if(i < func_call.args.size() - 1) {

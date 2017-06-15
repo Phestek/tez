@@ -72,7 +72,7 @@ Ast_Node_Ptr Parser::statement() {
         node = variable_declaration(false);
         next_token(Token_Type::SEMICOLON);
     } else if(match_token({Token_Type::KW_RETURN})) {
-        node = std::make_unique<Ast_Return>(); 
+        node = std::make_unique<Ast_Return>();
         dynamic_cast<Ast_Return&>(*node).expr = expression();
         next_token(Token_Type::SEMICOLON);
     } else if(match_token({Token_Type::KW_IF})) {
@@ -148,9 +148,9 @@ Ast_Func_Decl::Param Parser::function_param() {
     return param;
 }
 
-Ast_Node_Ptr Parser::function_call(const std::string& name) {
+Ast_Node_Ptr Parser::function_call(Ast_Node_Ptr name) {
     auto call = std::make_unique<Ast_Func_Call>();
-    call->name = name;
+    call->name = std::move(name);
     if(!match_token({Token_Type::R_PAREN})) {
         do {
             call->args.push_back(expression());
@@ -390,24 +390,46 @@ Ast_Node_Ptr Parser::factor() {
 }
 
 Ast_Node_Ptr Parser::cast() {
-    auto expr = unary();
+    auto expr = prefix_unary();
     while(match_token({Token_Type::KW_AS})) {
         auto op = std::make_unique<Ast_Cast>();
         op->expr = std::move(expr);
-        op->to = unary();
+        op->to = prefix_unary();
         return op;
     }
     return expr;
 }
 
-Ast_Node_Ptr Parser::unary() {
+Ast_Node_Ptr Parser::prefix_unary() {
+    //auto expr = postfix_unary();
     if(match_token({Token_Type::BANG, Token_Type::MINUS})) {
         auto op = std::make_unique<Ast_Unary_Operation>();
         op->operat = to_string(peek_token(-1).type);
-        op->left = unary();
+        op->left = prefix_unary();
         return op;
     }
-    return primary();
+    return postfix_unary();
+}
+
+Ast_Node_Ptr Parser::postfix_unary() {
+    auto expr = scope_resolution();
+    if(match_token({Token_Type::L_PAREN, Token_Type::L_BRACKET})) {
+        if(peek_token(-1).type == Token_Type::L_PAREN) {
+            return function_call(std::move(expr));
+        }
+    }
+    return expr;
+}
+
+Ast_Node_Ptr Parser::scope_resolution() {
+    auto expr = primary();
+    if(match_token({Token_Type::SCOPE_RESOLUTION})) {
+        auto sr = std::make_unique<Ast_Scope_Resolution>();
+        sr->left = std::move(expr);
+        sr->right = postfix_unary();
+        return sr;
+    }
+    return expr;
 }
 
 Ast_Node_Ptr Parser::primary() {
@@ -447,13 +469,9 @@ Ast_Node_Ptr Parser::primary() {
         return expr;
     }
     if(match_token({Token_Type::IDENTIFIER})) {
-        if(match_token({Token_Type::L_PAREN})) {
-            return function_call(token.value);
-        } else {
-            auto id = std::make_unique<Ast_Identifier>();
-            id->name = token.value;
-            return id;
-        }
+        auto id = std::make_unique<Ast_Identifier>();
+        id->name = token.value;
+        return id;
     }
     report_error("Expected primary expression, got " + to_string(token.type));
     return nullptr;

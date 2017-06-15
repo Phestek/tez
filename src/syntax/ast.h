@@ -41,6 +41,9 @@ enum class Ast_Node_Type {
     ENUM,
     UNION,  // Not implemented yet.
     CLASS,  // Not implemented yet.
+
+    ARRAY_ACCESS,
+    SCOPE_RESOLUTION,
 };
 
 struct Ast_Node {
@@ -130,7 +133,7 @@ struct Ast_Return final : Ast_Node {
 
 struct Ast_Func_Call final : Ast_Node {
     Ast_Func_Call() { node_type = Ast_Node_Type::FUNCTION_CALL; }
-    std::string               name;
+    Ast_Node_Ptr              name;
     std::vector<Ast_Node_Ptr> args;
 };
 
@@ -195,6 +198,16 @@ struct Ast_Enum final : Ast_Node {
     Ast_Enum() { node_type = Ast_Node_Type::ENUM; }
     std::string             name;
     std::vector<Enumerator> enumerations;
+};
+
+struct Ast_Array_Access final : Ast_Node {
+    Ast_Node_Ptr array;
+    Ast_Node_Ptr at;
+};
+
+struct Ast_Scope_Resolution final : Ast_Node {
+    Ast_Node_Ptr left;
+    Ast_Node_Ptr right;
 };
 
 }

@@ -37,6 +37,8 @@ enum class Token_Type {
     R_BRACE,
     L_PAREN,
     R_PAREN,
+    L_BRACKET,
+    R_BRACKET,
 
     PLUS,
     MINUS,

@@ -32,37 +32,41 @@ private:
     
     Ast_Node_Ptr statement();
     
+    /** Parse all statements between '{' and '}'. */
     Ast_Block block();
-    Ast_Node_Ptr namespace_declaration();
     
+    Ast_Node_Ptr namespace_declaration();
     Ast_Node_Ptr function_declaration();
     Ast_Func_Decl::Param function_param();
-    Ast_Node_Ptr function_call(const std::string& name);
+    Ast_Node_Ptr function_call(Ast_Node_Ptr name);
     Ast_Node_Ptr variable_declaration(bool constant);
     Ast_Node_Ptr structure();
     Ast_Node_Ptr enumeration();
-    
+
     Ast_Node_Ptr if_statement();
     Ast_Node_Ptr while_statement();
     Ast_Node_Ptr do_while_statement();
     Ast_Node_Ptr for_statement();
 
-    // Recursive descent parsing.
-    Ast_Node_Ptr expression();      // Base.
-    Ast_Node_Ptr assignment();      // = += -= *= /= %=
-    Ast_Node_Ptr logical_or();      // ||
-    Ast_Node_Ptr logical_and();     // &&
-    Ast_Node_Ptr bitwise_or();      // |
-    Ast_Node_Ptr bitwise_xor();     // ^
-    Ast_Node_Ptr bitwise_and();     // &
-    Ast_Node_Ptr equality();        // == !=
-    Ast_Node_Ptr comparison();      // >= <= > <
-    Ast_Node_Ptr bitwise_shift();   // << >>
-    Ast_Node_Ptr term();            // * / %
-    Ast_Node_Ptr factor();          // + -
-    Ast_Node_Ptr cast();            // 'as'
-    Ast_Node_Ptr unary();           // ! -
-    Ast_Node_Ptr primary();         // int, double, bool, identifier
+    // Recursive descent parsing. The lower the operator is in the hierarchy,
+    // the higher precedence it have.
+    Ast_Node_Ptr expression();       // Base.
+    Ast_Node_Ptr assignment();       // = += -= *= /= %=
+    Ast_Node_Ptr logical_or();       // ||
+    Ast_Node_Ptr logical_and();      // &&
+    Ast_Node_Ptr bitwise_or();       // |
+    Ast_Node_Ptr bitwise_xor();      // ^
+    Ast_Node_Ptr bitwise_and();      // &
+    Ast_Node_Ptr equality();         // == !=
+    Ast_Node_Ptr comparison();       // >= <= > <
+    Ast_Node_Ptr bitwise_shift();    // << >>
+    Ast_Node_Ptr term();             // * / %
+    Ast_Node_Ptr factor();           // + -
+    Ast_Node_Ptr cast();             // 'as'
+    Ast_Node_Ptr prefix_unary();     // ! -
+    Ast_Node_Ptr postfix_unary();    // () [] . ->
+    Ast_Node_Ptr scope_resolution(); // ::
+    Ast_Node_Ptr primary();          // int, double, bool, identifier
 
     const std::vector<Token> _tokens;
     unsigned int             _current = 0;

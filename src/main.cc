@@ -64,7 +64,8 @@ int compile(const Compilation_Settings& settings) {
     }
 
     tez::C_Code_Generator c_code_gen{ast};
-    auto c_source = c_code_gen.generate();
+    auto c_source = "#include<stdio.h>\n#include<stdlib.h>\n"
+            + c_code_gen.generate();
     std::ofstream of{settings.output_file};
     of << c_source;
 

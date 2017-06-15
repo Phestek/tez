@@ -37,6 +37,8 @@ const std::map<std::string, Token_Type> Lexer::OPERATORS{
     {"}",  Token_Type::R_BRACE},
     {"(",  Token_Type::L_PAREN},
     {")",  Token_Type::R_PAREN},
+    {"[",  Token_Type::L_BRACKET},
+    {"]",  Token_Type::R_BRACKET},
     {"+",  Token_Type::PLUS},
     {"-",  Token_Type::MINUS},
     {"*",  Token_Type::ASTERISK},
