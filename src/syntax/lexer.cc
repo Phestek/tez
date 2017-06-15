@@ -307,7 +307,7 @@ void Lexer::push_number(char c) {
 
 void Lexer::push_identifier(char c) {
     std::string word;
-    while(std::isalpha(c) || c == '_') {
+    while(std::isalpha(c) || std::isdigit(c) || c == '_') {
         try {
             word += c;
             c = _wayward_source.at(++_current_char);
