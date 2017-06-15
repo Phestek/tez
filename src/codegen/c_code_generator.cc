@@ -78,6 +78,8 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
             return print(dynamic_cast<const Ast_For&>(node));
         case Ast_Node_Type::STRUCT:
             return print(dynamic_cast<const Ast_Struct&>(node));
+        case Ast_Node_Type::STRUCT_CONSTRUCTOR:
+            return print(dynamic_cast<const Ast_Struct_Constructor&>(node));
         case Ast_Node_Type::ENUM:
             return print(dynamic_cast<const Ast_Enum&>(node));
         case Ast_Node_Type::BREAK:
@@ -225,6 +227,17 @@ std::string C_Code_Generator::print(const Ast_Struct& struct_decl) {
     }
     --_indent_level;
     return result + "} " + struct_decl.name;
+}
+
+std::string C_Code_Generator::print(const Ast_Struct_Constructor& struct_constr) {
+    std::string result = "{";
+    for(std::size_t i = 0; i < struct_constr.declaration_list.size(); ++i) {
+        result += print(*struct_constr.declaration_list.at(i));
+        if(i < struct_constr.declaration_list.size() - 1) {
+            result += ", ";
+        }
+    }
+    return result + "}";
 }
 
 std::string C_Code_Generator::print(const Ast_Enum& enum_decl) {

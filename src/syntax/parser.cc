@@ -413,7 +413,8 @@ Ast_Node_Ptr Parser::prefix_unary() {
 
 Ast_Node_Ptr Parser::postfix_unary() {
     auto expr = scope_resolution();
-    if(match_token({Token_Type::L_PAREN, Token_Type::L_BRACKET})) {
+    if(match_token({Token_Type::L_PAREN, Token_Type::L_BRACKET,
+            Token_Type::L_BRACE})) {
         if(peek_token(-1).type == Token_Type::L_PAREN) {
             return function_call(std::move(expr));
         }
@@ -423,6 +424,17 @@ Ast_Node_Ptr Parser::postfix_unary() {
             aa->at = expression();
             next_token(Token_Type::R_BRACKET);
             return aa;
+        }
+        if(peek_token(-1).type == Token_Type::L_BRACE) {
+            auto constr = std::make_unique<Ast_Struct_Constructor>();
+            constr->struct_name = std::move(expr);
+            if(!match_token({Token_Type::R_BRACE})) {
+                do {
+                    constr->declaration_list.push_back(expression());
+                } while(match_token({Token_Type::COMMA}));
+                next_token(Token_Type::R_BRACE);
+            }
+            return constr;
         }
     }
     return expr;

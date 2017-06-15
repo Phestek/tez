@@ -44,6 +44,8 @@ enum class Ast_Node_Type {
 
     ARRAY_ACCESS,
     SCOPE_RESOLUTION,
+
+    STRUCT_CONSTRUCTOR,
 };
 
 struct Ast_Node {
@@ -210,6 +212,12 @@ struct Ast_Scope_Resolution final : Ast_Node {
     Ast_Scope_Resolution() { node_type = Ast_Node_Type::SCOPE_RESOLUTION; }
     Ast_Node_Ptr left;
     Ast_Node_Ptr right;
+};
+
+struct Ast_Struct_Constructor final : Ast_Node {
+    Ast_Struct_Constructor() { node_type = Ast_Node_Type::STRUCT_CONSTRUCTOR; }
+    Ast_Node_Ptr              struct_name;
+    std::vector<Ast_Node_Ptr> declaration_list;
 };
 
 }
