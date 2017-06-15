@@ -80,6 +80,8 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
             return print(dynamic_cast<const Ast_Struct&>(node));
         case Ast_Node_Type::STRUCT_CONSTRUCTOR:
             return print(dynamic_cast<const Ast_Struct_Constructor&>(node));
+        case Ast_Node_Type::MEMBER_ACCESS:
+            return print(dynamic_cast<const Ast_Member_Access&>(node));
         case Ast_Node_Type::ENUM:
             return print(dynamic_cast<const Ast_Enum&>(node));
         case Ast_Node_Type::BREAK:
@@ -238,6 +240,10 @@ std::string C_Code_Generator::print(const Ast_Struct_Constructor& struct_constr)
         }
     }
     return result + "}";
+}
+
+std::string C_Code_Generator::print(const Ast_Member_Access& member_access) {
+    return print(*member_access.left) + "." + print(*member_access.right);
 }
 
 std::string C_Code_Generator::print(const Ast_Enum& enum_decl) {

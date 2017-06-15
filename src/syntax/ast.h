@@ -43,6 +43,7 @@ enum class Ast_Node_Type {
     CLASS,  // Not implemented yet.
 
     ARRAY_ACCESS,
+    MEMBER_ACCESS,
     SCOPE_RESOLUTION,
 
     STRUCT_CONSTRUCTOR,
@@ -206,6 +207,12 @@ struct Ast_Array_Access final : Ast_Node {
     Ast_Array_Access() { node_type = Ast_Node_Type::ARRAY_ACCESS; }
     Ast_Node_Ptr array;
     Ast_Node_Ptr at;
+};
+
+struct Ast_Member_Access final : Ast_Node {
+    Ast_Member_Access() { node_type = Ast_Node_Type::MEMBER_ACCESS; }
+    Ast_Node_Ptr left;
+    Ast_Node_Ptr right;
 };
 
 struct Ast_Scope_Resolution final : Ast_Node {

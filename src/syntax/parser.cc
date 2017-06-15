@@ -414,7 +414,7 @@ Ast_Node_Ptr Parser::prefix_unary() {
 Ast_Node_Ptr Parser::postfix_unary() {
     auto expr = scope_resolution();
     if(match_token({Token_Type::L_PAREN, Token_Type::L_BRACKET,
-            Token_Type::L_BRACE})) {
+            Token_Type::L_BRACE, Token_Type::DOT})) {
         if(peek_token(-1).type == Token_Type::L_PAREN) {
             return function_call(std::move(expr));
         }
@@ -435,6 +435,12 @@ Ast_Node_Ptr Parser::postfix_unary() {
                 next_token(Token_Type::R_BRACE);
             }
             return constr;
+        }
+        if(peek_token(-1).type == Token_Type::DOT) {
+            auto ma = std::make_unique<Ast_Member_Access>();
+            ma->left = std::move(expr);
+            ma->right = postfix_unary();
+            return ma;
         }
     }
     return expr;
