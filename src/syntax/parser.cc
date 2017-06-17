@@ -165,7 +165,7 @@ Ast_Node_Ptr Parser::variable_declaration(bool constant) {
     decl->constant = constant;
     decl->name = next_token(Token_Type::IDENTIFIER).value;
     next_token(Token_Type::COLON);
-    decl->type = next_token(Token_Type::IDENTIFIER).value;
+    decl->type = type();
     if(match_token({Token_Type::EQUALS})) {
         decl->initializer = expression();
     }
@@ -401,7 +401,6 @@ Ast_Node_Ptr Parser::cast() {
 }
 
 Ast_Node_Ptr Parser::prefix_unary() {
-    //auto expr = postfix_unary();
     if(match_token({Token_Type::BANG, Token_Type::MINUS})) {
         auto op = std::make_unique<Ast_Unary_Operation>();
         op->operat = to_string(peek_token(-1).type);
@@ -500,6 +499,50 @@ Ast_Node_Ptr Parser::primary() {
     }
     report_error("Expected primary expression, got " + to_string(token.type));
     return nullptr;
+}
+
+Ast_Node_Ptr Parser::type() {
+    return type_pointer();
+}
+
+Ast_Node_Ptr Parser::type_pointer() {
+    if(match_token({Token_Type::CARET})) {
+        auto op = std::make_unique<Ast_Pointer>();
+        op->expr = type_pointer();
+        return op;
+    }
+    return type_array();
+}
+
+Ast_Node_Ptr Parser::type_array() {
+    if(match_token({Token_Type::L_BRACKET})) {
+        auto array = std::make_unique<Ast_Array>();
+        if(!match_token({Token_Type::R_BRACKET})) {
+            array->size = expression();
+            next_token(Token_Type::R_BRACKET);
+        }
+        array->expr = type_array();
+        return array;
+    }
+    return type_scope_resolution();
+}
+
+Ast_Node_Ptr Parser::type_scope_resolution() {
+    auto expr = type_identifier();
+    if(match_token({Token_Type::SCOPE_RESOLUTION})) {
+        auto sr = std::make_unique<Ast_Scope_Resolution>();
+        sr->left = expression();
+        sr->right = type_scope_resolution();
+        return sr;
+    }
+    return expr;
+}
+
+Ast_Node_Ptr Parser::type_identifier() {
+    next_token(Token_Type::IDENTIFIER);
+    auto id = std::make_unique<Ast_Identifier>();
+    id->name = peek_token(-1).value;
+    return id;
 }
 
 bool Parser::match_token(const std::initializer_list<Token_Type>& types) {

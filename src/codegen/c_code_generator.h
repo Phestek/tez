@@ -39,6 +39,8 @@ private:
     std::string print(const Ast_Member_Access& member_access);
     std::string print(const Ast_Enum& enum_decl);
     std::string print(const Ast_Array_Access& array_access);
+    std::string print(const Ast_Pointer& ptr);
+    std::string print(const Ast_Array& array);
 
     Ast& _ast;
 

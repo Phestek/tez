@@ -47,6 +47,10 @@ enum class Ast_Node_Type {
     SCOPE_RESOLUTION,
 
     STRUCT_CONSTRUCTOR,
+
+    // These 2 are only used for types.
+    POINTER,
+    ARRAY,
 };
 
 struct Ast_Node {
@@ -144,7 +148,7 @@ struct Ast_Var_Decl final : Ast_Node {
     Ast_Var_Decl() { node_type = Ast_Node_Type::VARIABLE_DECLARATION; }
     std::string  name;
     bool         constant;
-    std::string  type;
+    Ast_Node_Ptr type;
     Ast_Node_Ptr initializer;
 };
 
@@ -225,6 +229,17 @@ struct Ast_Struct_Constructor final : Ast_Node {
     Ast_Struct_Constructor() { node_type = Ast_Node_Type::STRUCT_CONSTRUCTOR; }
     Ast_Node_Ptr              struct_name;
     std::vector<Ast_Node_Ptr> declaration_list;
+};
+
+struct Ast_Pointer final : Ast_Node {
+    Ast_Pointer() { node_type = Ast_Node_Type::POINTER; };
+    Ast_Node_Ptr expr;
+};
+
+struct Ast_Array final : Ast_Node {
+    Ast_Array() { node_type = Ast_Node_Type::ARRAY; }
+    Ast_Node_Ptr expr;
+    Ast_Node_Ptr size;
 };
 
 }

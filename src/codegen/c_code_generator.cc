@@ -90,6 +90,10 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
             return print_indent() + "continue";
         case Ast_Node_Type::ARRAY_ACCESS:
             return print(dynamic_cast<const Ast_Array_Access&>(node));
+        case Ast_Node_Type::POINTER:
+            return print(dynamic_cast<const Ast_Pointer&>(node));
+        case Ast_Node_Type::ARRAY:
+            return print(dynamic_cast<const Ast_Array&>(node));
         default:
             std::cerr << "Error: Tried to print undefined node!\n";
     }
@@ -186,7 +190,7 @@ std::string C_Code_Generator::print(const Ast_Var_Decl& var) {
         result += "const ";
     }
     // TODO:
-    result += var.type + " " + var.name + " = ";
+    result += print(*var.type) + " " + var.name + " = ";
     if(var.initializer == nullptr) {
         result += '0';
     } else {
@@ -259,6 +263,14 @@ std::string C_Code_Generator::print(const Ast_Enum& enum_decl) {
 
 std::string C_Code_Generator::print(const Ast_Array_Access& array_access) {
     return print(*array_access.array) + "[" + print(*array_access.at) + "]";
+}
+
+std::string C_Code_Generator::print(const Ast_Pointer& ptr) {
+    return print(*ptr.expr) + "*";
+}
+
+std::string C_Code_Generator::print(const Ast_Array& array) {
+    return print(*array.expr) + "[" + print(*array.size) + "]";
 }
 
 }

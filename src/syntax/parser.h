@@ -69,6 +69,7 @@ private:
     Ast_Node_Ptr primary();          // int, double, bool, identifier
 
     // Types also are parsed using recursive descent parsing.
+    Ast_Node_Ptr type();
     Ast_Node_Ptr type_pointer();            // ^
     Ast_Node_Ptr type_array();              // [size]
     Ast_Node_Ptr type_scope_resolution();   // ::
