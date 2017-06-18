@@ -189,12 +189,9 @@ std::string C_Code_Generator::print(const Ast_Var_Decl& var) {
     if(var.constant) {
         result += "const ";
     }
-    // TODO:
-    result += print(*var.type) + " " + var.name + print_array(*var.type) +  " = ";
-    if(var.initializer == nullptr) {
-        result += '0';
-    } else {
-        result += print(*var.initializer);
+    result += print(*var.type) + " " + var.name + print_array(*var.type);
+    if(var.initializer != nullptr) {
+        result += " = " + print(*var.initializer);
     }
     return result;
 }
