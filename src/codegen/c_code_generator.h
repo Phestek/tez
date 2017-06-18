@@ -42,6 +42,10 @@ private:
     std::string print(const Ast_Pointer& ptr);
     std::string print(const Ast_Array& array);
 
+    // Because C only allows array specifier after variable name, we need
+    // dirty workaround for types printing.
+    std::string print_array(const Ast_Node& type);
+
     Ast& _ast;
 
     std::size_t _indent_level = 0;

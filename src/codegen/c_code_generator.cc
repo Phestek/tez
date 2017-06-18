@@ -190,7 +190,7 @@ std::string C_Code_Generator::print(const Ast_Var_Decl& var) {
         result += "const ";
     }
     // TODO:
-    result += print(*var.type) + " " + var.name + " = ";
+    result += print(*var.type) + " " + var.name + print_array(*var.type) +  " = ";
     if(var.initializer == nullptr) {
         result += '0';
     } else {
@@ -270,7 +270,20 @@ std::string C_Code_Generator::print(const Ast_Pointer& ptr) {
 }
 
 std::string C_Code_Generator::print(const Ast_Array& array) {
-    return print(*array.expr) + "[" + print(*array.size) + "]";
+    return print(*array.expr);
+}
+
+std::string C_Code_Generator::print_array(const Ast_Node& type) {
+    std::string result;
+    if(type.node_type == Ast_Node_Type::POINTER) {
+        const auto& ptr = dynamic_cast<const Ast_Pointer&>(type);
+        result = print_array(*ptr.expr);
+    }
+    if(type.node_type == Ast_Node_Type::ARRAY) {
+        const auto& array = dynamic_cast<const Ast_Array&>(type);
+        result = "[" + print(*array.size) + "]" + print_array(*array.expr);
+    }
+    return result;
 }
 
 }
