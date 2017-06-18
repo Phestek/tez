@@ -122,9 +122,9 @@ struct Ast_Cast final : Ast_Node {
 
 struct Ast_Func_Decl final : Ast_Node {
     struct Param {
-        std::string name;
-        bool        constant;
-        std::string type;
+        std::string  name;
+        bool         constant;
+        Ast_Node_Ptr type;
     };
     Ast_Func_Decl() { node_type = Ast_Node_Type::FUNCTION_DECLARATION; }
     std::string        name;

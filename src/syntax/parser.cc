@@ -144,7 +144,7 @@ Ast_Func_Decl::Param Parser::function_param() {
     if(match_token({Token_Type::KW_VAR})) {
         param.constant = false;
     }
-    param.type = next_token(Token_Type::IDENTIFIER).value;
+    param.type = type();
     return param;
 }
 

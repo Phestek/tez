@@ -157,10 +157,12 @@ std::string C_Code_Generator::print(const Ast_Func_Decl& func) {
         result += "void";
     } else {
         for(std::size_t i = 0; i < func.params.size(); ++i) {
+            const auto& param = func.params.at(i);
             if(func.params.at(i).constant) {
                 result += "const ";
             }
-            result += func.params.at(i).type + ' ' + func.params.at(i).name;
+            result += print(*param.type) + ' ' + param.name
+                    + print_array(*param.type);
             if(i < func.params.size() - 1) {
                 result += ", ";
             }
