@@ -280,7 +280,11 @@ std::string C_Code_Generator::print_array(const Ast_Node& type) {
     }
     if(type.node_type == Ast_Node_Type::ARRAY) {
         const auto& array = dynamic_cast<const Ast_Array&>(type);
-        result = "[" + print(*array.size) + "]" + print_array(*array.expr);
+        result = "[";
+        if(array.size != nullptr) {
+            result += print(*array.size);
+        }
+        result += "]" + print_array(*array.expr);
     }
     return result;
 }
