@@ -24,6 +24,7 @@ enum class Ast_Node_Type {
     BINARY_OPERATION,
     GROUPING_EXPRESSION,
     CAST,
+    ADDRESS_OF,
 
     FUNCTION_DECLARATION,
     FUNCTION_CALL,
@@ -118,6 +119,11 @@ struct Ast_Cast final : Ast_Node {
     Ast_Cast() { node_type = Ast_Node_Type::CAST; }
     Ast_Node_Ptr expr;      // Expression to cast.
     Ast_Node_Ptr to;        // Type to cast to.
+};
+
+struct Ast_Address_Of final : Ast_Node {
+    Ast_Address_Of() { node_type = Ast_Node_Type::ADDRESS_OF; }
+    Ast_Node_Ptr expr;
 };
 
 struct Ast_Func_Decl final : Ast_Node {

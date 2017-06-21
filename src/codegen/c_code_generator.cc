@@ -94,6 +94,8 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
             return print(dynamic_cast<const Ast_Pointer&>(node));
         case Ast_Node_Type::ARRAY:
             return print(dynamic_cast<const Ast_Array&>(node));
+        case Ast_Node_Type::ADDRESS_OF:
+            return print(dynamic_cast<const Ast_Address_Of&>(node));
         default:
             std::cerr << "Error: Tried to print undefined node!\n";
     }
@@ -270,6 +272,10 @@ std::string C_Code_Generator::print(const Ast_Pointer& ptr) {
 
 std::string C_Code_Generator::print(const Ast_Array& array) {
     return print(*array.expr);
+}
+
+std::string C_Code_Generator::print(const Ast_Address_Of& ao) {
+    return "&" + print(*ao.expr);
 }
 
 std::string C_Code_Generator::print_array(const Ast_Node& type) {
