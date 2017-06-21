@@ -417,24 +417,21 @@ Ast_Node_Ptr Parser::prefix_unary() {
 
 Ast_Node_Ptr Parser::postfix_unary() {
     auto expr = scope_resolution();
-    if(match_token({Token_Type::L_PAREN, Token_Type::L_BRACKET,
-            Token_Type::DOT})) {
-        if(peek_token(-1).type == Token_Type::L_PAREN) {
-            return function_call(std::move(expr));
-        }
-        if(peek_token(-1).type == Token_Type::L_BRACKET) {
-            auto aa = std::make_unique<Ast_Array_Access>();
-            aa->array = std::move(expr);
-            aa->at = expression();
-            next_token(Token_Type::R_BRACKET);
-            return aa;
-        }
-        if(peek_token(-1).type == Token_Type::DOT) {
-            auto ma = std::make_unique<Ast_Member_Access>();
-            ma->left = std::move(expr);
-            ma->right = postfix_unary();
-            return ma;
-        }
+    if(peek_token(-1).type == Token_Type::L_PAREN) {
+        return function_call(std::move(expr));
+    }
+    if(match_token({Token_Type::L_BRACKET})) {
+        auto aa = std::make_unique<Ast_Array_Access>();
+        aa->array = std::move(expr);
+        aa->at = expression();
+        next_token(Token_Type::R_BRACKET);
+        return aa;
+    }
+    if(match_token({Token_Type::DOT})) {
+        auto ma = std::make_unique<Ast_Member_Access>();
+        ma->left = std::move(expr);
+        ma->right = postfix_unary();
+        return ma;
     }
     return expr;
 }
