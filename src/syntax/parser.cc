@@ -209,7 +209,7 @@ Ast_Node_Ptr Parser::enumeration() {
 Ast_Node_Ptr Parser::if_statement() {
     auto if_stat = std::make_unique<Ast_If>();
     if_stat->condition = expression();
-    auto if_block = block();
+    if_stat->if_block = block();
     if(!match_token({Token_Type::KW_ELSE})) {
         return if_stat;
     }
