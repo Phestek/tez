@@ -394,7 +394,7 @@ Ast_Node_Ptr Parser::cast() {
     while(match_token({Token_Type::KW_AS})) {
         auto op = std::make_unique<Ast_Cast>();
         op->expr = std::move(expr);
-        op->to = prefix_unary();
+        op->to = type();
         return op;
     }
     return expr;
@@ -530,9 +530,9 @@ Ast_Node_Ptr Parser::type_scope_resolution() {
 }
 
 Ast_Node_Ptr Parser::type_identifier() {
-    next_token(Token_Type::IDENTIFIER);
+    auto name = next_token(Token_Type::IDENTIFIER).value;
     auto id = std::make_unique<Ast_Identifier>();
-    id->name = peek_token(-1).value;
+    id->name = name;
     return id;
 }
 
