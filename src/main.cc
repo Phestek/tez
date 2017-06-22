@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include "codegen/c_code_generator.h"
+#include "semantic/semantic_analyser.h"
 #include "syntax/lexer.h"
 #include "syntax/parser.h"
 
@@ -63,6 +64,12 @@ int compile(const Compilation_Settings& settings) {
         return 2;
     }
 
+    tez::Semantic_Analyser analyser{};
+    analyser.analyse(ast);
+    if(analyser.errors_reported()) {
+        return 3;
+    }
+
     tez::C_Code_Generator c_code_gen{ast};
     auto c_source = "#include<stdio.h>\n#include<stdlib.h>\n"
             + c_code_gen.generate();
@@ -103,6 +110,6 @@ int main(int argc, char* argv[]) {
             << "s.\n";
 #endif
 
-    return 0;
+    return return_code;
 }
 

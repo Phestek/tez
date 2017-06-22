@@ -12,6 +12,8 @@ endif()
 
 set(SRC_FILES
         src/codegen/c_code_generator.cc src/codegen/c_code_generator.h
+        src/semantic/semantic_analyser.cc src/semantic/semantic_analyser.h
+        src/semantic/symbol_table.cc src/semantic/symbol_table.h
         src/syntax/ast.h
         src/syntax/lexer.cc src/syntax/lexer.h
         src/syntax/parser.cc src/syntax/parser.h
