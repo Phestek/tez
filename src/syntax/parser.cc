@@ -85,8 +85,10 @@ Ast_Node_Ptr Parser::statement() {
         node = for_statement();
     } else if(match_token({Token_Type::KW_BREAK})) {
         node = std::make_unique<Ast_Break>();
+        next_token(Token_Type::SEMICOLON);
     } else if(match_token({Token_Type::KW_CONTINUE})) {
         node = std::make_unique<Ast_Continue>();
+        next_token(Token_Type::SEMICOLON);
     } else if(match_token({Token_Type::KW_STRUCT})) {
         node = structure();
     } else if(match_token({Token_Type::KW_ENUM})) {

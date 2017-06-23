@@ -16,11 +16,13 @@ struct Declaration {
 
 
 enum class Scope_Type {
-    NAMESPACE, FUNCTION, IF, WHILE, FOR, STRUCT
+    NAMESPACE, FUNCTION, IF, DO_WHILE, WHILE, FOR, STRUCT
 };
 
 class Symbol_Table {
 public:
+    /** Default constructor. Creates global namespace and adds primitive types
+     *  to declarations table. */
     Symbol_Table();
 
     /** Push new scope. */
@@ -28,6 +30,9 @@ public:
 
     /** Pops scope and all declarations in this scope. */
     void pop_scope();
+
+    /** Check if given scope type exists in current context. */
+    bool scope_exists(Scope_Type type);
 
     /** Add new declaration to current scope. */
     bool push_declaration(Declaration&& declaration);

@@ -9,21 +9,19 @@ Symbol_Table::Symbol_Table() {
     push_scope(Scope_Type::NAMESPACE);
 
     // Declare primitive types.
-    push_declaration({"void",   Declaration::Type::BUILT_IN});
-    push_declaration({"int",    Declaration::Type::BUILT_IN});
-    push_declaration({"uint",   Declaration::Type::BUILT_IN});
-    push_declaration({"char",   Declaration::Type::BUILT_IN});
-
-    push_declaration({"int8",   Declaration::Type::BUILT_IN});
-    push_declaration({"int16",  Declaration::Type::BUILT_IN});
-    push_declaration({"int32",  Declaration::Type::BUILT_IN});
-    push_declaration({"int64",  Declaration::Type::BUILT_IN});
-    push_declaration({"uint8",  Declaration::Type::BUILT_IN});
-    push_declaration({"uint16", Declaration::Type::BUILT_IN});
-    push_declaration({"uint32", Declaration::Type::BUILT_IN});
-    push_declaration({"uint64", Declaration::Type::BUILT_IN});
-
-    push_declaration({"float32",  Declaration::Type::BUILT_IN});
+    push_declaration({"void",    Declaration::Type::BUILT_IN});
+    push_declaration({"int",     Declaration::Type::BUILT_IN});
+    push_declaration({"uint",    Declaration::Type::BUILT_IN});
+    push_declaration({"char",    Declaration::Type::BUILT_IN});
+    push_declaration({"int8",    Declaration::Type::BUILT_IN});
+    push_declaration({"int16",   Declaration::Type::BUILT_IN});
+    push_declaration({"int32",   Declaration::Type::BUILT_IN});
+    push_declaration({"int64",   Declaration::Type::BUILT_IN});
+    push_declaration({"uint8",   Declaration::Type::BUILT_IN});
+    push_declaration({"uint16",  Declaration::Type::BUILT_IN});
+    push_declaration({"uint32",  Declaration::Type::BUILT_IN});
+    push_declaration({"uint64",  Declaration::Type::BUILT_IN});
+    push_declaration({"float32", Declaration::Type::BUILT_IN});
     push_declaration({"float64", Declaration::Type::BUILT_IN});
 }
 
@@ -35,6 +33,17 @@ void Symbol_Table::push_scope(Scope_Type type) {
 void Symbol_Table::pop_scope() {
     _declarations.pop_back();
     _scope_names.pop_back();
+}
+
+bool Symbol_Table::scope_exists(Scope_Type type) {
+    // We search from end to top, because something inside my head tells me
+    // its just better idea...
+    for(auto it = _scope_names.crbegin(); it < _scope_names.crend(); ++it) {
+        if(*it == type) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Symbol_Table::push_declaration(Declaration&& declaration) {

@@ -12,13 +12,13 @@ void Semantic_Analyzer::analyse(Ast& ast) {
     for(const auto& stmt : ast) {
         switch(stmt->node_type) {
             case Ast_Node_Type::FUNCTION_DECLARATION:
+                go_deeper(dynamic_cast<Ast_Func_Decl&>(*stmt).body.statements);
             case Ast_Node_Type::VARIABLE_DECLARATION:
             case Ast_Node_Type::STRUCT:
             case Ast_Node_Type::ENUM:
-                // TODO: Validate them.
                 break;
             default: {
-                report_error("Statement invalid in current context");
+                report_error("Non-declaration statement outside function body.");
             }
         }
     }
@@ -78,6 +78,25 @@ void Semantic_Analyzer::go_deeper(std::vector<Ast_Node_Ptr>& block) {
                     report_error("Type " + get_type_name(var.type)
                             + " was not found in current context.");
                 }
+                // TODO: Assert that rvalue type == lvalue type and check for
+                // implicit conversion in rvalue.
+                break;
+            }
+            case Ast_Node_Type::BREAK:{
+                if(!_symbol_table.scope_exists(Scope_Type::DO_WHILE
+                        || !_symbol_table.scope_exists(Scope_Type::DO_WHILE),
+                        || !_symbol_table.scope_exists(Scope_Type::FOR) {
+                    report_error("'break' outside of a loop");
+                }
+                break;
+            }
+            case Ast_Node_Type::CONTINUE: {
+                if(!_symbol_table.scope_exists(Scope_Type::DO_WHILE
+                        || !_symbol_table.scope_exists(Scope_Type::DO_WHILE),
+                        || !_symbol_table.scope_exists(Scope_Type::FOR) {
+                    report_error("'continue' outside of a loop");
+                }
+                break;
             }
             default:
                 break;
