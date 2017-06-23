@@ -3,7 +3,7 @@
 #include <chrono>
 
 #include "codegen/c_code_generator.h"
-#include "semantic/semantic_analyser.h"
+#include "semantic/semantic_analyzer.h"
 #include "syntax/lexer.h"
 #include "syntax/parser.h"
 
@@ -64,7 +64,7 @@ int compile(const Compilation_Settings& settings) {
         return 2;
     }
 
-    tez::Semantic_Analyser analyser{};
+    tez::Semantic_Analyzer analyser{};
     analyser.analyse(ast);
     if(analyser.errors_reported()) {
         return 3;
@@ -72,6 +72,7 @@ int compile(const Compilation_Settings& settings) {
 
     tez::C_Code_Generator c_code_gen{ast};
     auto c_source = "#include<stdio.h>\n#include<stdlib.h>\n"
+            "typedef float float32; typedef double float64;"
             + c_code_gen.generate();
     std::ofstream of{settings.output_file};
     of << c_source;
