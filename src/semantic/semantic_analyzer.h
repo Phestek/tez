@@ -31,6 +31,8 @@ private:
     bool _errors_reported = false;
 
     Symbol_Table _symbol_table;
+
+    bool _main_found = false;
 };
 
 }

@@ -6,6 +6,9 @@ namespace tez {
 
 void Semantic_Analyzer::analyse(Ast& ast) {
     collect_top_level_declarations(ast);
+    if(!_main_found) {
+        report_error("Function 'main' was not declared");
+    }
     for(const auto& stmt : ast) {
         switch(stmt->node_type) {
             case Ast_Node_Type::FUNCTION_DECLARATION:
@@ -37,6 +40,9 @@ void Semantic_Analyzer::collect_top_level_declarations(const Ast& ast) {
                 const auto& func = dynamic_cast<Ast_Func_Decl&>(*stmt);
                 _symbol_table.push_declaration(
                         Declaration{func.name, Declaration::Type::FUNCTION});
+                if(func.name == "main") {
+                    _main_found = true;
+                }
                 break;
             }
             case Ast_Node_Type::VARIABLE_DECLARATION: {

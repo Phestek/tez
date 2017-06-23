@@ -127,6 +127,7 @@ Ast_Node_Ptr Parser::function_declaration() {
         func->name = next_token(Token_Type::IDENTIFIER).value;
     } else {
         func = std::make_unique<Ast_Func_Decl>();
+        func->name = name;
     }
     next_token(Token_Type::L_PAREN);
     if(!check_token(Token_Type::R_PAREN)) {
