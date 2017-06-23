@@ -83,17 +83,17 @@ void Semantic_Analyzer::go_deeper(std::vector<Ast_Node_Ptr>& block) {
                 break;
             }
             case Ast_Node_Type::BREAK:{
-                if(!_symbol_table.scope_exists(Scope_Type::DO_WHILE
-                        || !_symbol_table.scope_exists(Scope_Type::DO_WHILE),
-                        || !_symbol_table.scope_exists(Scope_Type::FOR) {
+                if(!_symbol_table.scope_exists(Scope_Type::DO_WHILE)
+                        || !_symbol_table.scope_exists(Scope_Type::WHILE)
+                        || !_symbol_table.scope_exists(Scope_Type::FOR)) {
                     report_error("'break' outside of a loop");
                 }
                 break;
             }
             case Ast_Node_Type::CONTINUE: {
-                if(!_symbol_table.scope_exists(Scope_Type::DO_WHILE
-                        || !_symbol_table.scope_exists(Scope_Type::DO_WHILE),
-                        || !_symbol_table.scope_exists(Scope_Type::FOR) {
+                if(!_symbol_table.scope_exists(Scope_Type::DO_WHILE)
+                        || !_symbol_table.scope_exists(Scope_Type::WHILE)
+                        || !_symbol_table.scope_exists(Scope_Type::FOR)) {
                     report_error("'continue' outside of a loop");
                 }
                 break;
