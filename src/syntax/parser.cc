@@ -119,8 +119,15 @@ Ast_Block Parser::block() {
 }
 
 Ast_Node_Ptr Parser::function_declaration() {
-    auto func = std::make_unique<Ast_Func_Decl>();
-    func->name = next_token(Token_Type::IDENTIFIER).value;
+    std::unique_ptr<Ast_Func_Decl> func;
+    const auto name = next_token(Token_Type::IDENTIFIER).value;
+    if(match_token({Token_Type::SCOPE_RESOLUTION})) {
+        func = std::make_unique<Ast_Method_Decl>();
+        dynamic_cast<Ast_Method_Decl&>(*func).parent = name;
+        func->name = next_token(Token_Type::IDENTIFIER).value;
+    } else {
+        func = std::make_unique<Ast_Func_Decl>();
+    }
     next_token(Token_Type::L_PAREN);
     if(!check_token(Token_Type::R_PAREN)) {
         do {

@@ -27,6 +27,7 @@ enum class Ast_Node_Type {
     ADDRESS_OF,
 
     FUNCTION_DECLARATION,
+    METHOD_DECLARATION,
     FUNCTION_CALL,
     RETURN,
     VARIABLE_DECLARATION,
@@ -126,7 +127,7 @@ struct Ast_Address_Of final : Ast_Node {
     Ast_Node_Ptr expr;
 };
 
-struct Ast_Func_Decl final : Ast_Node {
+struct Ast_Func_Decl : Ast_Node {
     struct Param {
         std::string  name;
         bool         constant;
@@ -137,6 +138,11 @@ struct Ast_Func_Decl final : Ast_Node {
     std::vector<Param> params;
     std::string        return_type;
     Ast_Block          body;
+};
+
+struct Ast_Method_Decl final : Ast_Func_Decl {
+    Ast_Method_Decl() { node_type = Ast_Node_Type::METHOD_DECLARATION; }
+    std::string parent;
 };
 
 struct Ast_Return final : Ast_Node {
