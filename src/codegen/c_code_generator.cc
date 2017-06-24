@@ -154,7 +154,7 @@ std::string C_Code_Generator::print(const Ast_Identifier& identifier) {
 }
 
 std::string C_Code_Generator::print(const Ast_Func_Decl& func) {
-    std::string result = func.return_type + " " + func.name + "(";
+    std::string result = print(*func.return_type) + " " + func.name + "(";
     if(func.params.size() == 0) {
         result += "void";
     } else {

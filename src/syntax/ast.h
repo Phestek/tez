@@ -136,7 +136,7 @@ struct Ast_Func_Decl : Ast_Node {
     Ast_Func_Decl() { node_type = Ast_Node_Type::FUNCTION_DECLARATION; }
     std::string        name;
     std::vector<Param> params;
-    std::string        return_type;
+    Ast_Node_Ptr       return_type;
     Ast_Block          body;
 };
 

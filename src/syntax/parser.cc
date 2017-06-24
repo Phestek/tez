@@ -139,9 +139,10 @@ Ast_Node_Ptr Parser::function_declaration() {
     }
     next_token(Token_Type::R_PAREN);
     if(match_token({Token_Type::ARROW})) {
-        func->return_type = next_token(Token_Type::IDENTIFIER).value;
+        func->return_type = type();
     } else {
-        func->return_type = "void";
+        func->return_type = std::make_unique<Ast_Identifier>();
+        dynamic_cast<Ast_Identifier&>(*func->return_type).name = "void";
     }
     func->body = block();
     return func;

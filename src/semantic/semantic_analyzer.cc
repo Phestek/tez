@@ -1,4 +1,4 @@
-#include "semantic_analyzer.h"
+einclude "semantic_analyzer.h"
 
 #include <iostream>
 
@@ -11,8 +11,17 @@ void Semantic_Analyzer::analyse(Ast& ast) {
     }
     for(const auto& stmt : ast) {
         switch(stmt->node_type) {
-            case Ast_Node_Type::FUNCTION_DECLARATION:
-                go_deeper(dynamic_cast<Ast_Func_Decl&>(*stmt).body.statements);
+            case Ast_Node_Type::FUNCTION_DECLARATION: {
+                auto& func = dynamic_cast<Ast_Func_Decl&>(*stmt);
+                if(!check_type(func.return_type)) {
+                    report_error("Type '" + get_type_name(func.return_type)
+                            + "' was not found in current context");
+                }
+                go_deeper(func.body.statements);
+                break;
+            }
+            // Do nothing, because these were collected before, in
+            // 'collect_top_level_declarations()'.
             case Ast_Node_Type::VARIABLE_DECLARATION:
             case Ast_Node_Type::STRUCT:
             case Ast_Node_Type::ENUM:
