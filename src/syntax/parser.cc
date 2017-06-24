@@ -176,7 +176,11 @@ Ast_Node_Ptr Parser::variable_declaration(bool constant) {
     next_token(Token_Type::COLON);
     decl->type = type();
     if(match_token({Token_Type::EQUALS})) {
-        decl->initializer = expression();
+        if(check_token(Token_Type::L_BRACKET)) {
+            decl->initializer = array_initializer();
+        } else {
+            decl->initializer = expression();
+        }
     }
     return decl;
 }
@@ -189,9 +193,9 @@ Ast_Node_Ptr Parser::structure() {
         Ast_Struct::Field field;
         field.name = next_token(Token_Type::IDENTIFIER).value;
         next_token(Token_Type::COLON);
-        field.type = next_token(Token_Type::IDENTIFIER).value;
+        field.type = type();
         next_token(Token_Type::SEMICOLON);
-        struct_decl->fields.push_back(field);
+        struct_decl->fields.push_back(std::move(field));
     }
     return struct_decl;
 }
@@ -213,6 +217,18 @@ Ast_Node_Ptr Parser::enumeration() {
     } while(match_token({Token_Type::COMMA}));
     next_token(Token_Type::R_BRACE);
     return enumeration;
+}
+
+Ast_Node_Ptr Parser::array_initializer() {
+    auto array = std::make_unique<Ast_Array_Initializer>();
+    next_token(Token_Type::L_BRACKET);
+    if(!match_token({Token_Type::R_BRACKET})) {
+        do {
+            array->values.push_back(expression());
+        } while(match_token({Token_Type::COMMA}));
+        next_token(Token_Type::R_BRACKET);
+    }
+    return array;
 }
 
 Ast_Node_Ptr Parser::if_statement() {

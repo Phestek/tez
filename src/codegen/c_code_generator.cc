@@ -94,6 +94,8 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
             return print(dynamic_cast<const Ast_Pointer&>(node));
         case Ast_Node_Type::ARRAY:
             return print(dynamic_cast<const Ast_Array&>(node));
+        case Ast_Node_Type::ARRAY_INITIALIZER:
+            return print(dynamic_cast<const Ast_Array_Initializer&>(node));
         case Ast_Node_Type::ADDRESS_OF:
             return print(dynamic_cast<const Ast_Address_Of&>(node));
         default:
@@ -230,7 +232,8 @@ std::string C_Code_Generator::print(const Ast_Struct& struct_decl) {
     std::string result = "typedef struct {\n";
     ++_indent_level;
     for(const auto& field : struct_decl.fields) {
-        result += print_indent() + field.type + " " + field.name + ";\n";
+        result += print_indent() + print(*field.type)
+                + " " + field.name + ";\n";
     }
     --_indent_level;
     return result + "} " + struct_decl.name;
@@ -272,6 +275,14 @@ std::string C_Code_Generator::print(const Ast_Pointer& ptr) {
 
 std::string C_Code_Generator::print(const Ast_Array& array) {
     return print(*array.expr);
+}
+
+std::string C_Code_Generator::print(const Ast_Array_Initializer& array_init) {
+    std::string result = "{ ";
+    for(const auto& value : array_init.values) {
+        result += print(*value) + ", ";
+    }
+    return result + "}";
 }
 
 std::string C_Code_Generator::print(const Ast_Address_Of& ao) {

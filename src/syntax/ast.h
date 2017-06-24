@@ -48,6 +48,7 @@ enum class Ast_Node_Type {
     MEMBER_ACCESS,
     SCOPE_RESOLUTION,
 
+    ARRAY_INITIALIZER,
     STRUCT_CONSTRUCTOR,
 
     // These 2 are only used for types.
@@ -197,8 +198,8 @@ struct Ast_Continue final : Ast_Node {
 
 struct Ast_Struct final : Ast_Node {
     struct Field {
-        std::string name;
-        std::string type;
+        std::string  name;
+        Ast_Node_Ptr type;
     };
     Ast_Struct() { node_type = Ast_Node_Type::STRUCT; }
     std::string        name;
@@ -231,6 +232,11 @@ struct Ast_Scope_Resolution final : Ast_Node {
     Ast_Scope_Resolution() { node_type = Ast_Node_Type::SCOPE_RESOLUTION; }
     Ast_Node_Ptr left;
     Ast_Node_Ptr right;
+};
+
+struct Ast_Array_Initializer final : Ast_Node {
+    Ast_Array_Initializer() { node_type = Ast_Node_Type::ARRAY_INITIALIZER; }
+    std::vector<Ast_Node_Ptr> values;
 };
 
 struct Ast_Struct_Constructor final : Ast_Node {

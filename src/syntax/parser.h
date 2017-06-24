@@ -42,6 +42,7 @@ private:
     Ast_Node_Ptr variable_declaration(bool constant);
     Ast_Node_Ptr structure();
     Ast_Node_Ptr enumeration();
+    Ast_Node_Ptr array_initializer();
 
     Ast_Node_Ptr if_statement();
     Ast_Node_Ptr while_statement();
