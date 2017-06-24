@@ -1,4 +1,4 @@
-einclude "semantic_analyzer.h"
+#include "semantic_analyzer.h"
 
 #include <iostream>
 
