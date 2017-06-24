@@ -9,28 +9,7 @@ void Semantic_Analyzer::analyse(Ast& ast) {
     if(!_main_found) {
         report_error("Function 'main' was not declared");
     }
-    for(const auto& stmt : ast) {
-        switch(stmt->node_type) {
-            case Ast_Node_Type::FUNCTION_DECLARATION: {
-                auto& func = dynamic_cast<Ast_Func_Decl&>(*stmt);
-                if(!check_type(func.return_type)) {
-                    report_error("Type '" + get_type_name(func.return_type)
-                            + "' was not found in current context");
-                }
-                go_deeper(func.body.statements);
-                break;
-            }
-            // Do nothing, because these were collected before, in
-            // 'collect_top_level_declarations()'.
-            case Ast_Node_Type::VARIABLE_DECLARATION:
-            case Ast_Node_Type::STRUCT:
-            case Ast_Node_Type::ENUM:
-                break;
-            default: {
-                report_error("Non-declaration statement outside function body.");
-            }
-        }
-    }
+    go_deeper(ast);
 }
 
 bool Semantic_Analyzer::errors_reported() {
@@ -81,6 +60,13 @@ void Semantic_Analyzer::collect_top_level_declarations(const Ast& ast) {
 void Semantic_Analyzer::go_deeper(std::vector<Ast_Node_Ptr>& block) {
     for(const auto& stmt : block) {
         switch(stmt->node_type) {
+            case Ast_Node_Type::FUNCTION_DECLARATION: {
+                auto& func = dynamic_cast<Ast_Func_Decl&>(*stmt);
+                check_function(func);
+                _symbol_table.push_scope(Scope_Type::FUNCTION);
+                go_deeper(func.body.statements);
+                break;
+            }
             case Ast_Node_Type::VARIABLE_DECLARATION: {
                 auto& var = dynamic_cast<Ast_Var_Decl&>(*stmt);
                 if(!check_type(var.type)) {
@@ -107,14 +93,41 @@ void Semantic_Analyzer::go_deeper(std::vector<Ast_Node_Ptr>& block) {
                 }
                 break;
             }
-            default:
+            case Ast_Node_Type::RETURN: {
+                if(!_symbol_table.scope_exists(Scope_Type::FUNCTION)) {
+                    report_error("'return' outside of a function");
+                }
+            }
+            // Do nothing, because these were collected before, in
+            // 'collect_top_level_declarations()'.
+            case Ast_Node_Type::STRUCT:
+            case Ast_Node_Type::ENUM:
                 break;
+            default: {
+                report_error("Non-declaration statement outside function body");
+            }
         }
     }
     _symbol_table.pop_scope();
 }
 
-bool Semantic_Analyzer::check_type(Ast_Node_Ptr& type) const {
+void Semantic_Analyzer::check_function(Ast_Func_Decl& func) {
+    if(_symbol_table.scope_exists(Scope_Type::FUNCTION)) {
+        report_error("Nested function definitions are prohibited");
+    }
+    if(func.parent != "") {
+        if(!_symbol_table.declaration_exists(func.parent)) {
+            report_error("Type '" + func.parent + "' was not found"
+                    " in current scope");
+        }
+    }
+    if(!check_type(func.return_type)) {
+        report_error("Type '" + get_type_name(func.return_type)
+                + "' was not found in current scope");
+    }
+}
+
+bool Semantic_Analyzer::check_type(const Ast_Node_Ptr& type) const {
     if(type->node_type == Ast_Node_Type::POINTER) {
         return check_type(dynamic_cast<Ast_Pointer&>(*type).expr);
     }

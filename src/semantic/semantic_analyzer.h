@@ -20,8 +20,11 @@ private:
 
     void go_deeper(std::vector<Ast_Node_Ptr>& block);
 
+    /** Validate function / method correctness. */
+    void check_function(Ast_Func_Decl& func);
+
     /** Check if type name exists in current context. Works for pointers and arrays. */
-    bool check_type(Ast_Node_Ptr& type) const;
+    bool check_type(const Ast_Node_Ptr& type) const;
 
     /** Extract type identifier from pointer or array. */
     std::string get_type_name(const Ast_Node_Ptr& type) const;

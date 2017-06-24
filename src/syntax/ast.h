@@ -134,15 +134,11 @@ struct Ast_Func_Decl : Ast_Node {
         Ast_Node_Ptr type;
     };
     Ast_Func_Decl() { node_type = Ast_Node_Type::FUNCTION_DECLARATION; }
+    std::string        parent;  // Free function if parent == "".
     std::string        name;
     std::vector<Param> params;
     Ast_Node_Ptr       return_type;
     Ast_Block          body;
-};
-
-struct Ast_Method_Decl final : Ast_Func_Decl {
-    Ast_Method_Decl() { node_type = Ast_Node_Type::METHOD_DECLARATION; }
-    std::string parent;
 };
 
 struct Ast_Return final : Ast_Node {

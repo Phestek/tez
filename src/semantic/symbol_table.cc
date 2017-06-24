@@ -36,7 +36,7 @@ void Symbol_Table::pop_scope() {
 }
 
 bool Symbol_Table::scope_exists(Scope_Type type) {
-    // We search from end to top, because something inside my head tells me
+    // We search from end to begin, because something inside my head tells me
     // its just better idea...
     for(auto it = _scope_names.crbegin(); it < _scope_names.crend(); ++it) {
         if(*it == type) {
