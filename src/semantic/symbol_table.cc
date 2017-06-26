@@ -66,7 +66,7 @@ bool Symbol_Table::declaration_exists(const std::string& name) const {
 }
 
 bool Symbol_Table::declaration_exists(const std::string& name,
-        Scope_Type type) const {
+        Declaration::Type type) const {
     for(const auto& scope : _declarations) {
         for(const auto decl : scope) {
             if(decl.name == name && decl.type == type) {

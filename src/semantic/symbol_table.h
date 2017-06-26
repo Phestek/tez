@@ -39,7 +39,7 @@ public:
 
     /** Check if declaration with given name exists in current context. */
     bool declaration_exists(const std::string& name) const;
-    bool declaration_exists(const std::string& name, Scope_Type type) const;
+    bool declaration_exists(const std::string& name, Declaration::Type type) const;
 
     /** Get declaration from current scope. */
     std::optional<Declaration> get_declaration(const std::string& name) const;
