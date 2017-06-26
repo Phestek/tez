@@ -71,8 +71,15 @@ int compile(const Compilation_Settings& settings) {
     }
 
     tez::C_Code_Generator c_code_gen{ast};
-    auto c_source = "#include<stdio.h>\n#include<stdlib.h>\n"
-            "typedef float float32; typedef double float64;"
+    // TODO: make it look better.
+    auto c_source =
+            "#include<stdio.h>\n#include<stdlib.h>\n#include<stdint.h>\n"
+            "typedef unsigned int uint;\n"
+            "typedef int8_t int8;\ntypedef int16_t int16;\n"
+            "typedef int32_t int32;\ntypedef int64_t int64;\n"
+            "typedef uint8_t uint8;\ntypedef uint16_t uint16;\n"
+            "typedef uint32_t uint32;\ntypedef uint64_t uint64;\n"
+            "typedef float float32;\ntypedef double float64;\n"
             + c_code_gen.generate();
     std::ofstream of{settings.output_file};
     of << c_source;
