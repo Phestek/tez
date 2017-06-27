@@ -84,6 +84,8 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
             return print(dynamic_cast<const Ast_Member_Access&>(node));
         case Ast_Node_Type::ENUM:
             return print(dynamic_cast<const Ast_Enum&>(node));
+        case Ast_Node_Type::UNION:
+            return print(dynamic_cast<const Ast_Union_Decl&>(node));
         case Ast_Node_Type::BREAK:
             return print_indent() + "break";
         case Ast_Node_Type::CONTINUE:
@@ -263,6 +265,17 @@ std::string C_Code_Generator::print(const Ast_Enum& enum_decl) {
     }
     --_indent_level;
     return result + "} " + enum_decl.name;
+}
+
+std::string C_Code_Generator::print(const Ast_Union_Decl& union_decl) {
+    std::string result = "typedef union {\n";
+    ++_indent_level;
+    for(const auto& member : union_decl.members) {
+        result += print_indent() + print(*member.type) + " " + member.name
+                + ";\n";
+    }
+    --_indent_level;
+    return result + "} " + union_decl.name;
 }
 
 std::string C_Code_Generator::print(const Ast_Array_Access& array_access) {

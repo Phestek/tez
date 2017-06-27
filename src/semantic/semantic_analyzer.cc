@@ -51,6 +51,12 @@ void Semantic_Analyzer::collect_top_level_declarations(const Ast& ast) {
                         Declaration{var.name, Declaration::Type::ENUM});
                 break;
             }
+            case Ast_Node_Type::UNION: {
+                const auto& var = dynamic_cast<Ast_Union_Decl&>(*stmt);
+                _symbol_table.push_declaration(
+                        Declaration{var.name, Declaration::Type::UNION});
+                break;
+            }
             default:
                 break;
         }
@@ -102,6 +108,7 @@ void Semantic_Analyzer::go_deeper(std::vector<Ast_Node_Ptr>& block) {
             // 'collect_top_level_declarations()'.
             case Ast_Node_Type::STRUCT:
             case Ast_Node_Type::ENUM:
+            case Ast_Node_Type::UNION:
                 break;
             default: {
                 report_error("Non-declaration statement outside function body");

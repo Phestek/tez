@@ -93,6 +93,8 @@ Ast_Node_Ptr Parser::statement() {
         node = structure();
     } else if(match_token({Token_Type::KW_ENUM})) {
         node = enumeration();
+    } else if(match_token({Token_Type::KW_UNION})) {
+        node = union_declaration();
     } else {
         node = expression();
         next_token(Token_Type::SEMICOLON);
@@ -217,6 +219,21 @@ Ast_Node_Ptr Parser::enumeration() {
     } while(match_token({Token_Type::COMMA}));
     next_token(Token_Type::R_BRACE);
     return enumeration;
+}
+
+Ast_Node_Ptr Parser::union_declaration() {
+    auto union_decl = std::make_unique<Ast_Union_Decl>();
+    union_decl->name = next_token(Token_Type::IDENTIFIER).value;
+    next_token(Token_Type::L_BRACE);
+    while(!match_token({Token_Type::R_BRACE})) {
+        Ast_Union_Decl::Member member;
+        member.name = next_token(Token_Type::IDENTIFIER).value;
+        next_token(Token_Type::COLON);
+        member.type = type();
+        next_token(Token_Type::SEMICOLON);
+        union_decl->members.push_back(std::move(member));
+    }
+    return union_decl;
 }
 
 Ast_Node_Ptr Parser::array_initializer() {

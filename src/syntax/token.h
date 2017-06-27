@@ -21,6 +21,7 @@ enum class Token_Type {
     KW_ENUM,
     KW_STRUCT,
     KW_CLASS,
+    KW_UNION,
     KW_IF,
     KW_ELSE,
     KW_WHILE,
@@ -66,7 +67,7 @@ enum class Token_Type {
     BITWISE_SHIFT_RIGHT,
     LOGICAL_OR,
     LOGICAL_AND,
-    
+
     SCOPE_RESOLUTION,
     SEMICOLON,
     COLON,

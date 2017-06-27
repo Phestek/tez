@@ -9,14 +9,14 @@
 namespace tez {
 
 struct Declaration {
-    enum class Type { NONE, BUILT_IN, FUNCTION, VARIABLE, STRUCT, ENUM };
+    enum class Type { NONE, BUILT_IN, FUNCTION, VARIABLE, STRUCT, ENUM, UNION };
     std::string  name = "";
     Type         type = Type::NONE;
 };
 
 
 enum class Scope_Type {
-    NAMESPACE, FUNCTION, IF, DO_WHILE, WHILE, FOR, STRUCT
+    NAMESPACE, FUNCTION, IF, DO_WHILE, WHILE, FOR, STRUCT, ENUM, UNION
 };
 
 class Symbol_Table {

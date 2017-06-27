@@ -216,6 +216,16 @@ struct Ast_Enum final : Ast_Node {
     std::vector<Enumerator> enumerations;
 };
 
+struct Ast_Union_Decl final : Ast_Node {
+    struct Member {
+        std::string  name;
+        Ast_Node_Ptr type;
+    };
+    Ast_Union_Decl() { node_type = Ast_Node_Type::UNION; }
+    std::string         name;
+    std::vector<Member> members;
+};
+
 struct Ast_Array_Access final : Ast_Node {
     Ast_Array_Access() { node_type = Ast_Node_Type::ARRAY_ACCESS; }
     Ast_Node_Ptr array;
