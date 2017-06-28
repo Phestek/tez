@@ -207,7 +207,7 @@ void Lexer::handle_whitespace() {
     char c = _tez_source.at(_current_char);
     if(c == '\n') {
         ++_lines_count;
-        _columns_count = _current_char; // TODO: This may cause problems.
+        _columns_count = _current_char;
     }
     ++_current_char;
 }
