@@ -239,16 +239,12 @@ void Lexer::push_number(char c) {
     while(std::isdigit(c) || c == '.') {
         if(c == '.') {
             if(is_real) {   // Error if dot was used before.
-        report_error("Too many decimal points in number.");
+                report_error("Too many decimal points in number.");
             }
             is_real = true;
         }
-        try {
-            number += c;
-            c = _tez_source.at(++_current_char);
-        } catch(const std::out_of_range& e) {
-            break;
-        }
+        number += c;
+        c = _tez_source.at(++_current_char);
     }
     if(is_real) {
         push_token(Token_Type::REAL_NUMBER, number);
@@ -260,12 +256,8 @@ void Lexer::push_number(char c) {
 void Lexer::push_identifier(char c) {
     std::string word;
     while(std::isalpha(c) || std::isdigit(c) || c == '_') {
-        try {
-            word += c;
-            c = _tez_source.at(++_current_char);
-        } catch(const std::out_of_range& e) {
-            break;
-        }
+        word += c;
+        c = _tez_source.at(++_current_char);
     }
     auto keyword = KEYWORDS.find(word);
     if(keyword != KEYWORDS.end()) {
