@@ -177,6 +177,7 @@ std::vector<Token> Lexer::tokenize() {
     } catch(const std::out_of_range& e) {
         report_error("Unexpected end of file.");
     }
+    _tokens.shrink_to_fit();
     return _tokens;
 }
 
@@ -199,7 +200,7 @@ void Lexer::push_token(Token_Type type, const std::string& value) {
 
 void Lexer::push_token(Token_Type type, const std::string& value,
         unsigned int col) {
-    _tokens.push_back({type, value, _filename, _lines_count, col});
+    _tokens.push_back({type, value, _filename, _lines_count, col + 1});
 }
 
 void Lexer::handle_whitespace() {
@@ -252,6 +253,7 @@ void Lexer::push_operator() {
 }
 
 void Lexer::push_number(char c) {
+    std::size_t beginning = _current_char;
     std::string number;
     bool is_real = false;   // False means integer value.
     while(std::isdigit(c) || c == '.') {
@@ -265,13 +267,14 @@ void Lexer::push_number(char c) {
         c = _tez_source.at(++_current_char);
     }
     if(is_real) {
-        push_token(Token_Type::REAL_NUMBER, number);
+        push_token(Token_Type::REAL_NUMBER, number, beginning - _columns_count);
     } else {
-        push_token(Token_Type::INTEGER, number);
+        push_token(Token_Type::INTEGER, number, beginning - _columns_count);
     }
 }
 
 void Lexer::push_identifier(char c) {
+    std::size_t beginning = _current_char;
     std::string word;
     while(std::isalpha(c) || std::isdigit(c) || c == '_') {
         word += c;
@@ -281,11 +284,12 @@ void Lexer::push_identifier(char c) {
     if(keyword != _keywords.end()) {
         push_token(keyword->second, "");
     } else {
-        push_token(Token_Type::IDENTIFIER, word);
+        push_token(Token_Type::IDENTIFIER, word, beginning - _columns_count);
     }
 }
 
 void Lexer::push_string() {
+    std::size_t beginning = _current_char;
     char c = _tez_source.at(++_current_char);
     std::string s;
     while(c != '"') {
@@ -293,7 +297,7 @@ void Lexer::push_string() {
         c = _tez_source.at(++_current_char);
     }
     ++_current_char;
-    push_token(Token_Type::STRING, s);
+    push_token(Token_Type::STRING, s, beginning - _columns_count);
 }
 
 void Lexer::push_character() {
