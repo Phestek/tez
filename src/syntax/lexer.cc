@@ -9,7 +9,7 @@
 
 namespace tez {
 
-const std::map<std::string, Token_Type> Lexer::KEYWORDS{
+const std::map<std::string, Token_Type> Lexer::_keywords{
     {"namespace", Token_Type::KW_NAMESPACE},
     {"func",      Token_Type::KW_FUNC},
     {"return",    Token_Type::KW_RETURN},
@@ -33,42 +33,47 @@ const std::map<std::string, Token_Type> Lexer::KEYWORDS{
     {"as",        Token_Type::KW_AS},
 };
 
-const std::map<std::string, Token_Type> Lexer::OPERATORS{
-    {"{",  Token_Type::L_BRACE},
-    {"}",  Token_Type::R_BRACE},
-    {"(",  Token_Type::L_PAREN},
-    {")",  Token_Type::R_PAREN},
-    {"[",  Token_Type::L_BRACKET},
-    {"]",  Token_Type::R_BRACKET},
-    {"+",  Token_Type::PLUS},
-    {"-",  Token_Type::MINUS},
-    {"*",  Token_Type::ASTERISK},
-    {"/",  Token_Type::SLASH},
+const std::map<std::string, Token_Type> Lexer::_single_char_operators{
+    {"{", Token_Type::L_BRACE},
+    {"}", Token_Type::R_BRACE},
+    {"(", Token_Type::L_PAREN},
+    {")", Token_Type::R_PAREN},
+    {"[", Token_Type::L_BRACKET},
+    {"]", Token_Type::R_BRACKET},
+    {"+", Token_Type::PLUS},
+    {"-", Token_Type::MINUS},
+    {"*", Token_Type::ASTERISK},
+    {"/", Token_Type::SLASH},
+    {"&", Token_Type::AMPERSAND},
+    {"|", Token_Type::BITWISE_OR},
+    {"^", Token_Type::CARET},
+    {"%", Token_Type::MODULO},
+    {"!", Token_Type::BANG},
+    {"=", Token_Type::EQUALS},
+    {">", Token_Type::GREATER},
+    {"<", Token_Type::LESS},
+    {";", Token_Type::SEMICOLON},
+    {":", Token_Type::COLON},
+    {",", Token_Type::COMMA},
+    {".", Token_Type::DOT},
+};
+
+const std::map<std::string, Token_Type> Lexer::_double_char_operators{
     {"&&", Token_Type::LOGICAL_AND},
     {"||", Token_Type::LOGICAL_OR},
-    {"&",  Token_Type::AMPERSAND},
-    {"|",  Token_Type::BITWISE_OR},
-    {"^",  Token_Type::CARET},
     {"<<", Token_Type::BITWISE_SHIFT_LEFT},
     {">>", Token_Type::BITWISE_SHIFT_RIGHT},
-    {"%",  Token_Type::MODULO},
     {"+=", Token_Type::PLUS_EQUALS},
     {"-=", Token_Type::MINUS_EQUALS},
     {"*=", Token_Type::MULTIPLY_EQUALS},
     {"/=", Token_Type::DIVIDE_EQUALS},
     {"%=", Token_Type::MODULO_EQUALS},
-    {"!",  Token_Type::BANG},
-    {"=",  Token_Type::EQUALS},
     {"!=", Token_Type::BANG_EQUALS},
     {"==", Token_Type::EQUALS_EQUALS},
     {">",  Token_Type::GREATER},
     {">=", Token_Type::GREATER_EQUALS},
     {"<",  Token_Type::LESS},
     {"<=", Token_Type::LESS_EQUALS},
-    {";",  Token_Type::SEMICOLON},
-    {":",  Token_Type::COLON},
-    {",",  Token_Type::COMMA},
-    {".",  Token_Type::DOT},
     {"->", Token_Type::ARROW},
     {"::", Token_Type::SCOPE_RESOLUTION},
 };
@@ -217,13 +222,15 @@ void Lexer::handle_comment() {
 void Lexer::push_operator() {
     // Because all operators are from 1 or 2 characters.
     std::string two_chars{_tez_source.substr(_current_char, 2)};
-    if(auto res = OPERATORS.find(two_chars); res != OPERATORS.end()) {
+    if(auto res = _double_char_operators.find(two_chars);
+            res != _double_char_operators.end()) {
         push_token(res->second, "");
         _current_char += 2;
         return;
     }
-    if(auto res = OPERATORS.find(std::string{_tez_source.at(_current_char)});
-            res != OPERATORS.end()) {
+    std::string op{_tez_source.at(_current_char)};
+    if(auto res = _single_char_operators.find(op);
+            res != _single_char_operators.end()) {
         push_token(res->second, "");
         ++_current_char;
         return;
@@ -259,8 +266,8 @@ void Lexer::push_identifier(char c) {
         word += c;
         c = _tez_source.at(++_current_char);
     }
-    auto keyword = KEYWORDS.find(word);
-    if(keyword != KEYWORDS.end()) {
+    auto keyword = _keywords.find(word);
+    if(keyword != _keywords.end()) {
         push_token(keyword->second, "");
     } else {
         push_token(Token_Type::IDENTIFIER, word);

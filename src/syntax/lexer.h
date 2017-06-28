@@ -53,8 +53,9 @@ private:
     
     bool _errors_reported = false;
 
-    static const std::map<std::string, Token_Type> KEYWORDS;
-    static const std::map<std::string, Token_Type> OPERATORS;
+    static const std::map<std::string, Token_Type> _keywords;
+    static const std::map<std::string, Token_Type> _single_char_operators;
+    static const std::map<std::string, Token_Type> _double_char_operators;
 };
 
 }
