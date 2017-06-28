@@ -124,61 +124,24 @@ std::vector<Token> Lexer::tokenize() {
     try {
         while(_current_char < _tez_source.length()) {
             char c = _tez_source.at(_current_char);
-
-            if(c == '/' && _tez_source.at(_current_char + 1) == '/') {
-                while(c != '\n') {
-                    c = _tez_source.at(++_current_char);
-                }
+            if(std::isspace(c)) {
+                handle_whitespace();
                 continue;
             }
-            if(c == '/' && _tez_source.at(_current_char + 1) == '*') {
-                ++_current_char;
-                while(c != '*' && _tez_source.at(_current_char + 1) != '/') {
-                    if(_current_char >= _tez_source.length()) {
-                        report_error("Missing closing \"*/\".");
-                    }
-                    if(_tez_source.at(_current_char) == '\n') {
-                        ++_lines_count;
-                    }
-                    c = _tez_source.at(++_current_char);
-                }
-                ++_current_char;
-                ++_current_char;
+            if(peek_string("//") || peek_string("/*")) {
+                handle_comment();
                 continue;
-            }
-            if(c == '\n') {
-                ++_lines_count;
-                _columns_count = _current_char;
             }
             if(std::isspace(c)) {
-                ++_current_char;
+                handle_whitespace();
                 continue;
             }
-            if(c == '"') { // String.
-                std::string string;
-                c = _tez_source.at(++_current_char);
-                while(c != '"') {
-                    string += c;
-                    c = _tez_source.at(++_current_char);
-                }
-                push_token(Token_Type::STRING, string);
-                ++_current_char;
+            if(c == '"') {
+                push_string();
                 continue;
             }
             if(c == '\'') {
-                std::size_t beginning = _current_char - _columns_count;
-                std::string character = {_tez_source.at(++_current_char)};
-                if(character == "\\") {
-                    character += _tez_source.at(++_current_char);
-                }
-                if(c = _tez_source.at(++_current_char); c != '\'') {
-                    report_error("Expected ''', got '" + std::string{c} + "'");
-                    while(c != '\'') {
-                        c = ++_current_char;
-                    }
-                }
-                ++_current_char;
-                push_token(Token_Type::CHARACTER, {character}, beginning);
+                push_character();
                 continue;
             }
             if(std::ispunct(c)) {
@@ -205,6 +168,14 @@ char Lexer::peek_char(std::size_t depth) const {
     return _tez_source.at(_current_char + depth);
 }
 
+char Lexer::peek_string(const std::string&& to_peek) const {
+    const auto l = to_peek.length();
+    if(_current_char + l >= _tez_source.length()) {
+        return false;
+    }
+    return _tez_source.substr(_current_char, l) == to_peek;
+}
+
 void Lexer::push_token(Token_Type type, const std::string& value) {
     _tokens.push_back({type, value, _filename, _lines_count,
             _current_char - _columns_count + 1});
@@ -213,6 +184,34 @@ void Lexer::push_token(Token_Type type, const std::string& value) {
 void Lexer::push_token(Token_Type type, const std::string& value,
         unsigned int col) {
     _tokens.push_back({type, value, _filename, _lines_count, col});
+}
+
+void Lexer::handle_whitespace() {
+    char c = _tez_source.at(_current_char);
+    if(c == '\n') {
+        ++_lines_count;
+        _columns_count = _current_char; // TODO: This may cause problems.
+    }
+    ++_current_char;
+}
+
+// TODO: Nested multiline comments.
+void Lexer::handle_comment() {
+    if(peek_string("//")) {
+        while(_tez_source.at(_current_char) != '\n') {
+            ++_current_char;
+        }
+        return;
+    }
+    // When "/*".
+    while(!peek_string("*/")) {
+        if(_tez_source.at(_current_char) == '\n') {
+            ++_lines_count;
+            _columns_count = _current_char;
+        }
+        ++_current_char;
+    }
+    _current_char += 3;
 }
 
 void Lexer::push_operator(char c) {
@@ -322,6 +321,34 @@ void Lexer::push_identifier(char c) {
     } else {
         push_token(Token_Type::IDENTIFIER, word);
     }
+}
+
+void Lexer::push_string() {
+    char c = _tez_source.at(++_current_char);
+    std::string s;
+    while(c != '"') {
+        s.push_back(c);
+        c = _tez_source.at(++_current_char);
+    }
+    ++_current_char;
+    push_token(Token_Type::STRING, s);
+}
+
+void Lexer::push_character() {
+    std::size_t beginning = _current_char - _columns_count;
+    std::string character = {_tez_source.at(++_current_char)};
+    if(character == "\\") {
+        character += _tez_source.at(++_current_char);
+    }
+    char c = _tez_source.at(_current_char);
+    if(c = _tez_source.at(++_current_char); c != '\'') {
+        report_error("Expected ''', got '" + std::string{c} + "'");
+        while(c != '\'') {
+            c = ++_current_char;
+        }
+    }
+    ++_current_char;
+    push_token(Token_Type::CHARACTER, {character}, beginning);
 }
 
 }

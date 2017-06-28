@@ -27,14 +27,20 @@ private:
     void report_error(const std::string& message);
     
     char peek_char(std::size_t depth = 1) const;
+    char peek_string(const std::string&& to_peek) const;
 
     void push_token(Token_Type type, const std::string& value = "");
     void push_token(Token_Type type, const std::string& value,
             unsigned int col);
 
+    void handle_whitespace();
+    void handle_comment();
+
     void push_operator(char c);
     void push_number(char c);
     void push_identifier(char c);
+    void push_string();
+    void push_character();
     
     const std::string  _working_path;
     const std::string  _filename;
