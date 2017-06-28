@@ -459,7 +459,7 @@ Ast_Node_Ptr Parser::prefix_unary() {
 
 Ast_Node_Ptr Parser::postfix_unary() {
     auto expr = scope_resolution();
-    if(peek_token(-1).type == Token_Type::L_PAREN) {
+    if(match_token({Token_Type::L_PAREN})) {
         return function_call(std::move(expr));
     }
     if(match_token({Token_Type::L_BRACKET})) {

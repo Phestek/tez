@@ -111,7 +111,8 @@ void Semantic_Analyzer::go_deeper(std::vector<Ast_Node_Ptr>& block) {
             case Ast_Node_Type::UNION:
                 break;
             default: {
-                report_error("Non-declaration statement outside function body");
+                // TODO: Cleanup.
+                //report_error("Non-declaration statement outside function body");
             }
         }
     }
