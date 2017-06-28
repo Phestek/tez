@@ -71,15 +71,22 @@ int compile(const Compilation_Settings& settings) {
     }
 
     tez::C_Code_Generator c_code_gen{ast};
-    // TODO: make it look better.
-    auto c_source =
-            "#include<stdio.h>\n#include<stdlib.h>\n#include<stdint.h>\n"
-            "typedef unsigned int uint;\n"
-            "typedef int8_t int8;\ntypedef int16_t int16;\n"
-            "typedef int32_t int32;\ntypedef int64_t int64;\n"
-            "typedef uint8_t uint8;\ntypedef uint16_t uint16;\n"
-            "typedef uint32_t uint32;\ntypedef uint64_t uint64;\n"
-            "typedef float float32;\ntypedef double float64;\n"
+    const std::string c_source =
+R"FOO(#include<stdio.h>
+#include<stdlib.h>
+#include<stdint.h>
+typedef unsigned int uint;
+typedef int8_t int8;
+typedef int16_t int16;
+typedef int32_t int32;
+typedef int64_t int64;
+typedef uint8_t uint8;
+typedef uint16_t uint16;
+typedef uint32_t uint32;
+typedef uint64_t uint64;
+typedef float float32;
+typedef double float64;
+)FOO"
             + c_code_gen.generate();
     std::ofstream of{settings.output_file};
     of << c_source;
@@ -114,7 +121,7 @@ int main(int argc, char* argv[]) {
             = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     auto seconds = elapsed.count() / 1000;
     auto milliseconds = elapsed.count() % 1000;
-    std::cout << "Compilation time: " << seconds << '.' << milliseconds 
+    std::cout << "Compilation time: " << seconds << '.' << milliseconds
             << "s.\n";
 #endif
 

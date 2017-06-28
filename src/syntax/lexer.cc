@@ -2,12 +2,20 @@
 
 #include <cctype>
 
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
 
 namespace tez {
+
+namespace {
+
+class File_Not_Found : public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
+}
 
 const std::map<std::string, Token_Type> Lexer::_keywords{
     {"namespace", Token_Type::KW_NAMESPACE},
@@ -85,9 +93,7 @@ namespace {
 std::string read_file_content(const std::string& filename) {
     std::ifstream file{filename};
     if(!file.good()) {
-        // TODO: Handle it.
-        std::cerr << "Failed to open file \"" + filename + "\".\n";
-        throw;
+        throw File_Not_Found{"Failed to open file \"" + filename + "\".\n"};
     }
     std::string content;
     while(!file.eof()) {
@@ -104,7 +110,12 @@ std::string read_file_content(const std::string& filename) {
 
 Lexer::Lexer(const std::string& filename)
         : _filename{filename} {
-    _tez_source = read_file_content(filename);
+    try {
+        _tez_source = read_file_content(filename);
+    } catch(const tez::File_Not_Found& e) {
+        std::cerr << "Error: " << e.what();
+        _errors_reported = true;
+    }
 }
 
 Lexer::Lexer(const std::string& tez_source,
