@@ -16,7 +16,7 @@ public:
     // This constructor is only used for unit tests.
     // Second parameter is workaround for ambigious call (1st constructor
     // also takes only 1 std::string parameter).
-    Lexer(const std::string& wayward_source, bool doesnt_matter);
+    Lexer(const std::string& tez_source, bool doesnt_matter);
 
     // Create tokens from given source code.
     std::vector<Token> tokenize();
@@ -38,7 +38,7 @@ private:
     
     const std::string  _working_path;
     const std::string  _filename;
-    std::string        _wayward_source;
+    std::string        _tez_source;
     std::vector<Token> _tokens;
 
     unsigned int _current_char = 0;

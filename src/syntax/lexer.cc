@@ -99,12 +99,12 @@ std::string read_file_content(const std::string& filename) {
 
 Lexer::Lexer(const std::string& filename)
         : _filename{filename} {
-    _wayward_source = read_file_content(filename);
+    _tez_source = read_file_content(filename);
 }
 
-Lexer::Lexer(const std::string& wayward_source,
+Lexer::Lexer(const std::string& tez_source,
         [[maybe_unused]] bool doesnt_matter) {
-    _wayward_source = wayward_source;
+    _tez_source = tez_source;
 }
 
 bool Lexer::errors_reported() const {
@@ -122,25 +122,25 @@ std::vector<Token> Lexer::tokenize() {
     _tokens.clear();
     // TODO: Make it cleaner, this is Jonathan Blow style function.
     try {
-        while(_current_char < _wayward_source.length()) {
-            char c = _wayward_source.at(_current_char);
+        while(_current_char < _tez_source.length()) {
+            char c = _tez_source.at(_current_char);
 
-            if(c == '/' && _wayward_source.at(_current_char + 1) == '/') {
+            if(c == '/' && _tez_source.at(_current_char + 1) == '/') {
                 while(c != '\n') {
-                    c = _wayward_source.at(++_current_char);
+                    c = _tez_source.at(++_current_char);
                 }
                 continue;
             }
-            if(c == '/' && _wayward_source.at(_current_char + 1) == '*') {
+            if(c == '/' && _tez_source.at(_current_char + 1) == '*') {
                 ++_current_char;
-                while(c != '*' && _wayward_source.at(_current_char + 1) != '/') {
-                    if(_current_char >= _wayward_source.length()) {
+                while(c != '*' && _tez_source.at(_current_char + 1) != '/') {
+                    if(_current_char >= _tez_source.length()) {
                         report_error("Missing closing \"*/\".");
                     }
-                    if(_wayward_source.at(_current_char) == '\n') {
+                    if(_tez_source.at(_current_char) == '\n') {
                         ++_lines_count;
                     }
-                    c = _wayward_source.at(++_current_char);
+                    c = _tez_source.at(++_current_char);
                 }
                 ++_current_char;
                 ++_current_char;
@@ -156,10 +156,10 @@ std::vector<Token> Lexer::tokenize() {
             }
             if(c == '"') { // String.
                 std::string string;
-                c = _wayward_source.at(++_current_char);
+                c = _tez_source.at(++_current_char);
                 while(c != '"') {
                     string += c;
-                    c = _wayward_source.at(++_current_char);
+                    c = _tez_source.at(++_current_char);
                 }
                 push_token(Token_Type::STRING, string);
                 ++_current_char;
@@ -167,11 +167,11 @@ std::vector<Token> Lexer::tokenize() {
             }
             if(c == '\'') {
                 std::size_t beginning = _current_char - _columns_count;
-                std::string character = {_wayward_source.at(++_current_char)};
+                std::string character = {_tez_source.at(++_current_char)};
                 if(character == "\\") {
-                    character += _wayward_source.at(++_current_char);
+                    character += _tez_source.at(++_current_char);
                 }
-                if(c = _wayward_source.at(++_current_char); c != '\'') {
+                if(c = _tez_source.at(++_current_char); c != '\'') {
                     report_error("Expected ''', got '" + std::string{c} + "'");
                     while(c != '\'') {
                         c = ++_current_char;
@@ -202,7 +202,7 @@ std::vector<Token> Lexer::tokenize() {
 }
 
 char Lexer::peek_char(std::size_t depth) const {
-    return _wayward_source.at(_current_char + depth);
+    return _tez_source.at(_current_char + depth);
 }
 
 void Lexer::push_token(Token_Type type, const std::string& value) {
@@ -294,7 +294,7 @@ void Lexer::push_number(char c) {
         }
         try {
             number += c;
-            c = _wayward_source.at(++_current_char);
+            c = _tez_source.at(++_current_char);
         } catch(const std::out_of_range& e) {
             break;
         }
@@ -311,7 +311,7 @@ void Lexer::push_identifier(char c) {
     while(std::isalpha(c) || std::isdigit(c) || c == '_') {
         try {
             word += c;
-            c = _wayward_source.at(++_current_char);
+            c = _tez_source.at(++_current_char);
         } catch(const std::out_of_range& e) {
             break;
         }
