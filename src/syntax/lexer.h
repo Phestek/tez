@@ -36,7 +36,7 @@ private:
     void handle_whitespace();
     void handle_comment();
 
-    void push_operator(char c);
+    void push_operator();
     void push_number(char c);
     void push_identifier(char c);
     void push_string();

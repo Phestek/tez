@@ -145,7 +145,7 @@ std::vector<Token> Lexer::tokenize() {
                 continue;
             }
             if(std::ispunct(c)) {
-                push_operator(c);
+                push_operator();
                 continue;
             }
             if(std::isdigit(c)) {
@@ -211,74 +211,26 @@ void Lexer::handle_comment() {
         }
         ++_current_char;
     }
-    _current_char += 3;
+    _current_char += 2;
 }
 
-void Lexer::push_operator(char c) {
-    switch(c) {
-        case '+':
-        case '-':
-        case '*':
-        case '/':
-        case '%':
-        case '=':
-        case '!':
-        case '<':
-        case '>': {
-            if(peek_char() == '=') {
-                auto op = std::string{c} + std::string{peek_char()};
-                auto o = OPERATORS.find(op);   // It's sure to find.
-                push_token(o->second);
-                _current_char += 2;
-                break;
-            }
-            if(c == '-') {  // Arrow is special case.
-                if(peek_char() == '>') {
-                    push_token(Token_Type::ARROW);
-                    _current_char += 2;
-                    break;
-                }
-            }
-            if(c == '<') {
-                if(peek_char() == '<') {
-                    push_token(Token_Type::BITWISE_SHIFT_LEFT);
-                    _current_char += 2;
-                    break;
-                }
-            }
-            if(c == '>') {
-                if(peek_char() == '>') {
-                    push_token(Token_Type::BITWISE_SHIFT_RIGHT);
-                    _current_char += 2;
-                    break;
-                }
-            }
-            auto o = OPERATORS.find(std::string{c});
-            if(o != OPERATORS.end()) {
-                push_token(o->second, "");
-            } else {
-                report_error("Unexpected character '" + std::string{c} + "'");
-            }
-            ++_current_char;
-            break;
-        }
-        case ':': {
-            if(peek_char() == ':') {
-                push_token(Token_Type::SCOPE_RESOLUTION);
-                _current_char += 2;
-                break;
-            }
-            [[fallthrough]];
-        }
-        default:
-            auto o = OPERATORS.find(std::string{c});
-            if(o != OPERATORS.end()) {
-                push_token(o->second);
-            } else {
-                report_error("Unexpected character '" + std::string{c} + "'");
-            }
-            ++_current_char;
+void Lexer::push_operator() {
+    // Because all operators are from 1 or 2 characters.
+    std::string two_chars{_tez_source.substr(_current_char, 2)};
+    if(auto res = OPERATORS.find(two_chars); res != OPERATORS.end()) {
+        push_token(res->second, "");
+        _current_char += 2;
+        return;
     }
+    if(auto res = OPERATORS.find(std::string{_tez_source.at(_current_char)});
+            res != OPERATORS.end()) {
+        push_token(res->second, "");
+        ++_current_char;
+        return;
+    }
+    report_error("Unknown operator '"
+            + std::string{_tez_source.at(_current_char)} + "'");
+    ++_current_char;
 }
 
 void Lexer::push_number(char c) {
