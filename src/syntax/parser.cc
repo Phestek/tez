@@ -52,10 +52,12 @@ void Parser::report_error(const std::string& message) {
     auto token = peek_token(0);
     std::cerr << token.filename << ':' << token.line << ':' << token.column
             << ": " << message << ".\n";
-    while(!match_token({Token_Type::SEMICOLON, Token_Type::R_BRACE,
-            Token_Type::R_PAREN, Token_Type::COMMA})) {
+    while(!match_token({Token_Type::SEMICOLON, Token_Type::L_BRACE,
+            Token_Type::R_BRACE, Token_Type::L_PAREN, Token_Type::R_PAREN,
+            Token_Type::COMMA})) {
         next_token();
     }
+    next_token();
 }
 
 Ast_Node_Ptr Parser::statement() {
