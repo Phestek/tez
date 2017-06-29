@@ -232,7 +232,7 @@ void Lexer::handle_comment() {
 }
 
 void Lexer::push_operator() {
-    // Because all operators are from 1 or 2 characters.
+    // Because all operators are made from 1 or 2 characters.
     std::string two_chars{_tez_source.substr(_current_char, 2)};
     if(auto res = _double_char_operators.find(two_chars);
             res != _double_char_operators.end()) {
@@ -264,7 +264,11 @@ void Lexer::push_number(char c) {
             is_real = true;
         }
         number += c;
-        c = _tez_source.at(++_current_char);
+        try {
+            c = _tez_source.at(++_current_char);
+        } catch(const std::out_of_range& e) {
+            break;
+        }
     }
     if(is_real) {
         push_token(Token_Type::REAL_NUMBER, number, beginning - _columns_count);
@@ -278,7 +282,11 @@ void Lexer::push_identifier(char c) {
     std::string word;
     while(std::isalpha(c) || std::isdigit(c) || c == '_') {
         word += c;
-        c = _tez_source.at(++_current_char);
+        try {
+            c = _tez_source.at(++_current_char);
+        } catch(const std::out_of_range& e) {
+            break;
+        }
     }
     auto keyword = _keywords.find(word);
     if(keyword != _keywords.end()) {

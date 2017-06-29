@@ -24,18 +24,19 @@ target_include_directories(tezc_core PUBLIC src)
 add_executable(tezc src/main.cc)
 target_link_libraries(tezc tezc_core)
 
-enable_testing()
-set(TEST_FILES
-        test/main.cc
-        test/lexer_test.cc
-        test/parser_test.cc)
-
-add_executable(tezc_tests ${TEST_FILES})
-target_include_directories(tezc PRIVATE src)
-add_test(
-        NAME    test_all_in_tezc
-        COMMAND tezc_tests)
-find_package(GTest REQUIRED)
-target_include_directories(tezc_tests PRIVATE src ${GTEST_INCLUDE_DIRS})
-target_link_libraries(tezc_tests tezc_core ${GTEST_BOTH_LIBRARIES})
+if(NOT DISABLE_TESTS)
+    enable_testing()
+    set(TEST_FILES
+            test/main.cc
+            test/lexer_test.cc
+            test/parser_test.cc)
+    add_executable(tezc_tests ${TEST_FILES})
+    target_include_directories(tezc PRIVATE src)
+    add_test(
+            NAME    test_all_in_tezc
+            COMMAND tezc_tests)
+    find_package(GTest REQUIRED)
+    target_include_directories(tezc_tests PRIVATE src ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(tezc_tests tezc_core ${GTEST_BOTH_LIBRARIES})
+endif()
 
