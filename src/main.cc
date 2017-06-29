@@ -75,6 +75,7 @@ int compile(const Compilation_Settings& settings) {
 R"FOO(#include<stdio.h>
 #include<stdlib.h>
 #include<stdint.h>
+typedef char bool;
 typedef unsigned int uint;
 typedef int8_t int8;
 typedef int16_t int16;

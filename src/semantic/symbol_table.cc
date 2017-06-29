@@ -10,6 +10,7 @@ Symbol_Table::Symbol_Table() {
 
     // Declare primitive types.
     push_declaration({"void",    Declaration::Type::BUILT_IN});
+    push_declaration({"bool",    Declaration::Type::BUILT_IN});
     push_declaration({"int",     Declaration::Type::BUILT_IN});
     push_declaration({"uint",    Declaration::Type::BUILT_IN});
     push_declaration({"char",    Declaration::Type::BUILT_IN});
