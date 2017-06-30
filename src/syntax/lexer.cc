@@ -39,6 +39,8 @@ const std::map<std::string, Token_Type> Lexer::_keywords{
     {"break",     Token_Type::KW_BREAK},
     {"continue",  Token_Type::KW_CONTINUE},
     {"as",        Token_Type::KW_AS},
+    {"new",       Token_Type::KW_NEW},
+    {"free",      Token_Type::KW_FREE},
 };
 
 const std::map<std::string, Token_Type> Lexer::_single_char_operators{

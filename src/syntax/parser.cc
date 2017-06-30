@@ -97,6 +97,10 @@ Ast_Node_Ptr Parser::statement() {
         node = enumeration();
     } else if(match_token({Token_Type::KW_UNION})) {
         node = union_declaration();
+    } else if(match_token({Token_Type::KW_FREE})) {
+        node = std::make_unique<Ast_Free>();
+        dynamic_cast<Ast_Free&>(*node).what = postfix_unary();
+        next_token(Token_Type::SEMICOLON);
     } else {
         node = expression();
         next_token(Token_Type::SEMICOLON);
@@ -455,6 +459,11 @@ Ast_Node_Ptr Parser::prefix_unary() {
         auto ao = std::make_unique<Ast_Address_Of>();
         ao->expr = postfix_unary();
         return ao;
+    }
+    if(match_token({Token_Type::KW_NEW})) {
+        auto new_stmt = std::make_unique<Ast_New>();
+        new_stmt->type = type_scope_resolution();
+        return new_stmt;
     }
     return postfix_unary();
 }

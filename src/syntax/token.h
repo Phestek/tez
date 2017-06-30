@@ -33,6 +33,8 @@ enum class Token_Type {
     KW_BREAK,
     KW_CONTINUE,
     KW_AS,
+    KW_NEW,
+    KW_FREE,
 
     L_BRACE,
     R_BRACE,

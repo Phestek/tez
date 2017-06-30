@@ -97,11 +97,15 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
         case Ast_Node_Type::ARRAY:
             return print(dynamic_cast<const Ast_Array&>(node));
         case Ast_Node_Type::ARRAY_INITIALIZER:
-            return print(dynamic_cast<const Ast_Array_Initializer&>(nodehttps://www.google.));
+            return print(dynamic_cast<const Ast_Array_Initializer&>(node));
         case Ast_Node_Type::PTR_DEREFERENCE:
             return print(dynamic_cast<const Ast_Ptr_Dereference&>(node));
         case Ast_Node_Type::ADDRESS_OF:
             return print(dynamic_cast<const Ast_Address_Of&>(node));
+        case Ast_Node_Type::NEW:
+            return print(dynamic_cast<const Ast_New&>(node));
+        case Ast_Node_Type::FREE:
+            return print(dynamic_cast<const Ast_Free&>(node));
         default:
             std::cerr << "Error: Tried to print undefined node!\n";
     }
@@ -323,6 +327,14 @@ std::string C_Code_Generator::print_array(const Ast_Node& type) {
         result += "]" + print_array(*array.expr);
     }
     return result;
+}
+
+std::string C_Code_Generator::print(const Ast_New& new_stmt) {
+    return "malloc(sizeof(" + print(*new_stmt.type) + "))";
+}
+
+std::string C_Code_Generator::print(const Ast_Free& free) {
+    return "free(" + print(*free.what) + ")";
 }
 
 }

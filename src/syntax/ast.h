@@ -49,6 +49,9 @@ enum class Ast_Node_Type {
     PTR_DEREFERENCE,
     ADDRESS_OF,
 
+    NEW,
+    FREE,
+    
     ARRAY_INITIALIZER,
     STRUCT_CONSTRUCTOR,
 
@@ -248,6 +251,16 @@ struct Ast_Scope_Resolution final : Ast_Node {
 struct Ast_Ptr_Dereference final : Ast_Node {
     Ast_Ptr_Dereference() { node_type = Ast_Node_Type::PTR_DEREFERENCE; }
     Ast_Node_Ptr expr;
+};
+
+struct Ast_New final : Ast_Node {
+    Ast_New() { node_type = Ast_Node_Type::NEW; }
+    Ast_Node_Ptr type;
+};
+
+struct Ast_Free final : Ast_Node {
+    Ast_Free() { node_type = Ast_Node_Type::FREE; }
+    Ast_Node_Ptr what;
 };
 
 struct Ast_Array_Initializer final : Ast_Node {

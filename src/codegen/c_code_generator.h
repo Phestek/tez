@@ -45,6 +45,8 @@ private:
     std::string print(const Ast_Array_Initializer& array_init);
     std::string print(const Ast_Ptr_Dereference& ptr_deref);
     std::string print(const Ast_Address_Of& ao);
+    std::string print(const Ast_New& new_stmt);
+    std::string print(const Ast_Free& free);
 
     // Because C only allows array specifier after variable name, we need
     // dirty workaround for types printing.
