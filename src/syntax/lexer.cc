@@ -15,81 +15,6 @@ class File_Not_Found : public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
-}
-
-const std::map<std::string, Token_Type> Lexer::_keywords{
-    {"namespace", Token_Type::KW_NAMESPACE},
-    {"func",      Token_Type::KW_FUNC},
-    {"return",    Token_Type::KW_RETURN},
-    {"var",       Token_Type::KW_VAR},
-    {"let",       Token_Type::KW_LET},
-    {"struct",    Token_Type::KW_STRUCT},
-    {"class",     Token_Type::KW_CLASS},
-    {"if",        Token_Type::KW_IF},
-    {"else",      Token_Type::KW_ELSE},
-    {"while",     Token_Type::KW_WHILE},
-    {"do",        Token_Type::KW_DO},
-    {"for",       Token_Type::KW_FOR},
-    {"true",      Token_Type::KW_TRUE},
-    {"false",     Token_Type::KW_FALSE},
-    {"null",      Token_Type::KW_NULL},
-    {"struct",    Token_Type::KW_STRUCT},
-    {"enum",      Token_Type::KW_ENUM},
-    {"union",     Token_Type::KW_UNION},
-    {"break",     Token_Type::KW_BREAK},
-    {"continue",  Token_Type::KW_CONTINUE},
-    {"as",        Token_Type::KW_AS},
-    {"new",       Token_Type::KW_NEW},
-    {"free",      Token_Type::KW_FREE},
-};
-
-const std::map<std::string, Token_Type> Lexer::_single_char_operators{
-    {"{", Token_Type::L_BRACE},
-    {"}", Token_Type::R_BRACE},
-    {"(", Token_Type::L_PAREN},
-    {")", Token_Type::R_PAREN},
-    {"[", Token_Type::L_BRACKET},
-    {"]", Token_Type::R_BRACKET},
-    {"+", Token_Type::PLUS},
-    {"-", Token_Type::MINUS},
-    {"*", Token_Type::ASTERISK},
-    {"/", Token_Type::SLASH},
-    {"&", Token_Type::AMPERSAND},
-    {"|", Token_Type::BITWISE_OR},
-    {"^", Token_Type::CARET},
-    {"%", Token_Type::MODULO},
-    {"!", Token_Type::BANG},
-    {"=", Token_Type::EQUALS},
-    {">", Token_Type::GREATER},
-    {"<", Token_Type::LESS},
-    {";", Token_Type::SEMICOLON},
-    {":", Token_Type::COLON},
-    {",", Token_Type::COMMA},
-    {".", Token_Type::DOT},
-};
-
-const std::map<std::string, Token_Type> Lexer::_double_char_operators{
-    {"&&", Token_Type::LOGICAL_AND},
-    {"||", Token_Type::LOGICAL_OR},
-    {"<<", Token_Type::BITWISE_SHIFT_LEFT},
-    {">>", Token_Type::BITWISE_SHIFT_RIGHT},
-    {"+=", Token_Type::PLUS_EQUALS},
-    {"-=", Token_Type::MINUS_EQUALS},
-    {"*=", Token_Type::MULTIPLY_EQUALS},
-    {"/=", Token_Type::DIVIDE_EQUALS},
-    {"%=", Token_Type::MODULO_EQUALS},
-    {"!=", Token_Type::BANG_EQUALS},
-    {"==", Token_Type::EQUALS_EQUALS},
-    {">",  Token_Type::GREATER},
-    {">=", Token_Type::GREATER_EQUALS},
-    {"<",  Token_Type::LESS},
-    {"<=", Token_Type::LESS_EQUALS},
-    {"->", Token_Type::ARROW},
-    {"::", Token_Type::SCOPE_RESOLUTION},
-};
-
-namespace {
-
 // Get entire file content, including newlines.
 // NOTE: leaves empty line on the end.
 std::string read_file_content(const std::string& filename) {
@@ -109,6 +34,85 @@ std::string read_file_content(const std::string& filename) {
 }
 
 }
+
+const std::map<std::string, Token_Type> Lexer::_keywords{
+        {"namespace", Token_Type::KW_NAMESPACE},
+        {"func",      Token_Type::KW_FUNC},
+        {"return",    Token_Type::KW_RETURN},
+        {"var",       Token_Type::KW_VAR},
+        {"let",       Token_Type::KW_LET},
+        {"struct",    Token_Type::KW_STRUCT},
+        {"class",     Token_Type::KW_CLASS},
+        {"if",        Token_Type::KW_IF},
+        {"else",      Token_Type::KW_ELSE},
+        {"while",     Token_Type::KW_WHILE},
+        {"do",        Token_Type::KW_DO},
+        {"for",       Token_Type::KW_FOR},
+        {"true",      Token_Type::KW_TRUE},
+        {"false",     Token_Type::KW_FALSE},
+        {"null",      Token_Type::KW_NULL},
+        {"struct",    Token_Type::KW_STRUCT},
+        {"enum",      Token_Type::KW_ENUM},
+        {"union",     Token_Type::KW_UNION},
+        {"break",     Token_Type::KW_BREAK},
+        {"continue",  Token_Type::KW_CONTINUE},
+        {"as",        Token_Type::KW_AS},
+        {"new",       Token_Type::KW_NEW},
+        {"free",      Token_Type::KW_FREE},
+};
+
+const std::map<std::string, Token_Type> Lexer::_single_char_operators{
+        {"{", Token_Type::L_BRACE},
+        {"}", Token_Type::R_BRACE},
+        {"(", Token_Type::L_PAREN},
+        {")", Token_Type::R_PAREN},
+        {"[", Token_Type::L_BRACKET},
+        {"]", Token_Type::R_BRACKET},
+        {"+", Token_Type::PLUS},
+        {"-", Token_Type::MINUS},
+        {"*", Token_Type::ASTERISK},
+        {"/", Token_Type::SLASH},
+        {"&", Token_Type::AMPERSAND},
+        {"|", Token_Type::BITWISE_OR},
+        {"^", Token_Type::CARET},
+        {"%", Token_Type::MODULO},
+        {"!", Token_Type::BANG},
+        {"=", Token_Type::EQUALS},
+        {">", Token_Type::GREATER},
+        {"<", Token_Type::LESS},
+        {";", Token_Type::SEMICOLON},
+        {":", Token_Type::COLON},
+        {",", Token_Type::COMMA},
+        {".", Token_Type::DOT},
+};
+
+const std::map<std::string, Token_Type> Lexer::_double_char_operators{
+        {"&&", Token_Type::LOGICAL_AND},
+        {"||", Token_Type::LOGICAL_OR},
+        {"<<", Token_Type::BITWISE_SHIFT_LEFT},
+        {">>", Token_Type::BITWISE_SHIFT_RIGHT},
+        {"+=", Token_Type::PLUS_EQUALS},
+        {"-=", Token_Type::MINUS_EQUALS},
+        {"*=", Token_Type::MULTIPLY_EQUALS},
+        {"/=", Token_Type::DIVIDE_EQUALS},
+        {"%=", Token_Type::MODULO_EQUALS},
+        {"!=", Token_Type::BANG_EQUALS},
+        {"&=", Token_Type::AND_EQUALS},
+        {"|=", Token_Type::OR_EQUALS},
+        {"^=", Token_Type::XOR_EQUALS},
+        {"==", Token_Type::EQUALS_EQUALS},
+        {">",  Token_Type::GREATER},
+        {">=", Token_Type::GREATER_EQUALS},
+        {"<",  Token_Type::LESS},
+        {"<=", Token_Type::LESS_EQUALS},
+        {"->", Token_Type::ARROW},
+        {"::", Token_Type::SCOPE_RESOLUTION},
+};
+
+const std::map<std::string, Token_Type> Lexer::_triple_char_operators{
+        {"<<=", Token_Type::LEFT_SHIFT_EQUALS},
+        {">>=", Token_Type::RIGHT_SHIFT_EQUALS},
+};
 
 Lexer::Lexer(const std::string& filename)
         : _filename{filename} {
@@ -235,6 +239,13 @@ void Lexer::handle_comment() {
 
 void Lexer::push_operator() {
     // Because all operators are made from 1 or 2 characters.
+    std::string three_chars{_tez_source.substr(_current_char, 3)};
+    if(auto res = _triple_char_operators.find(three_chars);
+            res != _triple_char_operators.end()) {
+        push_token(res->second, "");
+        _current_char += 3;
+        return;
+    }
     std::string two_chars{_tez_source.substr(_current_char, 2)};
     if(auto res = _double_char_operators.find(two_chars);
             res != _double_char_operators.end()) {

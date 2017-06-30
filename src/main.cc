@@ -1,6 +1,9 @@
 #include <iostream>
 #include <fstream>
-#include <chrono>
+
+#if TEZ_DEBUG
+#   include <chrono>
+#endif
 
 #include "codegen/c_code_generator.h"
 #include "semantic/semantic_analyzer.h"
@@ -96,7 +99,9 @@ typedef double float64;
 }
 
 int main(int argc, char* argv[]) {
+#if TEZ_DEBUG
     auto start = std::chrono::steady_clock::now();
+#endif
 
     if(argc < 2) {
         print_help();

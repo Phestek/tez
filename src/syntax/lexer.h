@@ -56,6 +56,7 @@ private:
     static const std::map<std::string, Token_Type> _keywords;
     static const std::map<std::string, Token_Type> _single_char_operators;
     static const std::map<std::string, Token_Type> _double_char_operators;
+    static const std::map<std::string, Token_Type> _triple_char_operators;
 };
 
 }

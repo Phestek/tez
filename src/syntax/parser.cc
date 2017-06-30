@@ -304,7 +304,10 @@ Ast_Node_Ptr Parser::assignment() {
     auto expr = logical_or();
     while(match_token({Token_Type::EQUALS, Token_Type::PLUS_EQUALS,
             Token_Type::MINUS_EQUALS, Token_Type::MULTIPLY_EQUALS,
-            Token_Type::DIVIDE_EQUALS, Token_Type::MODULO_EQUALS})) {
+            Token_Type::DIVIDE_EQUALS, Token_Type::MODULO_EQUALS,
+            Token_Type::AND_EQUALS, Token_Type::OR_EQUALS,
+            Token_Type::XOR_EQUALS, Token_Type::LEFT_SHIFT_EQUALS,
+            Token_Type::RIGHT_SHIFT_EQUALS})) {
         auto op = std::make_unique<Ast_Binary_Operation>();
         op->left = std::move(expr);
         op->operat = to_string(peek_token(-1).type);

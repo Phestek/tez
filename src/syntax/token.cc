@@ -36,6 +36,11 @@ std::string to_string(Token_Type token_type) {
         case Token_Type::MULTIPLY_EQUALS:     result = "*=";          break;
         case Token_Type::DIVIDE_EQUALS:       result = "/=";          break;
         case Token_Type::MODULO_EQUALS:       result = "%=";          break;
+        case Token_Type::AND_EQUALS:          result = "&=";          break;
+        case Token_Type::OR_EQUALS:           result = "|=";          break;
+        case Token_Type::XOR_EQUALS:          result = "^=";          break;
+        case Token_Type::LEFT_SHIFT_EQUALS:   result = "<<=";         break;
+        case Token_Type::RIGHT_SHIFT_EQUALS:  result = ">>=";         break;
         case Token_Type::SEMICOLON:           result = ";";           break;
         case Token_Type::COLON:               result = ":";           break;
         case Token_Type::ARROW:               result = "->";          break;
