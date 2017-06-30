@@ -463,6 +463,11 @@ Ast_Node_Ptr Parser::prefix_unary() {
         ao->expr = postfix_unary();
         return ao;
     }
+    if(match_token({Token_Type::CARET})) {
+        auto deref = std::make_unique<Ast_Ptr_Dereference>();
+        deref->expr = postfix_unary();
+        return deref;
+    }
     if(match_token({Token_Type::KW_NEW})) {
         auto new_stmt = std::make_unique<Ast_New>();
         new_stmt->type = type_scope_resolution();
