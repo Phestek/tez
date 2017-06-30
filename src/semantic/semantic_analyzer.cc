@@ -26,8 +26,11 @@ void Semantic_Analyzer::collect_top_level_declarations(const Ast& ast) {
         switch(stmt->node_type) {
             case Ast_Node_Type::FUNCTION_DECLARATION: {
                 const auto& func = dynamic_cast<Ast_Func_Decl&>(*stmt);
-                _symbol_table.push_declaration(
-                        Declaration{func.name, Declaration::Type::FUNCTION});
+                if(!_symbol_table.push_declaration(
+                        Declaration{func.name, Declaration::Type::FUNCTION})) {
+                    report_error("Redefinition of function '" + func.name
+                            + "(<param list>)'");
+                }
                 if(func.name == "main") {
                     _main_found = true;
                 }

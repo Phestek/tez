@@ -97,7 +97,9 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
         case Ast_Node_Type::ARRAY:
             return print(dynamic_cast<const Ast_Array&>(node));
         case Ast_Node_Type::ARRAY_INITIALIZER:
-            return print(dynamic_cast<const Ast_Array_Initializer&>(node));
+            return print(dynamic_cast<const Ast_Array_Initializer&>(nodehttps://www.google.));
+        case Ast_Node_Type::PTR_DEREFERENCE:
+            return print(dynamic_cast<const Ast_Ptr_Dereference&>(node));
         case Ast_Node_Type::ADDRESS_OF:
             return print(dynamic_cast<const Ast_Address_Of&>(node));
         default:
@@ -300,6 +302,10 @@ std::string C_Code_Generator::print(const Ast_Array_Initializer& array_init) {
 
 std::string C_Code_Generator::print(const Ast_Address_Of& ao) {
     return "&" + print(*ao.expr);
+}
+
+std::string C_Code_Generator::print(const Ast_Ptr_Dereference& ptr_deref) {
+    return "(*" + print(*ptr_deref.expr) + ")";
 }
 
 std::string C_Code_Generator::print_array(const Ast_Node& type) {

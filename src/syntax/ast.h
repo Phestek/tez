@@ -24,7 +24,6 @@ enum class Ast_Node_Type {
     BINARY_OPERATION,
     GROUPING_EXPRESSION,
     CAST,
-    ADDRESS_OF,
 
     FUNCTION_DECLARATION,
     METHOD_DECLARATION,
@@ -47,6 +46,8 @@ enum class Ast_Node_Type {
     ARRAY_ACCESS,
     MEMBER_ACCESS,
     SCOPE_RESOLUTION,
+    PTR_DEREFERENCE,
+    ADDRESS_OF,
 
     ARRAY_INITIALIZER,
     STRUCT_CONSTRUCTOR,
@@ -242,6 +243,11 @@ struct Ast_Scope_Resolution final : Ast_Node {
     Ast_Scope_Resolution() { node_type = Ast_Node_Type::SCOPE_RESOLUTION; }
     Ast_Node_Ptr left;
     Ast_Node_Ptr right;
+};
+
+struct Ast_Ptr_Dereference final : Ast_Node {
+    Ast_Ptr_Dereference() { node_type = Ast_Node_Type::PTR_DEREFERENCE; }
+    Ast_Node_Ptr expr;
 };
 
 struct Ast_Array_Initializer final : Ast_Node {

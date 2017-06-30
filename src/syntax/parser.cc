@@ -471,9 +471,18 @@ Ast_Node_Ptr Parser::postfix_unary() {
         next_token(Token_Type::R_BRACKET);
         return aa;
     }
+    // TODO: These are postfix binary :)
     if(match_token({Token_Type::DOT})) {
         auto ma = std::make_unique<Ast_Member_Access>();
         ma->left = std::move(expr);
+        ma->right = postfix_unary();
+        return ma;
+    }
+    if(match_token({Token_Type::ARROW})) {
+        auto ma = std::make_unique<Ast_Member_Access>();
+        auto ptr = std::make_unique<Ast_Ptr_Dereference>();
+        ptr->expr = std::move(expr);
+        ma->left = std::move(ptr);
         ma->right = postfix_unary();
         return ma;
     }

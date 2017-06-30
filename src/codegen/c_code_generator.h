@@ -43,6 +43,7 @@ private:
     std::string print(const Ast_Pointer& ptr);
     std::string print(const Ast_Array& array);
     std::string print(const Ast_Array_Initializer& array_init);
+    std::string print(const Ast_Ptr_Dereference& ptr_deref);
     std::string print(const Ast_Address_Of& ao);
 
     // Because C only allows array specifier after variable name, we need
