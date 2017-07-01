@@ -111,7 +111,13 @@ Ast_Node_Ptr Parser::statement() {
 Ast_Node_Ptr Parser::namespace_declaration() {
     auto ns = std::make_unique<Ast_Namespace>();
     ns->name = next_token(Token_Type::IDENTIFIER).value;
-    ns->body = block();
+    auto& current_ns = ns;
+    while(match_token({Token_Type::SCOPE_RESOLUTION})) {
+        auto nested_ns = std::make_unique<Ast_Namespace>();
+        nested_ns->name = next_token(Token_Type::IDENTIFIER).value;
+        current_ns->body.statements.push_back(std::move(nested_ns));
+    }
+    current_ns->body = block();
     return ns;
 }
 
