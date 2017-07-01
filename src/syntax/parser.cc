@@ -49,7 +49,7 @@ Token Parser::peek_token(size_t depth) const {
 
 void Parser::report_error(const std::string& message) {
     _errors_reported = true;
-    auto token = peek_token(0);
+    auto token = peek_token(-1);
     std::cerr << token.filename << ':' << token.line << ':' << token.column
             << ": " << message << ".\n";
     while(!match_token({Token_Type::SEMICOLON, Token_Type::L_BRACE,
@@ -65,6 +65,9 @@ Ast_Node_Ptr Parser::statement() {
     auto token = peek_token(0);
     if(match_token({Token_Type::KW_NAMESPACE})) {
         node = namespace_declaration();
+    } else if(match_token({Token_Type::KW_USING})) {
+        node = using_declaration();
+        next_token(Token_Type::SEMICOLON);
     } else if(match_token({Token_Type::KW_FUNC})) {
         node = function_declaration();
     } else if(match_token({Token_Type::KW_LET})) {
@@ -119,6 +122,15 @@ Ast_Node_Ptr Parser::namespace_declaration() {
     }
     current_ns->body = block();
     return ns;
+}
+
+Ast_Node_Ptr Parser::using_declaration() {
+    auto using_decl = std::make_unique<Ast_Using>();
+    using_decl->nspace = next_token(Token_Type::IDENTIFIER).value;
+    if(match_token({Token_Type::KW_AS})) {
+        using_decl->alias = next_token(Token_Type::IDENTIFIER).value;
+    }
+    return using_decl;
 }
 
 Ast_Block Parser::block() {

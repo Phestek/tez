@@ -55,6 +55,7 @@ const std::map<std::string, Token_Type> Lexer::_keywords{
         {"union",     Token_Type::KW_UNION},
         {"break",     Token_Type::KW_BREAK},
         {"continue",  Token_Type::KW_CONTINUE},
+        {"using",     Token_Type::KW_USING},
         {"as",        Token_Type::KW_AS},
         {"new",       Token_Type::KW_NEW},
         {"free",      Token_Type::KW_FREE},

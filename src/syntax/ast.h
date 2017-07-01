@@ -9,9 +9,10 @@ namespace tez {
 
 enum class Ast_Node_Type {
     UNDEFINED,
+    BLOCK,
 
     NAMESPACE,
-    BLOCK,
+    USING,
 
     BOOLEAN,
     INTEGER,
@@ -77,6 +78,12 @@ struct Ast_Namespace final : Ast_Node {
     Ast_Namespace() { node_type = Ast_Node_Type::NAMESPACE; }
     std::string name;
     Ast_Block   body;
+};
+
+struct Ast_Using final : Ast_Node {
+    Ast_Using() { node_type = Ast_Node_Type::USING; }
+    std::string nspace;
+    std::string alias;
 };
 
 struct Ast_Boolean final : Ast_Node {

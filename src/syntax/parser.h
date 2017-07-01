@@ -36,6 +36,7 @@ private:
     Ast_Block block();
     
     Ast_Node_Ptr namespace_declaration();
+    Ast_Node_Ptr using_declaration();
     Ast_Node_Ptr function_declaration();
     Ast_Func_Decl::Param function_param();
     Ast_Node_Ptr function_call(Ast_Node_Ptr name);

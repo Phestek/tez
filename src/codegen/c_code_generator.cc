@@ -36,9 +36,10 @@ std::string C_Code_Generator::print_statement(const Ast_Node& node) {
 
 std::string C_Code_Generator::print(const Ast_Node& node) {
     switch(node.node_type) {
-        case Ast_Node_Type::UNDEFINED:
         case Ast_Node_Type::NAMESPACE:
-            //return print(dynamic_cast<const Ast_Namespace&>(node));
+        case Ast_Node_Type::USING:
+            // These are only information for compiler and don't have
+            // a representation in code.
             break;
         case Ast_Node_Type::BLOCK:
             return print(dynamic_cast<const Ast_Block&>(node));
