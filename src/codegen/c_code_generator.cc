@@ -106,6 +106,8 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
             return print(dynamic_cast<const Ast_New&>(node));
         case Ast_Node_Type::FREE:
             return print(dynamic_cast<const Ast_Free&>(node));
+        case Ast_Node_Type::NULL_:
+            return "(void*)0";
         default:
             std::cerr << "Error: Tried to print undefined node!\n";
     }

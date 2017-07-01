@@ -42,7 +42,6 @@ const std::map<std::string, Token_Type> Lexer::_keywords{
         {"var",       Token_Type::KW_VAR},
         {"let",       Token_Type::KW_LET},
         {"struct",    Token_Type::KW_STRUCT},
-        {"class",     Token_Type::KW_CLASS},
         {"if",        Token_Type::KW_IF},
         {"else",      Token_Type::KW_ELSE},
         {"while",     Token_Type::KW_WHILE},

@@ -535,9 +535,9 @@ Ast_Node_Ptr Parser::primary() {
         b->value = false;
         return b;
     }
-    //if(match({Token_Type::kw_null})) {
-    //    return std::make_unique<Ast_Null>(true);
-    //}
+    if(match_token({Token_Type::KW_NULL})) {
+        return std::make_unique<Ast_Null>();
+    }
     if(match_token({Token_Type::INTEGER})) {
         auto i = std::make_unique<Ast_Integer>();
         i->value = std::stoll(token.value);

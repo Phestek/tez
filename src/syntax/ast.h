@@ -51,6 +51,7 @@ enum class Ast_Node_Type {
 
     NEW,
     FREE,
+    NULL_,
     
     ARRAY_INITIALIZER,
     STRUCT_CONSTRUCTOR,
@@ -261,6 +262,10 @@ struct Ast_New final : Ast_Node {
 struct Ast_Free final : Ast_Node {
     Ast_Free() { node_type = Ast_Node_Type::FREE; }
     Ast_Node_Ptr what;
+};
+
+struct Ast_Null final : Ast_Node {
+    Ast_Null() { node_type = Ast_Node_Type::NULL_; }
 };
 
 struct Ast_Array_Initializer final : Ast_Node {
