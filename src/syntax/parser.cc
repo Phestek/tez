@@ -57,7 +57,6 @@ void Parser::report_error(const std::string& message) {
             Token_Type::COMMA})) {
         next_token();
     }
-    next_token();
 }
 
 Ast_Node_Ptr Parser::statement() {

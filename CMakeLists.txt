@@ -33,6 +33,14 @@ target_include_directories(tezc_core PUBLIC src)
 add_executable(tezc src/main.cc)
 target_link_libraries(tezc tezc_core)
 
+find_package(LLVM REQUIRED)
+if(LLVM_FOUND)
+    target_include_directories(tezc_core PUBLIC LLVM_INCLUDE_DIRS)
+    add_definitions(${LLVM_DEFINITIONS})
+    llvm_map_components_to_libnames(LLVM_LIBS support core irreader)
+    target_link_libraries(tezc_core ${LLVM_LIBS})
+endif()
+
 if(NOT DISABLE_TESTS)
     enable_testing()
     set(TEST_FILES

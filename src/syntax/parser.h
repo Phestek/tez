@@ -54,7 +54,8 @@ private:
     Ast_Node_Ptr asm_block();
 
     // Recursive descent parsing. The lower the operator is in the hierarchy,
-    // the higher precedence it have.
+    // the higher precedence it have. It may be very bloated implementation,
+    // but it's very safe and easy to maintain / extend.
     Ast_Node_Ptr expression();       // Base.
     Ast_Node_Ptr assignment();       // = += -= *= /= %=
     Ast_Node_Ptr logical_or();       // ||
@@ -71,12 +72,13 @@ private:
     Ast_Node_Ptr prefix_unary();     // ! -
     Ast_Node_Ptr postfix_unary();    // () [] . ->
     Ast_Node_Ptr scope_resolution(); // ::
-    Ast_Node_Ptr primary();          // int, double, bool, identifier
+    Ast_Node_Ptr primary();          // int, double, bool, null, identifier
 
-    // Types also are parsed using recursive descent parsing.
+    // Types also are parsed using recursive descent parsing, completely
+    // separate for one for expressions.
     Ast_Node_Ptr type();
+    Ast_Node_Ptr type_array();              // [type, size]
     Ast_Node_Ptr type_pointer();            // ^
-    Ast_Node_Ptr type_array();              // [size]
     Ast_Node_Ptr type_scope_resolution();   // ::
     Ast_Node_Ptr type_identifier();         // identifier
 
