@@ -314,8 +314,13 @@ void Lexer::push_string() {
     std::size_t beginning = _current_char;
     char c = _tez_source.at(++_current_char);
     std::string s;
-    while(c != '"') {
+    bool escape_char = false;
+    while(c != '"' || escape_char) {
+        escape_char = false;
         s.push_back(c);
+        if(c == '\\') {
+            escape_char = true;
+        }
         c = _tez_source.at(++_current_char);
     }
     ++_current_char;
