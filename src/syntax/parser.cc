@@ -226,11 +226,7 @@ Ast_Node_Ptr Parser::variable_declaration(bool constant) {
     next_token(Token_Type::COLON);
     decl->type = type();
     if(match_token({Token_Type::EQUALS})) {
-        if(check_token(Token_Type::L_BRACKET)) {
-            decl->initializer = array_initializer();
-        } else {
-            decl->initializer = expression();
-        }
+        decl->initializer = expression();
     }
     return decl;
 }
@@ -282,18 +278,6 @@ Ast_Node_Ptr Parser::union_declaration() {
         union_decl->members.push_back(std::move(member));
     }
     return union_decl;
-}
-
-Ast_Node_Ptr Parser::array_initializer() {
-    auto array = std::make_unique<Ast_Array_Initializer>();
-    next_token(Token_Type::L_BRACKET);
-    if(!match_token({Token_Type::R_BRACKET})) {
-        do {
-            array->values.push_back(expression());
-        } while(match_token({Token_Type::COMMA}));
-        next_token(Token_Type::R_BRACKET);
-    }
-    return array;
 }
 
 Ast_Node_Ptr Parser::if_statement() {
@@ -529,7 +513,7 @@ Ast_Node_Ptr Parser::prefix_unary() {
 }
 
 Ast_Node_Ptr Parser::postfix_unary() {
-    auto expr = scope_resolution();
+    auto expr = array_initializer();
     if(match_token({Token_Type::L_PAREN})) {
         return function_call(std::move(expr));
     }
@@ -556,6 +540,20 @@ Ast_Node_Ptr Parser::postfix_unary() {
         return ma;
     }
     return expr;
+}
+
+Ast_Node_Ptr Parser::array_initializer() {
+    if(match_token({Token_Type::L_BRACKET})) {
+        auto array = std::make_unique<Ast_Array_Initializer>();
+        if(!match_token({Token_Type::R_BRACKET})) {
+            do {
+                array->values.push_back(expression());
+            } while(match_token({Token_Type::COMMA}));
+            next_token(Token_Type::R_BRACKET);
+        }
+        return array;
+    }
+    return scope_resolution();
 }
 
 Ast_Node_Ptr Parser::scope_resolution() {
@@ -615,27 +613,27 @@ Ast_Node_Ptr Parser::primary() {
 }
 
 Ast_Node_Ptr Parser::type() {
-    return type_pointer();
-}
-
-Ast_Node_Ptr Parser::type_pointer() {
-    if(match_token({Token_Type::CARET})) {
-        auto op = std::make_unique<Ast_Pointer>();
-        op->expr = type_pointer();
-        return op;
-    }
     return type_array();
 }
 
 Ast_Node_Ptr Parser::type_array() {
     if(match_token({Token_Type::L_BRACKET})) {
         auto array = std::make_unique<Ast_Array>();
-        if(!match_token({Token_Type::R_BRACKET})) {
+        array->type = type_array();
+        if(match_token({Token_Type::COMMA})) {
             array->size = expression();
-            next_token(Token_Type::R_BRACKET);
         }
-        array->expr = type_array();
+        next_token(Token_Type::R_BRACKET);
         return array;
+    }
+    return type_pointer();
+}
+
+Ast_Node_Ptr Parser::type_pointer() {
+    if(match_token({Token_Type::CARET})) {
+        auto op = std::make_unique<Ast_Pointer>();
+        op->expr = type_scope_resolution();
+        return op;
     }
     return type_scope_resolution();
 }

@@ -298,7 +298,7 @@ std::string C_Code_Generator::print(const Ast_Pointer& ptr) {
 }
 
 std::string C_Code_Generator::print(const Ast_Array& array) {
-    return print(*array.expr);
+    return print(*array.type);
 }
 
 std::string C_Code_Generator::print(const Ast_Array_Initializer& array_init) {
@@ -329,7 +329,7 @@ std::string C_Code_Generator::print_array(const Ast_Node& type) {
         if(array.size != nullptr) {
             result += print(*array.size);
         }
-        result += "]" + print_array(*array.expr);
+        result += "]" + print_array(*array.type);
     }
     return result;
 }

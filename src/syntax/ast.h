@@ -295,7 +295,7 @@ struct Ast_Pointer final : Ast_Node {
 
 struct Ast_Array final : Ast_Node {
     Ast_Array() { node_type = Ast_Node_Type::ARRAY; }
-    Ast_Node_Ptr expr;
+    Ast_Node_Ptr type;
     Ast_Node_Ptr size;
 };
 

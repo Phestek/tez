@@ -143,7 +143,7 @@ bool Semantic_Analyzer::check_type(const Ast_Node_Ptr& type) const {
         return check_type(dynamic_cast<Ast_Pointer&>(*type).expr);
     }
     if(type->node_type == Ast_Node_Type::ARRAY) {
-        return check_type(dynamic_cast<Ast_Array&>(*type).expr);
+        return check_type(dynamic_cast<Ast_Array&>(*type).type);
     }
     return _symbol_table.declaration_exists(
             dynamic_cast<Ast_Identifier&>(*type).name);
@@ -154,7 +154,7 @@ std::string Semantic_Analyzer::get_type_name(const Ast_Node_Ptr& type) const {
         return get_type_name(dynamic_cast<Ast_Pointer&>(*type).expr);
     }
     if(type->node_type == Ast_Node_Type::ARRAY) {
-        return get_type_name(dynamic_cast<Ast_Array&>(*type).expr);
+        return get_type_name(dynamic_cast<Ast_Array&>(*type).type);
     }
     return dynamic_cast<Ast_Identifier&>(*type).name;
 }
