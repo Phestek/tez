@@ -51,6 +51,8 @@ private:
     Ast_Node_Ptr do_while_statement();
     Ast_Node_Ptr for_statement();
 
+    Ast_Node_Ptr asm_block();
+
     // Recursive descent parsing. The lower the operator is in the hierarchy,
     // the higher precedence it have.
     Ast_Node_Ptr expression();       // Base.

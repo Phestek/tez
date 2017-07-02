@@ -60,6 +60,8 @@ enum class Ast_Node_Type {
     // These 2 are only used for types.
     POINTER,
     ARRAY,
+
+    INLINE_ASM,
 };
 
 struct Ast_Node {
@@ -295,6 +297,11 @@ struct Ast_Array final : Ast_Node {
     Ast_Array() { node_type = Ast_Node_Type::ARRAY; }
     Ast_Node_Ptr expr;
     Ast_Node_Ptr size;
+};
+
+struct Ast_Inline_Asm final : Ast_Node {
+    Ast_Inline_Asm() { node_type = Ast_Node_Type::INLINE_ASM; }
+    std::vector<std::string> operations;
 };
 
 }

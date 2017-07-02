@@ -47,6 +47,7 @@ private:
     std::string print(const Ast_Address_Of& ao);
     std::string print(const Ast_New& new_stmt);
     std::string print(const Ast_Free& free);
+    std::string print(const Ast_Inline_Asm& inline_asm);
 
     // Because C only allows array specifier after variable name, we need
     // dirty workaround for types printing.

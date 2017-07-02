@@ -61,6 +61,7 @@ void Parser::report_error(const std::string& message) {
 }
 
 Ast_Node_Ptr Parser::statement() {
+    // TODO: Cleanup.
     Ast_Node_Ptr node;
     auto token = peek_token(0);
     if(match_token({Token_Type::KW_NAMESPACE})) {
@@ -104,6 +105,8 @@ Ast_Node_Ptr Parser::statement() {
         node = std::make_unique<Ast_Free>();
         dynamic_cast<Ast_Free&>(*node).what = postfix_unary();
         next_token(Token_Type::SEMICOLON);
+    } else if(match_token({Token_Type::KW_ASM})) {
+        node = asm_block();
     } else {
         node = expression();
         next_token(Token_Type::SEMICOLON);
@@ -312,6 +315,16 @@ Ast_Node_Ptr Parser::for_statement() {
     for_loop->iteration_expr = expression();
     for_loop->body           = block();
     return for_loop;
+}
+
+Ast_Node_Ptr Parser::asm_block() {
+    auto inline_asm = std::make_unique<Ast_Inline_Asm>();
+    next_token(Token_Type::L_BRACE);
+    while(check_token(Token_Type::STRING)) {
+        inline_asm->operations.push_back(next_token().value);
+    }
+    next_token(Token_Type::R_BRACE);
+    return inline_asm;
 }
 
 Ast_Node_Ptr Parser::expression() {

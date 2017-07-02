@@ -109,6 +109,8 @@ std::string C_Code_Generator::print(const Ast_Node& node) {
             return print(dynamic_cast<const Ast_Free&>(node));
         case Ast_Node_Type::NULL_:
             return "(void*)0";
+        case Ast_Node_Type::INLINE_ASM:
+            return print(dynamic_cast<const Ast_Inline_Asm&>(node));
         default:
             std::cerr << "Error: Tried to print undefined node!\n";
     }
@@ -338,6 +340,16 @@ std::string C_Code_Generator::print(const Ast_New& new_stmt) {
 
 std::string C_Code_Generator::print(const Ast_Free& free) {
     return "free(" + print(*free.what) + ")";
+}
+
+std::string C_Code_Generator::print(const Ast_Inline_Asm& inline_asm) {
+    std::string result = "asm(\n";
+    ++_indent_level;
+    for(const auto& op : inline_asm.operations) {
+        result += print_indent() + "\"" + op + "\"" + "\n";
+    }
+    --_indent_level;
+    return result += print_indent() + ")";
 }
 
 }

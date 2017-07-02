@@ -35,6 +35,7 @@ enum class Token_Type {
     KW_CONTINUE,
     KW_NEW,
     KW_FREE,
+    KW_ASM,
 
     L_BRACE,
     R_BRACE,

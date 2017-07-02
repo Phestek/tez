@@ -59,6 +59,7 @@ const std::map<std::string, Token_Type> Lexer::_keywords{
         {"as",        Token_Type::KW_AS},
         {"new",       Token_Type::KW_NEW},
         {"free",      Token_Type::KW_FREE},
+        {"asm",       Token_Type::KW_ASM},
 };
 
 const std::map<std::string, Token_Type> Lexer::_single_char_operators{
