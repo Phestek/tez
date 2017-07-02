@@ -61,56 +61,77 @@ void Parser::report_error(const std::string& message) {
 }
 
 Ast_Node_Ptr Parser::statement() {
-    // TODO: Cleanup.
-    Ast_Node_Ptr node;
     auto token = peek_token(0);
     if(match_token({Token_Type::KW_NAMESPACE})) {
-        node = namespace_declaration();
-    } else if(match_token({Token_Type::KW_USING})) {
-        node = using_declaration();
+        return namespace_declaration();
+    }
+    if(match_token({Token_Type::KW_FUNC})) {
+        return function_declaration();
+    }
+    if(match_token({Token_Type::KW_STRUCT})) {
+        return structure();
+    }
+    if(match_token({Token_Type::KW_ENUM})) {
+        return enumeration();
+    }
+    if(match_token({Token_Type::KW_UNION})) {
+        return union_declaration();
+    }
+    if(match_token({Token_Type::KW_IF})) {
+        return if_statement();
+    }
+    if(match_token({Token_Type::KW_WHILE})) {
+        return while_statement();
+    }
+    if(match_token({Token_Type::KW_DO})) {
+        return do_while_statement();
+    }
+    if(match_token({Token_Type::KW_FOR})) {
+        return for_statement();
+    }
+    if(match_token({Token_Type::KW_ASM})) {
+        return asm_block();
+    }
+    if(match_token({Token_Type::KW_LET})) {
+        auto node = variable_declaration(true);
         next_token(Token_Type::SEMICOLON);
-    } else if(match_token({Token_Type::KW_FUNC})) {
-        node = function_declaration();
-    } else if(match_token({Token_Type::KW_LET})) {
-        node = variable_declaration(true);
+        return node;
+    }
+    if(match_token({Token_Type::KW_VAR})) {
+        auto node = variable_declaration(false);
         next_token(Token_Type::SEMICOLON);
-    } else if(match_token({Token_Type::KW_VAR})) {
-        node = variable_declaration(false);
+        return node;
+    }
+    if(match_token({Token_Type::KW_BREAK})) {
+        auto node = std::make_unique<Ast_Break>();
         next_token(Token_Type::SEMICOLON);
-    } else if(match_token({Token_Type::KW_RETURN})) {
-        node = std::make_unique<Ast_Return>();
+        return node;
+    }
+    if(match_token({Token_Type::KW_CONTINUE})) {
+        auto node = std::make_unique<Ast_Continue>();
+        next_token(Token_Type::SEMICOLON);
+        return node;
+    }
+    if(match_token({Token_Type::KW_USING})) {
+        auto node = using_declaration();
+        next_token(Token_Type::SEMICOLON);
+        return node;
+    }
+    if(match_token({Token_Type::KW_RETURN})) {
+        auto node = std::make_unique<Ast_Return>();
         dynamic_cast<Ast_Return&>(*node).expr = expression();
         next_token(Token_Type::SEMICOLON);
-    } else if(match_token({Token_Type::KW_IF})) {
-        node = if_statement();
-    } else if(match_token({Token_Type::KW_WHILE})) {
-        node = while_statement();
-    } else if(match_token({Token_Type::KW_DO})) {
-        node = do_while_statement();
-    } else if(match_token({Token_Type::KW_FOR})) {
-        node = for_statement();
-    } else if(match_token({Token_Type::KW_BREAK})) {
-        node = std::make_unique<Ast_Break>();
-        next_token(Token_Type::SEMICOLON);
-    } else if(match_token({Token_Type::KW_CONTINUE})) {
-        node = std::make_unique<Ast_Continue>();
-        next_token(Token_Type::SEMICOLON);
-    } else if(match_token({Token_Type::KW_STRUCT})) {
-        node = structure();
-    } else if(match_token({Token_Type::KW_ENUM})) {
-        node = enumeration();
-    } else if(match_token({Token_Type::KW_UNION})) {
-        node = union_declaration();
-    } else if(match_token({Token_Type::KW_FREE})) {
-        node = std::make_unique<Ast_Free>();
+        return node;
+    }
+    if(match_token({Token_Type::KW_FREE})) {
+        auto node = std::make_unique<Ast_Free>();
         dynamic_cast<Ast_Free&>(*node).what = postfix_unary();
         next_token(Token_Type::SEMICOLON);
-    } else if(match_token({Token_Type::KW_ASM})) {
-        node = asm_block();
-    } else {
-        node = expression();
-        next_token(Token_Type::SEMICOLON);
+        return node;
     }
+    // Else.
+    auto node = expression();
+    next_token(Token_Type::SEMICOLON);
     return node;
 }
 
