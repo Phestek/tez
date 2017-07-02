@@ -182,7 +182,7 @@ std::vector<Token> Lexer::tokenize() {
             report_error("Unexpected character '" + std::string{c} + "'");
         }
     } catch(const std::out_of_range& e) {
-        report_error("Unexpected end of file.");
+        report_error("Unexpected end of file");
     }
     _tokens.shrink_to_fit();
     return _tokens;
