@@ -13,13 +13,15 @@
 struct Compilation_Settings {
     std::vector<std::string> input_files;
     std::string              output_file = "output.c";
+    bool                     use_llvm = false;
 };
 
 void print_help() {
     std::cout << "Usage: waywardc [options] [input_files]\n"
-            << "Options: \n"
-            << "  -h, --help      - Display this information.\n"
-            << "  -o <file>       - Place the output into <file>.\n";
+            "Options: \n"
+            "  -h            - Display this information.\n"
+            "  -o <file>     - Place the output into <file>.\n"
+            "  -llvm         - Use LLVM backend instead C backend.\n";
 }
 
 bool parse_command_line_arguments(const std::vector<std::string> args,
@@ -30,7 +32,7 @@ bool parse_command_line_arguments(const std::vector<std::string> args,
             settings.input_files.push_back(args[i]);
             continue;
         }
-        if(args[i] == "-h" || args[i] == "--help") {
+        if(args[i] == "-h") {
             print_help();
             continue;
         }
@@ -42,6 +44,10 @@ bool parse_command_line_arguments(const std::vector<std::string> args,
         } catch(const std::out_of_range& e) {
             std::cerr << "Error: Expected file name after '-o'.\n";
             errors = true;
+            continue;
+        }
+        if(args[i] == "-llvm") {
+            settings.use_llvm = true;
             continue;
         }
         std::cerr << "Error: Unknown option '" + args[i] + "'.\n";
@@ -73,28 +79,32 @@ int compile(const Compilation_Settings& settings) {
         return 3;
     }
 
-    tez::C_Code_Generator c_code_gen{ast};
-    const std::string c_source =
-R"FOO(#include<stdio.h>
-#include<stdlib.h>
-#include<stdint.h>
-typedef char bool;
-typedef unsigned int uint;
-typedef int8_t int8;
-typedef int16_t int16;
-typedef int32_t int32;
-typedef int64_t int64;
-typedef uint8_t uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
-typedef float float32;
-typedef double float64;
-)FOO"
-            + c_code_gen.generate();
-    std::ofstream of{settings.output_file};
-    of << c_source;
-
+    if(settings.use_llvm) {
+        tez::LLVM_Codegen_Data        codegen_data{};
+        for(const auto& node : ast) {
+        }
+    } else {
+        tez::C_Code_Generator c_code_gen{ast};
+        const std::string c_source =
+                "#include<stdio.h>\n"
+                "#include<stdlib.h>\n"
+                "#include<stdint.h>\n"
+                "typedef char bool;\n"
+                "typedef unsigned int uint;\n"
+                "typedef int8_t int8;\n"
+                "typedef int16_t int16;\n"
+                "typedef int32_t int32;\n"
+                "typedef int64_t int64;\n"
+                "typedef uint8_t uint8;\n"
+                "typedef uint16_t uint16;\n"
+                "typedef uint32_t uint32;\n"
+                "typedef uint64_t uint64;\n"
+                "typedef float float32;\n"
+                "typedef double float64;\n"
+                + c_code_gen.generate();
+        std::ofstream of{settings.output_file};
+        of << c_source;
+    }
     return 0;
 }
 

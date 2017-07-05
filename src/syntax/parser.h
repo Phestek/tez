@@ -39,7 +39,7 @@ private:
     Ast_Node_Ptr using_declaration();
     Ast_Node_Ptr function_declaration();
     Ast_Func_Decl::Param function_param();
-    Ast_Node_Ptr function_call(Ast_Node_Ptr name);
+    Ast_Node_Ptr function_call(const std::string& name);
     Ast_Node_Ptr variable_declaration(bool constant);
     Ast_Node_Ptr structure();
     Ast_Node_Ptr enumeration();

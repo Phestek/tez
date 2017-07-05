@@ -24,6 +24,7 @@ set(SOURCES
         src/codegen/c_code_generator.cc
         src/semantic/semantic_analyzer.cc
         src/semantic/symbol_table.cc
+        src/syntax/ast.cc
         src/syntax/lexer.cc
         src/syntax/parser.cc
         src/syntax/token.cc)

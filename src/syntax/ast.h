@@ -1,11 +1,27 @@
 #ifndef TEZ_AST_H
 #define TEZ_AST_H
 
-#include <string>
+#include <sstream>
 #include <memory>
 #include <vector>
 
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Module.h>
+
 namespace tez {
+
+// TODO: Move it somewhere else?
+struct C_Codegen_Data {
+    std::string print_indent() const { return std::string('\t', indent_level); }
+    std::size_t indent_level;
+};
+
+struct LLVM_Codegen_Data {
+    LLVM_Codegen_Data() : builder{context} {}
+    llvm::LLVMContext             context;
+    llvm::IRBuilder<>             builder;
+    std::unique_ptr<llvm::Module> module;
+};
 
 enum class Ast_Node_Type {
     UNDEFINED,
@@ -41,8 +57,7 @@ enum class Ast_Node_Type {
 
     STRUCT,
     ENUM,
-    UNION,  // Not implemented yet.
-    CLASS,  // Not implemented yet.
+    UNION,
 
     ARRAY_ACCESS,
     MEMBER_ACCESS,
@@ -64,12 +79,30 @@ enum class Ast_Node_Type {
     INLINE_ASM,
 };
 
+// Base class for all AST nodes.
 struct Ast_Node {
     virtual ~Ast_Node() = default;
     Ast_Node_Type node_type = Ast_Node_Type::UNDEFINED;
 };
 using Ast_Node_Ptr = std::unique_ptr<Ast_Node>;
 using Ast          = std::vector<Ast_Node_Ptr>;
+
+// At this moment we have 2 structs for code generation: first for C, second
+// for LLVM. It's because actually C code generation is much more mature.
+// Later on they will be merged in one structure (Ast_Generable).
+
+// Base class for all AST nodes that have representation in C code.
+struct Ast_C_Generable : Ast_Node {
+    virtual ~Ast_C_Generable() = default;
+    std::stringstream& c_codegen(std::stringstream& ss,
+            C_Codegen_Data& codegen_data) const;
+};
+
+// Base class for all AST nodes that have representation in LLVM output.
+struct Ast_LLVM_Generable : Ast_Node {
+    virtual ~Ast_LLVM_Generable() = default;
+    virtual llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const = 0;
+};
 
 struct Ast_Block final : Ast_Node {
     Ast_Block() { node_type = Ast_Node_Type::BLOCK; }
@@ -88,18 +121,21 @@ struct Ast_Using final : Ast_Node {
     std::string alias;
 };
 
-struct Ast_Boolean final : Ast_Node {
+struct Ast_Boolean final : Ast_LLVM_Generable {
     Ast_Boolean() { node_type = Ast_Node_Type::BOOLEAN; }
+    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
     bool value;
 };
 
-struct Ast_Integer final : Ast_Node {
+struct Ast_Integer final : Ast_LLVM_Generable {
     Ast_Integer() { node_type = Ast_Node_Type::INTEGER; }
-    long long value;
+    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
+    int64_t value;
 };
 
-struct Ast_Real_Number final : Ast_Node {
+struct Ast_Real_Number final : Ast_LLVM_Generable {
     Ast_Real_Number() { node_type = Ast_Node_Type::REAL_NUMBER; }
+    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
     double value;
 };
 
@@ -119,8 +155,9 @@ struct Ast_Unary_Operation final : Ast_Node {
     std::string  operat;
 };
 
-struct Ast_Binary_Operation final : Ast_Node {
+struct Ast_Binary_Operation final : Ast_LLVM_Generable {
     Ast_Binary_Operation() { node_type = Ast_Node_Type::BINARY_OPERATION; }
+    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
     Ast_Node_Ptr left;
     Ast_Node_Ptr right;
     std::string  operat;
@@ -142,13 +179,14 @@ struct Ast_Address_Of final : Ast_Node {
     Ast_Node_Ptr expr;
 };
 
-struct Ast_Func_Decl : Ast_Node {
+struct Ast_Func_Decl : Ast_LLVM_Generable {
     struct Param {
         std::string  name;
         bool         constant;
         Ast_Node_Ptr type;
     };
     Ast_Func_Decl() { node_type = Ast_Node_Type::FUNCTION_DECLARATION; }
+    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
     std::string        parent;  // Free function if parent == "".
     std::string        name;
     std::vector<Param> params;
@@ -161,9 +199,10 @@ struct Ast_Return final : Ast_Node {
     Ast_Node_Ptr expr;
 };
 
-struct Ast_Func_Call final : Ast_Node {
+struct Ast_Func_Call final : Ast_LLVM_Generable {
     Ast_Func_Call() { node_type = Ast_Node_Type::FUNCTION_CALL; }
-    Ast_Node_Ptr              name;
+    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
+    std::string               name;
     std::vector<Ast_Node_Ptr> args;
 };
 

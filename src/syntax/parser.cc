@@ -206,9 +206,9 @@ Ast_Func_Decl::Param Parser::function_param() {
     return param;
 }
 
-Ast_Node_Ptr Parser::function_call(Ast_Node_Ptr name) {
+Ast_Node_Ptr Parser::function_call(const std::string& name) {
     auto call = std::make_unique<Ast_Func_Call>();
-    call->name = std::move(name);
+    call->name = name;
     if(!match_token({Token_Type::R_PAREN})) {
         do {
             call->args.push_back(expression());
@@ -514,7 +514,11 @@ Ast_Node_Ptr Parser::prefix_unary() {
 Ast_Node_Ptr Parser::postfix_unary() {
     auto expr = array_initializer();
     if(match_token({Token_Type::L_PAREN})) {
-        return function_call(std::move(expr));
+        if(peek_token(-2).type != Token_Type::IDENTIFIER) {
+            // TODO:
+            report_error("Something about unexpected fdsbfuadsbf");
+        }
+        return function_call(dynamic_cast<Ast_Identifier&>(*expr).name);
     }
     if(match_token({Token_Type::L_BRACKET})) {
         auto aa = std::make_unique<Ast_Array_Access>();
