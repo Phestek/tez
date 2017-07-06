@@ -19,7 +19,8 @@ set(HEADERS
         src/syntax/ast.h
         src/syntax/lexer.h
         src/syntax/parser.h
-        src/syntax/token.h)
+        src/syntax/token.h
+        src/utils/string_stack.h)
 set(SOURCES
         src/codegen/c_code_generator.cc
         src/semantic/semantic_analyzer.cc
@@ -47,7 +48,8 @@ if(NOT DISABLE_TESTS)
     set(TEST_FILES
             test/main.cc
             test/lexer_test.cc
-            test/parser_test.cc)
+            test/parser_test.cc
+            test/string_stack_test.cc)
     add_executable(tezc_tests ${TEST_FILES})
     target_include_directories(tezc PUBLIC src)
     add_test(
