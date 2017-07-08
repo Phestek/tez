@@ -80,8 +80,9 @@ int compile(const Compilation_Settings& settings) {
     }
 
     if(settings.use_llvm) {
-        tez::LLVM_Codegen_Data        codegen_data{};
+        tez::LLVM_Codegen_Data codegen_data{};
         for(const auto& node : ast) {
+            // TODO: Implement this.
         }
     } else {
         tez::C_Code_Generator c_code_gen{ast};
@@ -101,7 +102,7 @@ int compile(const Compilation_Settings& settings) {
                 "typedef uint64_t uint64;\n"
                 "typedef float float32;\n"
                 "typedef double float64;\n"
-                + c_code_gen.generate();
+                + c_code_gen.generate() + "\n";
         std::ofstream of{settings.output_file};
         of << c_source;
     }
@@ -126,10 +127,11 @@ int main(int argc, char* argv[]) {
 
     auto return_code = compile(settings);
     if(return_code) {
+        // TODO: Count errors :)
         std::cout << "<> errors reported.\n";
-     } else {
+    } else {
         std::cout << "No errors reported.\n";
-     }
+    }
 
 #if TEZ_DEBUG
     auto end = std::chrono::steady_clock::now();

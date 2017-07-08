@@ -1,28 +1,83 @@
 #include "ast.h"
 
+#include <sstream>
+
 namespace tez {
 
+namespace {
+
+std::string print_c_statement(const Ast_Node_Ptr& node, C_Codegen_Data& codegen_data) {
+    std::stringstream result;
+    result << codegen_data.print_indent() << node->generate_c(codegen_data);
+    if(node->node_type != Ast_Node_Type::BLOCK
+            && node->node_type != Ast_Node_Type::NAMESPACE
+            && node->node_type != Ast_Node_Type::FUNCTION_DECLARATION
+            && node->node_type != Ast_Node_Type::IF
+            && node->node_type != Ast_Node_Type::WHILE
+            && node->node_type != Ast_Node_Type::FOR) {
+        result << ';';
+    }
+    result << '\n';
+    return result.str();
+}
+
+}
+
+std::string Ast_Block::generate_c(C_Codegen_Data& codegen_data) const {
+    std::stringstream code;
+    code << " {";
+    ++codegen_data.indent_level;
+    for(const auto& stmt : statements) {
+        print_c_statement(stmt, codegen_data);
+    }
+    --codegen_data.indent_level;
+    code << "}";
+    return code.str();
+}
+
+std::string Ast_Boolean::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return std::to_string(value);
+}
+
 llvm::Value* Ast_Boolean::llvm_codegen(LLVM_Codegen_Data& codegen_data) const {
-    return llvm::ConstantInt::get(
-            codegen_data.context,
-            llvm::APInt{8, static_cast<uint64_t>(value), false});
+    return llvm::ConstantInt::get(codegen_data.context, llvm::APInt{8, static_cast<uint64_t>(value), false});
+}
+
+std::string Ast_Integer::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return std::to_string(value);
 }
 
 llvm::Value* Ast_Integer::llvm_codegen(LLVM_Codegen_Data& codegen_data) const {
-    return llvm::ConstantInt::get(
-            codegen_data.context,
-            llvm::APInt{64, static_cast<uint64_t>(value), true});
+    return llvm::ConstantInt::get(codegen_data.context, llvm::APInt{64, static_cast<uint64_t>(value), true});
 }
 
-llvm::Value* Ast_Real_Number::llvm_codegen(
-        LLVM_Codegen_Data& codegen_data) const {
+std::string Ast_Real_Number::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return std::to_string(value);
+}
+
+llvm::Value* Ast_Real_Number::llvm_codegen(LLVM_Codegen_Data& codegen_data) const {
     return llvm::ConstantFP::get(codegen_data.context, llvm::APFloat{value});
 }
 
-llvm::Value* Ast_Binary_Operation::llvm_codegen(
-        LLVM_Codegen_Data& codegen_data) const {
-    auto l = dynamic_cast<Ast_LLVM_Generable&>(*left).llvm_codegen(codegen_data);
-    auto r = dynamic_cast<Ast_LLVM_Generable&>(*right).llvm_codegen(codegen_data);
+std::string Ast_String::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return "\"" + value + "\"";
+}
+
+std::string Ast_Identifier::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return name;
+}
+
+std::string Ast_Unary_Operation::generate_c(C_Codegen_Data& codegen_data) const {
+    return operat + left->generate_c(codegen_data);
+}
+
+std::string Ast_Binary_Operation::generate_c(C_Codegen_Data& codegen_data) const {
+    return left->generate_c(codegen_data) + " " + operat + " " + right->generate_c(codegen_data);
+}
+
+llvm::Value* Ast_Binary_Operation::llvm_codegen(LLVM_Codegen_Data& codegen_data) const {
+    auto l = left->llvm_codegen(codegen_data);
+    auto r = right->llvm_codegen(codegen_data);
     if(l == nullptr || r == nullptr) {
         // TODO: Return nullptr smells bad.
         return nullptr;
@@ -44,13 +99,54 @@ llvm::Value* Ast_Binary_Operation::llvm_codegen(
     return nullptr;
 }
 
-llvm::Value* Ast_Func_Decl::llvm_codegen(
-        [[maybe_unused]] LLVM_Codegen_Data& codegen_data) const {
+std::string Ast_Grouping_Expression::generate_c(C_Codegen_Data& codegen_data) const {
+    return "(" + expr->generate_c(codegen_data) + ")";
+}
+
+std::string Ast_Cast::generate_c(C_Codegen_Data& codegen_data) const {
+    return "(" + to->generate_c(codegen_data) + ")" + expr->generate_c(codegen_data);
+}
+
+std::string Ast_Address_Of::generate_c(C_Codegen_Data& codegen_data) const {
+    return "&" + expr->generate_c(codegen_data);
+}
+
+std::string Ast_Func_Decl::generate_c(C_Codegen_Data& codegen_data) const {
+    std::stringstream code;
+    code << return_type->generate_c(codegen_data) << ' ' << name << '(';
+    for(std::size_t i = 0; i < params.size(); ++i) {
+        const auto& param = params[i];
+        code << param.type->generate_c(codegen_data) << ' ' << param.name;
+        if(i < params.size() - 1) {
+            code << ", ";
+        }
+    }
+    code << ')' << body.generate_c(codegen_data);
+    return code.str();
+}
+
+llvm::Value* Ast_Func_Decl::llvm_codegen([[maybe_unused]] LLVM_Codegen_Data& codegen_data) const {
     return nullptr;
 }
 
-llvm::Value* Ast_Func_Call::llvm_codegen(
-        LLVM_Codegen_Data& codegen_data) const {
+std::string Ast_Return::generate_c(C_Codegen_Data& codegen_data) const {
+    return "return " + expr->generate_c(codegen_data);
+}
+
+std::string Ast_Func_Call::generate_c(C_Codegen_Data& codegen_data) const {
+    std::stringstream code;
+    code << name << '(';
+    for(std::size_t i = 0; i < args.size(); ++i) {
+        code << args[i]->generate_c(codegen_data);
+        if(i < args.size() - 1) {
+            code << ", ";
+        }
+    }
+    code << ')';
+    return code.str();
+}
+
+llvm::Value* Ast_Func_Call::llvm_codegen(LLVM_Codegen_Data& codegen_data) const {
     auto func = codegen_data.module->getFunction(name);
     if(func == nullptr) {
         return nullptr;
@@ -60,8 +156,7 @@ llvm::Value* Ast_Func_Call::llvm_codegen(
     }
     std::vector<llvm::Value*> gen_args;
     for(const auto& arg : args) {
-        gen_args.push_back(static_cast<Ast_LLVM_Generable&>(*arg)
-                .llvm_codegen(codegen_data));
+        gen_args.push_back(arg->llvm_codegen(codegen_data));
         if(!args.back()) {
             return nullptr;
         }
@@ -69,4 +164,140 @@ llvm::Value* Ast_Func_Call::llvm_codegen(
     return codegen_data.builder.CreateCall(func, gen_args, "calltmp");
 }
 
+std::string Ast_Var_Decl::generate_c(C_Codegen_Data& codegen_data) const {
+    std::stringstream code;
+    if(constant) {
+        code << "const ";
+    }
+    code << type->generate_c(codegen_data) << ' ' << name;
+    if(initializer != nullptr) {
+        code << " = " << initializer->generate_c(codegen_data);
+    }
+    return code.str();
 }
+
+std::string Ast_If::generate_c(C_Codegen_Data& codegen_data) const {
+    std::stringstream code;
+    code << "if(" << condition->generate_c(codegen_data) << ')' << if_block.generate_c(codegen_data);
+    if(else_block != nullptr) {
+        code << else_block->generate_c(codegen_data);
+    }
+    return code.str();
+}
+
+std::string Ast_While::generate_c(C_Codegen_Data& codegen_data) const {
+    return "while(" + condition->generate_c(codegen_data) + ")" + body.generate_c(codegen_data);
+}
+
+std::string Ast_Do_While::generate_c(C_Codegen_Data& codegen_data) const {
+    return "do" + body.generate_c(codegen_data) + "while(" + condition->generate_c(codegen_data) + ")";
+}
+
+std::string Ast_For::generate_c(C_Codegen_Data& codegen_data) const {
+    return "for(" + init_statement->generate_c(codegen_data) + "; " + condition->generate_c(codegen_data) + "; "
+            + iteration_expr->generate_c(codegen_data) + ")" + body.generate_c(codegen_data);
+}
+
+std::string Ast_Break::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return "break";
+}
+
+std::string Ast_Continue::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return "continue";
+}
+
+std::string Ast_Struct::generate_c(C_Codegen_Data& codegen_data) const {
+    std::stringstream code;
+    code << "typedef struct {\n";
+    ++codegen_data.indent_level;
+    for(const auto& member : fields) {
+        code << codegen_data.print_indent() << member.type->generate_c(codegen_data) << ' ' << member.name << ";\n";
+    }
+    --codegen_data.indent_level;
+    code << "} " << name;
+    return code.str();
+}
+
+std::string Ast_Enum::generate_c(C_Codegen_Data& codegen_data) const {
+    std::stringstream code;
+    code << "typedef enum {\n";
+    ++codegen_data.indent_level;
+    for(const auto& en : enumerations) {
+        code << codegen_data.print_indent() << en.name << " = " << en.value << ";\n";
+    }
+    --codegen_data.indent_level;
+    code << "} " << name;
+    return code.str();
+}
+
+std::string Ast_Union_Decl::generate_c(C_Codegen_Data& codegen_data) const {
+    std::stringstream code;
+    code << "typedef union {\n";
+    ++codegen_data.indent_level;
+    for(const auto& member : members) {
+        code << codegen_data.print_indent() << member.type->generate_c(codegen_data) << ' ' << member.name << ";\n";
+    }
+    --codegen_data.indent_level;
+    code << "} " << name;
+    return code.str();
+}
+
+std::string Ast_Array_Access::generate_c(C_Codegen_Data& codegen_data) const {
+    return array->generate_c(codegen_data) + "[" + at->generate_c(codegen_data) + "]";
+}
+
+std::string Ast_Member_Access::generate_c(C_Codegen_Data& codegen_data) const {
+    return left->generate_c(codegen_data) + "." + right->generate_c(codegen_data);
+}
+
+std::string Ast_Scope_Resolution::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return "";
+}
+
+std::string Ast_Ptr_Dereference::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return "(*" + expr->generate_c(codegen_data) + ")";
+}
+
+std::string Ast_New::generate_c(C_Codegen_Data& codegen_data) const {
+    return "malloc(sizeof(" + type->generate_c(codegen_data) + ")";
+}
+
+std::string Ast_Free::generate_c(C_Codegen_Data& codegen_data) const {
+    return "free(" + what->generate_c(codegen_data) + ")";
+}
+
+std::string Ast_Null::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return "NULL";
+}
+
+std::string Ast_Array_Initializer::generate_c(C_Codegen_Data& codegen_data) const {
+    std::stringstream code;
+    code << '{';
+    for(const auto& value : values) {
+        code << value->generate_c(codegen_data) << ", ";
+    }
+    code << '}';
+    return code.str();
+}
+
+std::string Ast_Pointer::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return expr->generate_c(codegen_data) + "*";
+}
+
+std::string Ast_Array::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    return type->generate_c(codegen_data);
+}
+
+std::string Ast_Inline_Asm::generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const {
+    std::stringstream code{"asm(\n"};
+    ++codegen_data.indent_level;
+    for(const auto& op : operations) {
+        code << codegen_data.print_indent() << "\"" << op << "\"" << "\n";
+    }
+    --codegen_data.indent_level;
+    code << codegen_data.print_indent() << ')';
+    return code.str();
+}
+
+}
+
