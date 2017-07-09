@@ -10,7 +10,7 @@ void Semantic_Analyzer::analyse(Ast& ast) {
         // TODO: Temporary commented for LLVM backend tests!
         //report_error("Function 'main' was not declared");
     }
-    go_deeper(ast);
+    //go_deeper(ast);
 }
 
 bool Semantic_Analyzer::errors_reported() {

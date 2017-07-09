@@ -5,8 +5,7 @@
 #   include <chrono>
 #endif
 
-#include "codegen/c_code_generator.h"
-#include "semantic/semantic_analyzer.h"
+//#include "semantic/semantic_analyzer.h"
 #include "syntax/lexer.h"
 #include "syntax/parser.h"
 
@@ -57,35 +56,37 @@ bool parse_command_line_arguments(const std::vector<std::string> args,
 }
 
 int compile(const Compilation_Settings& settings) {
-    std::vector<tez::Token> tokens;
+    std::vector<tez::File_Tokens> tokenized_files;
     for(const auto& f : settings.input_files) {
         tez::Lexer lexer{f};
-        auto t = lexer.tokenize();
+        auto tokens = lexer.tokenize();
         if(lexer.errors_reported()) {
             return 1;
         }
-        tokens.insert(tokens.end(), t.begin(), t.end());
+        tokenized_files.push_back(tokens);
+    }
+   
+    tez::Ast ast;
+    for(const auto& file : tokenized_files) {
+        tez::Parser parser{file};
+        ast.push_back(parser.parse());
+        if(parser.errors_reported()) {
+            return 2;
+        }
     }
 
-    tez::Parser parser{tokens};
-    auto ast = parser.parse();
-    if(parser.errors_reported()) {
-        return 2;
-    }
-
-    tez::Semantic_Analyzer analyser{};
-    analyser.analyse(ast);
-    if(analyser.errors_reported()) {
-        return 3;
-    }
+    //tez::Semantic_Analyzer analyser{};
+    //analyser.analyse(ast);
+    //if(analyser.errors_reported()) {
+    //    return 3;
+    //}
 
     if(settings.use_llvm) {
-        tez::LLVM_Codegen_Data codegen_data{};
-        for(const auto& node : ast) {
+        //tez::LLVM_Codegen_Data codegen_data{};
+        //for(const auto& node : ast) {
             // TODO: Implement this.
-        }
+        //}
     } else {
-        tez::C_Code_Generator c_code_gen{ast};
         const std::string c_source =
                 "#include<stdio.h>\n"
                 "#include<stdlib.h>\n"
@@ -101,8 +102,7 @@ int compile(const Compilation_Settings& settings) {
                 "typedef uint32_t uint32;\n"
                 "typedef uint64_t uint64;\n"
                 "typedef float float32;\n"
-                "typedef double float64;\n"
-                + c_code_gen.generate() + "\n";
+                "typedef double float64;\n";
         std::ofstream of{settings.output_file};
         of << c_source;
     }

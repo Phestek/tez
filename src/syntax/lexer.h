@@ -9,6 +9,8 @@
 
 namespace tez {
 
+using File_Tokens = std::vector<Token>;
+
 class Lexer {
 public:
     Lexer(const std::string& filename);
@@ -45,7 +47,7 @@ private:
     const std::string  _working_path;
     const std::string  _filename;
     std::string        _tez_source;
-    std::vector<Token> _tokens;
+    File_Tokens        _tokens;
 
     unsigned int _current_char = 0;
     unsigned int _lines_count = 1;

@@ -12,7 +12,7 @@ class Parser {
 public:
     Parser(const std::vector<Token>& tokens);
 
-    std::vector<Ast_Node_Ptr> parse();
+    Ast_File parse();
 
     bool errors_reported() const;
 
@@ -29,12 +29,12 @@ private:
     bool check_token(Token_Type type) const;
 
     void report_error(const std::string& message);
-    
+
     Ast_Node_Ptr statement();
-    
+
     /** Parse all statements between '{' and '}'. */
     Ast_Block block();
-    
+
     Ast_Node_Ptr namespace_declaration();
     Ast_Node_Ptr using_declaration();
     Ast_Node_Ptr function_declaration();

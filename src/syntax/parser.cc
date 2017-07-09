@@ -8,13 +8,13 @@ Parser::Parser(const std::vector<Token>& tokens)
         : _tokens{tokens} {
 }
 
-std::vector<Ast_Node_Ptr> Parser::parse() {
-    std::vector<Ast_Node_Ptr> ast;
+Ast_File Parser::parse() {
+    Ast_File file;
     _current = 0;
     while(_current < _tokens.size()) {
-        ast.push_back(statement());
+        file.statements.push_back(statement());
     }
-    return ast;
+    return file;
 }
 
 bool Parser::errors_reported() const {

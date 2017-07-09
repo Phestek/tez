@@ -25,6 +25,9 @@ struct LLVM_Codegen_Data {
 
 enum class Ast_Node_Type {
     UNDEFINED,
+
+    FILE,
+
     BLOCK,
 
     NAMESPACE,
@@ -70,7 +73,6 @@ enum class Ast_Node_Type {
     NULL_,
     
     ARRAY_INITIALIZER,
-    STRUCT_CONSTRUCTOR,
 
     // These 2 are only used for types.
     POINTER,
@@ -89,7 +91,12 @@ struct Ast_Node {
     virtual llvm::Value* llvm_codegen([[maybe_unused]] LLVM_Codegen_Data& codegen_data) const { return nullptr; };
 };
 using Ast_Node_Ptr = std::unique_ptr<Ast_Node>;
-using Ast          = std::vector<Ast_Node_Ptr>;
+
+struct Ast_File final : Ast_Node {
+    Ast_File() { node_type = Ast_Node_Type::FILE; }
+    std::vector<Ast_Node_Ptr> statements;
+};
+using Ast = std::vector<Ast_File>;
 
 struct Ast_Block final : Ast_Node {
     Ast_Block() { node_type = Ast_Node_Type::BLOCK; }
