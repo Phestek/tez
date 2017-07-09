@@ -23,15 +23,23 @@ std::string print_c_statement(const Ast_Node_Ptr& node, C_Codegen_Data& codegen_
 
 }
 
+std::string Ast_File::generate_c(C_Codegen_Data& codegen_data) const {
+    std::stringstream code;
+    for(const auto& statement : statements) {
+        code << print_c_statement(statement, codegen_data);
+    }
+    return code.str();
+}
+
 std::string Ast_Block::generate_c(C_Codegen_Data& codegen_data) const {
     std::stringstream code;
-    code << " {";
+    code << " {\n";
     ++codegen_data.indent_level;
     for(const auto& stmt : statements) {
-        print_c_statement(stmt, codegen_data);
+        code << print_c_statement(stmt, codegen_data);
     }
     --codegen_data.indent_level;
-    code << "}";
+    code << codegen_data.print_indent() << "}";
     return code.str();
 }
 
@@ -180,7 +188,7 @@ std::string Ast_If::generate_c(C_Codegen_Data& codegen_data) const {
     std::stringstream code;
     code << "if(" << condition->generate_c(codegen_data) << ')' << if_block.generate_c(codegen_data);
     if(else_block != nullptr) {
-        code << else_block->generate_c(codegen_data);
+        code << " else" << else_block->generate_c(codegen_data);
     }
     return code.str();
 }
@@ -190,7 +198,7 @@ std::string Ast_While::generate_c(C_Codegen_Data& codegen_data) const {
 }
 
 std::string Ast_Do_While::generate_c(C_Codegen_Data& codegen_data) const {
-    return "do" + body.generate_c(codegen_data) + "while(" + condition->generate_c(codegen_data) + ")";
+    return "do" + body.generate_c(codegen_data) + " while(" + condition->generate_c(codegen_data) + ")";
 }
 
 std::string Ast_For::generate_c(C_Codegen_Data& codegen_data) const {

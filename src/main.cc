@@ -87,7 +87,9 @@ int compile(const Compilation_Settings& settings) {
             // TODO: Implement this.
         //}
     } else {
-        const std::string c_source =
+        tez::C_Codegen_Data codegen_data;
+        std::stringstream c_source;
+        c_source <<
                 "#include<stdio.h>\n"
                 "#include<stdlib.h>\n"
                 "#include<stdint.h>\n"
@@ -103,8 +105,12 @@ int compile(const Compilation_Settings& settings) {
                 "typedef uint64_t uint64;\n"
                 "typedef float float32;\n"
                 "typedef double float64;\n";
+        for(const auto& f : ast) {
+            c_source << f.generate_c(codegen_data) << '\n';
+        }
         std::ofstream of{settings.output_file};
-        of << c_source;
+        auto tmp = c_source.str();
+        of << tmp;
     }
     return 0;
 }

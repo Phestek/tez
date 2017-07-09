@@ -10,10 +10,9 @@
 
 namespace tez {
 
-// TODO: Move it somewhere else?
 struct C_Codegen_Data {
-    std::string print_indent() const { return std::string('\t', indent_level); }
-    std::size_t indent_level;
+    std::string print_indent() const { return std::string(indent_level, '\t'); }
+    std::size_t indent_level = 0;
 };
 
 struct LLVM_Codegen_Data {
@@ -94,6 +93,7 @@ using Ast_Node_Ptr = std::unique_ptr<Ast_Node>;
 
 struct Ast_File final : Ast_Node {
     Ast_File() { node_type = Ast_Node_Type::FILE; }
+    std::string generate_c(C_Codegen_Data& data) const override;
     std::vector<Ast_Node_Ptr> statements;
 };
 using Ast = std::vector<Ast_File>;
