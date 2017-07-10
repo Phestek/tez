@@ -21,6 +21,23 @@ std::string print_c_statement(const Ast_Node_Ptr& node, C_Codegen_Data& codegen_
     return result.str();
 }
 
+std::string print_c_array(const Ast_Node& node, C_Codegen_Data& codegen_data) {
+    std::stringstream code;
+    if(node.node_type == Ast_Node_Type::POINTER) {
+        const auto& ptr = dynamic_cast<const Ast_Pointer&>(node);
+        code << print_c_array(*ptr.expr, codegen_data);
+    }
+    if(node.node_type == Ast_Node_Type::ARRAY) {
+        const auto& array = dynamic_cast<const Ast_Array&>(node);
+        code << "[";
+        if(array.size != nullptr) {
+            code << array.size->generate_c(codegen_data);
+        }
+        code << "]" << print_c_array(*array.type, codegen_data);
+    }
+    return code.str();
+}
+
 }
 
 std::string Ast_File::generate_c(C_Codegen_Data& codegen_data) const {
@@ -177,7 +194,7 @@ std::string Ast_Var_Decl::generate_c(C_Codegen_Data& codegen_data) const {
     if(constant) {
         code << "const ";
     }
-    code << type->generate_c(codegen_data) << ' ' << name;
+    code << type->generate_c(codegen_data) << ' ' << name << print_c_array(*type, codegen_data);
     if(initializer != nullptr) {
         code << " = " << initializer->generate_c(codegen_data);
     }
@@ -219,7 +236,8 @@ std::string Ast_Struct::generate_c(C_Codegen_Data& codegen_data) const {
     code << "typedef struct {\n";
     ++codegen_data.indent_level;
     for(const auto& member : fields) {
-        code << codegen_data.print_indent() << member.type->generate_c(codegen_data) << ' ' << member.name << ";\n";
+        code << codegen_data.print_indent() << member.type->generate_c(codegen_data) << ' ' << member.name
+                << print_c_array(*member.type, codegen_data) << ";\n";
     }
     --codegen_data.indent_level;
     code << "} " << name;
@@ -243,7 +261,8 @@ std::string Ast_Union_Decl::generate_c(C_Codegen_Data& codegen_data) const {
     code << "typedef union {\n";
     ++codegen_data.indent_level;
     for(const auto& member : members) {
-        code << codegen_data.print_indent() << member.type->generate_c(codegen_data) << ' ' << member.name << ";\n";
+        code << codegen_data.print_indent() << member.type->generate_c(codegen_data) << ' ' << member.name
+                << print_c_array(*member.type, codegen_data) << ";\n";
     }
     --codegen_data.indent_level;
     code << "} " << name;
