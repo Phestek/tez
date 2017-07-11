@@ -61,6 +61,10 @@ void Parser::report_error(const std::string& message) {
 
 Ast_Node_Ptr Parser::statement() {
     auto token = peek_token(0);
+    // Skip top level semicolons.
+    while(token.type == Token_Type::SEMICOLON) {
+        token = next_token();
+    }
     if(match_token({Token_Type::KW_NAMESPACE})) {
         return namespace_declaration();
     }

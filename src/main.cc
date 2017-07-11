@@ -5,6 +5,8 @@
 #   include <chrono>
 #endif
 
+#include <llvm/Support/raw_ostream.h>
+
 //#include "semantic/semantic_analyzer.h"
 #include "syntax/lexer.h"
 #include "syntax/parser.h"
@@ -75,17 +77,17 @@ int compile(const Compilation_Settings& settings) {
         }
     }
 
-    //tez::Semantic_Analyzer analyser{};
+    //tez::Semantic_Analyzer analyzer{};
     //analyser.analyse(ast);
     //if(analyser.errors_reported()) {
     //    return 3;
     //}
 
     if(settings.use_llvm) {
-        //tez::LLVM_Codegen_Data codegen_data{};
-        //for(const auto& node : ast) {
-            // TODO: Implement this.
-        //}
+        tez::LLVM_Codegen_Data codegen_data{};
+        for([[maybe_unused]]const auto& file : ast) {
+        }
+        codegen_data.module->print(llvm::errs(), nullptr);
     } else {
         tez::C_Codegen_Data codegen_data;
         std::stringstream c_source;
