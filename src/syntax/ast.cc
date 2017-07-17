@@ -64,7 +64,7 @@ std::string Ast_Boolean::generate_c([[maybe_unused]] C_Codegen_Data& codegen_dat
     return std::to_string(value);
 }
 
-llvm::Value* Ast_Boolean::llvm_codegen(LLVM_Codegen_Data& codegen_data) const {
+llvm::Value* Ast_Boolean::generate_llvm(LLVM_Codegen_Data& codegen_data) const {
     return llvm::ConstantInt::get(codegen_data.context, llvm::APInt{8, static_cast<uint64_t>(value), false});
 }
 
@@ -72,7 +72,7 @@ std::string Ast_Integer::generate_c([[maybe_unused]] C_Codegen_Data& codegen_dat
     return std::to_string(value);
 }
 
-llvm::Value* Ast_Integer::llvm_codegen(LLVM_Codegen_Data& codegen_data) const {
+llvm::Value* Ast_Integer::generate_llvm(LLVM_Codegen_Data& codegen_data) const {
     return llvm::ConstantInt::get(codegen_data.context, llvm::APInt{64, static_cast<uint64_t>(value), true});
 }
 
@@ -80,7 +80,7 @@ std::string Ast_Real_Number::generate_c([[maybe_unused]] C_Codegen_Data& codegen
     return std::to_string(value);
 }
 
-llvm::Value* Ast_Real_Number::llvm_codegen(LLVM_Codegen_Data& codegen_data) const {
+llvm::Value* Ast_Real_Number::generate_llvm(LLVM_Codegen_Data& codegen_data) const {
     return llvm::ConstantFP::get(codegen_data.context, llvm::APFloat{value});
 }
 
@@ -100,9 +100,9 @@ std::string Ast_Binary_Operation::generate_c(C_Codegen_Data& codegen_data) const
     return left->generate_c(codegen_data) + " " + operat + " " + right->generate_c(codegen_data);
 }
 
-llvm::Value* Ast_Binary_Operation::llvm_codegen(LLVM_Codegen_Data& codegen_data) const {
-    auto l = left->llvm_codegen(codegen_data);
-    auto r = right->llvm_codegen(codegen_data);
+llvm::Value* Ast_Binary_Operation::generate_llvm(LLVM_Codegen_Data& codegen_data) const {
+    auto l = left->generate_llvm(codegen_data);
+    auto r = right->generate_llvm(codegen_data);
     if(l == nullptr || r == nullptr) {
         // TODO: Return nullptr smells bad.
         return nullptr;
@@ -150,7 +150,7 @@ std::string Ast_Func_Decl::generate_c(C_Codegen_Data& codegen_data) const {
     return code.str();
 }
 
-llvm::Value* Ast_Func_Decl::llvm_codegen([[maybe_unused]] LLVM_Codegen_Data& codegen_data) const {
+llvm::Value* Ast_Func_Decl::generate_llvm([[maybe_unused]] LLVM_Codegen_Data& codegen_data) const {
     return nullptr;
 }
 
@@ -171,7 +171,7 @@ std::string Ast_Func_Call::generate_c(C_Codegen_Data& codegen_data) const {
     return code.str();
 }
 
-llvm::Value* Ast_Func_Call::llvm_codegen(LLVM_Codegen_Data& codegen_data) const {
+llvm::Value* Ast_Func_Call::generate_llvm(LLVM_Codegen_Data& codegen_data) const {
     auto func = codegen_data.module->getFunction(name);
     if(func == nullptr) {
         return nullptr;
@@ -181,7 +181,7 @@ llvm::Value* Ast_Func_Call::llvm_codegen(LLVM_Codegen_Data& codegen_data) const 
     }
     std::vector<llvm::Value*> gen_args;
     for(const auto& arg : args) {
-        gen_args.push_back(arg->llvm_codegen(codegen_data));
+        gen_args.push_back(arg->generate_llvm(codegen_data));
         if(!args.back()) {
             return nullptr;
         }

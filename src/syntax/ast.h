@@ -87,7 +87,7 @@ struct Ast_Node {
     // This 2 methods should be pure virtual, but because they are implemented yet in all of the nodes, it's the only
     // way to force compiler to compile it.
     virtual std::string generate_c([[maybe_unused]] C_Codegen_Data& codegen_data) const { return ""; };
-    virtual llvm::Value* llvm_codegen([[maybe_unused]] LLVM_Codegen_Data& codegen_data) const { return nullptr; };
+    virtual llvm::Value* generate_llvm([[maybe_unused]] LLVM_Codegen_Data& codegen_data) const { return nullptr; };
 };
 using Ast_Node_Ptr = std::unique_ptr<Ast_Node>;
 
@@ -119,21 +119,21 @@ struct Ast_Using final : Ast_Node {
 struct Ast_Boolean final : Ast_Node {
     Ast_Boolean() { node_type = Ast_Node_Type::BOOLEAN; }
     std::string generate_c(C_Codegen_Data& codegen_data) const override;
-    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
+    llvm::Value* generate_llvm(LLVM_Codegen_Data& codegen_data) const override;
     bool value;
 };
 
 struct Ast_Integer final : Ast_Node {
     Ast_Integer() { node_type = Ast_Node_Type::INTEGER; }
     std::string generate_c(C_Codegen_Data& codegen_data) const override;
-    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
+    llvm::Value* generate_llvm(LLVM_Codegen_Data& codegen_data) const override;
     int64_t value;
 };
 
 struct Ast_Real_Number final : Ast_Node {
     Ast_Real_Number() { node_type = Ast_Node_Type::REAL_NUMBER; }
     std::string generate_c(C_Codegen_Data& codegen_data) const override;
-    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
+    llvm::Value* generate_llvm(LLVM_Codegen_Data& codegen_data) const override;
     double value;
 };
 
@@ -159,7 +159,7 @@ struct Ast_Unary_Operation final : Ast_Node {
 struct Ast_Binary_Operation final : Ast_Node {
     Ast_Binary_Operation() { node_type = Ast_Node_Type::BINARY_OPERATION; }
     std::string generate_c(C_Codegen_Data& codegen_data) const override;
-    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
+    llvm::Value* generate_llvm(LLVM_Codegen_Data& codegen_data) const override;
     Ast_Node_Ptr left;
     Ast_Node_Ptr right;
     std::string  operat;
@@ -192,7 +192,7 @@ struct Ast_Func_Decl : Ast_Node {
     };
     Ast_Func_Decl() { node_type = Ast_Node_Type::FUNCTION_DECLARATION; }
     std::string generate_c(C_Codegen_Data& codegen_data) const override;
-    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
+    llvm::Value* generate_llvm(LLVM_Codegen_Data& codegen_data) const override;
     std::string        parent;  // Free function if parent == "".
     std::string        name;
     std::vector<Param> params;
@@ -209,7 +209,7 @@ struct Ast_Return final : Ast_Node {
 struct Ast_Func_Call final : Ast_Node {
     Ast_Func_Call() { node_type = Ast_Node_Type::FUNCTION_CALL; }
     std::string generate_c(C_Codegen_Data& codegen_data) const override;
-    llvm::Value* llvm_codegen(LLVM_Codegen_Data& codegen_data) const override;
+    llvm::Value* generate_llvm(LLVM_Codegen_Data& codegen_data) const override;
     std::string               name;
     std::vector<Ast_Node_Ptr> args;
 };
