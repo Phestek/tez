@@ -13,16 +13,16 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(HEADERS
-        #src/semantic/semantic_analyzer.h
-        #src/semantic/symbol_table.h
+        src/semantic/code_manager.h
+        src/semantic/symbol_table.h
         src/syntax/ast.h
         src/syntax/lexer.h
         src/syntax/parser.h
         src/syntax/token.h
         src/utils/string_stack.h)
 set(SOURCES
-        #src/semantic/semantic_analyzer.cc
-        #src/semantic/symbol_table.cc
+        src/semantic/code_manager.cc
+        src/semantic/symbol_table.cc
         src/syntax/ast.cc
         src/syntax/lexer.cc
         src/syntax/parser.cc

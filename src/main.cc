@@ -95,18 +95,21 @@ int compile(const Compilation_Settings& settings) {
                 "#include<stdio.h>\n"
                 "#include<stdlib.h>\n"
                 "#include<stdint.h>\n"
-                "typedef char bool;\n"
-                "typedef unsigned int uint;\n"
-                "typedef int8_t int8;\n"
-                "typedef int16_t int16;\n"
-                "typedef int32_t int32;\n"
-                "typedef int64_t int64;\n"
-                "typedef uint8_t uint8;\n"
-                "typedef uint16_t uint16;\n"
-                "typedef uint32_t uint32;\n"
-                "typedef uint64_t uint64;\n"
-                "typedef float float32;\n"
-                "typedef double float64;\n";
+                "typedef void     Void;\n"
+                "typedef char     Bool;\n"
+                "typedef char     Char;\n"
+                "typedef int      Int;\n"
+                "typedef unsigned int Uint;\n"
+                "typedef int8_t   Int8;\n"
+                "typedef int16_t  Int16;\n"
+                "typedef int32_t  Int32;\n"
+                "typedef int64_t  Int64;\n"
+                "typedef uint8_t  Uint8;\n"
+                "typedef uint16_t Uint16;\n"
+                "typedef uint32_t Uint32;\n"
+                "typedef uint64_t Uint64;\n"
+                "typedef float    Float;\n"
+                "typedef double   Double;\n";
         for(const auto& f : ast) {
             c_source << f.generate_c(codegen_data) << '\n';
         }

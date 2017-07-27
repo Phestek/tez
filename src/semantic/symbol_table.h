@@ -1,53 +1,54 @@
 #ifndef TEZ_SYMBOL_TABLE_H
 #define TEZ_SYMBOL_TABLE_H
 
-#include <functional>
-#include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace tez {
 
-struct Declaration {
-    enum class Type { NONE, BUILT_IN, FUNCTION, VARIABLE, STRUCT, ENUM, UNION };
-    std::string  name = "";
-    Type         type = Type::NONE;
+struct Built_In {
+    std::string name;
 };
 
-
-enum class Scope_Type {
-    NAMESPACE, FUNCTION, IF, DO_WHILE, WHILE, FOR, STRUCT, ENUM, UNION
+struct Function {
+    struct Param {
+        std::string name;
+        //Type        type;
+    };
+    std::string        name;
+    std::vector<Param> params;
+    //Type        return_type;
 };
 
+enum class Symbol_Type {
+    BUILT_IN, FUNCTION, STRUCT, UNION, ENUM, VARIABLE
+};
+
+using Symbol_Data = std::variant<Built_In>;
+
+struct Symbol {
+    Symbol_Type type;
+    Symbol_Data data;
+};
+
+// It doesn't support namespaces yet.
 class Symbol_Table {
-public:
-    /** Default constructor. Creates global namespace and adds primitive types
-     *  to declarations table. */
     Symbol_Table();
 
-    /** Push new scope. */
-    void push_scope(Scope_Type type);
-
-    /** Pops scope and all declarations in this scope. */
+    void push_scope();
     void pop_scope();
 
-    /** Check if given scope type exists in current context. */
-    bool scope_exists(Scope_Type type);
+    // Add new symbol to current scope.
+    void push_symbol(Symbol&& symbol);
 
-    /** Add new declaration to current scope. */
-    bool push_declaration(Declaration&& declaration);
-
-    /** Check if declaration with given name exists in current context. */
-    bool declaration_exists(const std::string& name) const;
-    bool declaration_exists(const std::string& name, Declaration::Type type) const;
-
-    /** Get declaration from current scope. */
-    std::optional<Declaration> get_declaration(const std::string& name) const;
-
+public:
 private:
-    std::vector<std::vector<Declaration>> _declarations;
-    std::vector<Scope_Type>               _scope_names;
+    std::vector<std::vector<Symbol>> _scopes;
 };
+
+Symbol make_built_in(std::string&& name);
+Symbol make_function(std::string&& name);
 
 }
 
